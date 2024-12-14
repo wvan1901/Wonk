@@ -1,0 +1,8 @@
+# Env File
+.env
+
+# Tailwind binary
+tailwindcss
+
+# System Files
+.DS_Store
