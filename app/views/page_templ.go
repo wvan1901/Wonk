@@ -33,7 +33,7 @@ func Page() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><meta charset=\"UTF-8\"><title>Wonk</title><link rel=\"stylesheet\" href=\"static/css/output.css\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"https://unpkg.com/hyperscript.org@0.9.13\"></script></head><body class=\"overscroll-none\"><div class=\"h-screen\"><div class=\"h-full flex flex-col\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html><head><meta charset=\"UTF-8\"><title>Wonk</title><link rel=\"stylesheet\" href=\"static/css/output.css\"><script src=\"/static/script/htmx.min.js\"></script><script src=\"/static/script/hyperscript.min.js\"></script></head><body class=\"overscroll-none\"><div class=\"h-screen\"><div class=\"h-full flex flex-col\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -49,7 +49,7 @@ func Page() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"w-full m-3\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"content-div\" class=\"w-full m-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
