@@ -18,6 +18,7 @@ func AddRoutes(
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 	mux.Handle("/home", handleHome(l))
 	mux.Handle("/finance", handleFinance(l))
+	mux.Handle("/finance/submit", handleFinanceSubmit(l))
 }
 
 func handleHealth(l *slog.Logger) http.Handler {
@@ -66,6 +67,33 @@ func handleFinance(l *slog.Logger) http.Handler {
 					if err != nil {
 						l.Error("/finance: error", slog.String("Error", err.Error()))
 					}
+					return
+				}
+			default:
+				http.Error(w, "Not valid method", 404)
+			}
+		},
+	)
+}
+
+func handleFinanceSubmit(l *slog.Logger) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			switch r.Method {
+			case "GET":
+				htmxReqHeader := r.Header.Get("hx-request")
+				isHtmxRequest := htmxReqHeader == "true"
+				if isHtmxRequest {
+					tmplFinanceDiv := views.FinanceSubmit()
+					err := tmplFinanceDiv.Render(context.TODO(), w)
+					if err != nil {
+						l.Error("/finance: error", slog.String("Error", err.Error()))
+					}
+					return
+				} else {
+					// Build entire page or redirect to finance
+					w.WriteHeader(404)
+					//http.Error(w, "TODO: redirect or implement", 404)
 					return
 				}
 			default:

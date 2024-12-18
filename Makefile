@@ -30,6 +30,6 @@ runc:
 .PHONY: runw
 runw:
 	templ generate
-	./tailwindcss -i ${input_css_file} -o ${output_css_file} --minify
+	./tailwindcss -i ${input_css_file} -o ${output_css_file}
 	go run ${main_package_path} -logfmt=color
 

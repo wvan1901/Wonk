@@ -2,7 +2,8 @@ package views
 
 templ Finance() {
 <div class="h-full">
-	Finance
+	@FinanceNavBar()
+	<div id="finance-content">TODO: Display summary of the month</div>
 </div>
 }
 
@@ -10,4 +11,52 @@ templ FinancePage() {
 @Page(){
 @Finance()
 }
+}
+
+templ FinanceNavBar() {
+<div class="flex flex-row">
+	<a hx-get="/finance/submit" hx-target="#finance-content" hx-swap="outterHTML" class="mx-4">
+		Submit
+	</a>
+	<a class="mx-4">View</a>
+</div>
+}
+
+templ FinanceSubmit(){
+<div id="finance-content">
+	<h3 class="py-4">Create New Transaction:</h3>
+	<div>
+		<form class="flex flex-col" autocomplete="off">
+			<label for="month">Purchase Month:</label>
+			<select id="month" name="month"
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+				<option>Jan</option>
+				<option>Feb</option>
+				<option>Mar</option>
+			</select>
+			<label for="year">Purchase Year:</label>
+			<select id="year" name="year"
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+				<option>2024</option>
+				<option>2025</option>
+			</select>
+			<label for="name" required>Purchase Name:</label>
+			<input id="name" name="name" type="text" autocomplete="off"
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+			<label for="price">Price</label>
+			<input id="price" name="price" type="number"
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+			<label for="bucket">Bucket</label>
+			<select id="bucket" name="bucket"
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+				<option>Rent</option>
+				<option>Gifts</option>
+			</select>
+			<button disabled
+				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2">
+				Submit
+			</button>
+		</form>
+	</div>
+</div>
 }
