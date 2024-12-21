@@ -1,6 +1,9 @@
 # Env File
 .env
 
+# SQLite
+*.db
+
 # Tailwind binary
 tailwindcss
 
