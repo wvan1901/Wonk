@@ -27,6 +27,12 @@ templ FinanceSubmit(){
 	<h3 class="py-4">Create New Transaction:</h3>
 	<div>
 		<form class="flex flex-col" autocomplete="off">
+			<label for="name" required>Purchase Name:</label>
+			<input id="name" name="name" type="text" autocomplete="off"
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+			<label for="price">Price</label>
+			<input id="price" name="price" type="number"
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
 			<label for="month">Purchase Month:</label>
 			<select id="month" name="month"
 				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
@@ -40,12 +46,6 @@ templ FinanceSubmit(){
 				<option>2024</option>
 				<option>2025</option>
 			</select>
-			<label for="name" required>Purchase Name:</label>
-			<input id="name" name="name" type="text" autocomplete="off"
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-			<label for="price">Price</label>
-			<input id="price" name="price" type="number"
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
 			<label for="bucket">Bucket</label>
 			<select id="bucket" name="bucket"
 				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
