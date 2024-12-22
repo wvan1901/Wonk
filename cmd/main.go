@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 	"wonk/app/config"
+	"wonk/app/database"
 	"wonk/app/routes"
 	"wonk/logger"
 
@@ -43,12 +44,19 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 	l := logger.InitLogger(f.LogHandler)
 
 	l.Info("Running Server with args:", slog.Any("args", args[1:]))
+
+	// Init Db
+	db, err := database.InitDb()
+	if err != nil {
+		return err
+	}
+
 	// Create Main Context
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
 	// Create Http Server
-	srv := NewServer(l)
+	srv := NewServer(l, db)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(DEFAULT_HOST, DEFAULT_PORT),
 		Handler: srv,
@@ -80,9 +88,9 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 	return nil
 }
 
-func NewServer(l *slog.Logger) http.Handler {
+func NewServer(l *slog.Logger, db database.Database) http.Handler {
 	mux := http.NewServeMux()
-	routes.AddRoutes(mux, l)
+	routes.AddRoutes(mux, l, db)
 	var handler http.Handler = mux
 	return handler
 }

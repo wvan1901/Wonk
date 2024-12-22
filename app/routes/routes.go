@@ -5,12 +5,14 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"wonk/app/database"
 	"wonk/app/views"
 )
 
 func AddRoutes(
 	mux *http.ServeMux,
 	l *slog.Logger,
+	db database.Database,
 ) {
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/", http.NotFoundHandler())
