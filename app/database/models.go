@@ -1,6 +1,9 @@
 package database
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 type TransactionItemInput struct {
 	Name     string
@@ -38,8 +41,9 @@ func (t *TransactionItemInput) Valid() map[string]string {
 	if t.Price <= 0 {
 		problems["Price"] = "Invalid Price"
 	}
-	twoOrLessDecimalPlaces := math.Floor(t.Price) == 100*t.Price
+	twoOrLessDecimalPlaces := math.Floor(t.Price*100) == 100*t.Price
 	if !twoOrLessDecimalPlaces {
+		fmt.Println("Wicho: DEBUG:", math.Floor(t.Price*100), "==", 100*t.Price, twoOrLessDecimalPlaces)
 		problems["Price"] = "Invalid Price: has more than 2 decimal places"
 	}
 
