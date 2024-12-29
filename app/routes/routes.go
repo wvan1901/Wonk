@@ -86,37 +86,37 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 			// TODO: Refactor: Abstract logic & db
 			// TODO: Get userId from middleware
 			userId := 1
+			buckets, err := db.UserBuckets(userId)
+			if err != nil {
+				http.Error(w, "Internal error", 500)
+				return
+			}
+			// TODO: If no buckets found then prompt user to create one
+			if len(buckets) < 1 {
+				http.Error(w, "Internal Error: no buckets found", 500)
+				return
+			}
+			months := []views.Month{
+				{Name: "Jan", Value: "1", IsCurrent: false},
+				{Name: "Feb", Value: "2", IsCurrent: false},
+				{Name: "Mar", Value: "3", IsCurrent: false},
+				{Name: "Apr", Value: "4", IsCurrent: false},
+				{Name: "May", Value: "5", IsCurrent: false},
+				{Name: "June", Value: "6", IsCurrent: false},
+				{Name: "July", Value: "7", IsCurrent: false},
+				{Name: "Aug", Value: "8", IsCurrent: false},
+				{Name: "Sep", Value: "9", IsCurrent: false},
+				{Name: "Oct", Value: "10", IsCurrent: false},
+				{Name: "Nov", Value: "11", IsCurrent: false},
+				{Name: "Dec", Value: "12", IsCurrent: false},
+			}
+			curMonth := int(time.Now().Month())
+			months[curMonth-1].IsCurrent = true
 			switch r.Method {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
-					buckets, err := db.UserBuckets(userId)
-					if err != nil {
-						http.Error(w, "Internal error", 500)
-						return
-					}
-					// TODO: If no buckets found then promt user to create one
-					if len(buckets) < 1 {
-						http.Error(w, "Internal Error: no buckets found", 500)
-						return
-					}
-					months := []views.Month{
-						{Name: "Jan", Value: "1", IsCurrent: false},
-						{Name: "Feb", Value: "2", IsCurrent: false},
-						{Name: "Mar", Value: "3", IsCurrent: false},
-						{Name: "Apr", Value: "4", IsCurrent: false},
-						{Name: "May", Value: "5", IsCurrent: false},
-						{Name: "June", Value: "6", IsCurrent: false},
-						{Name: "July", Value: "7", IsCurrent: false},
-						{Name: "Aug", Value: "8", IsCurrent: false},
-						{Name: "Sep", Value: "9", IsCurrent: false},
-						{Name: "Oct", Value: "10", IsCurrent: false},
-						{Name: "Nov", Value: "11", IsCurrent: false},
-						{Name: "Dec", Value: "12", IsCurrent: false},
-					}
-					curMonth := int(time.Now().Month())
-					months[curMonth-1].IsCurrent = true
 					formData := views.TransactionFormData{}
 					tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months)
 					err = tmplFinanceDiv.Render(context.TODO(), w)
@@ -168,8 +168,35 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 				}
 				problems := transactionInput.Valid()
 				if len(problems) > 0 {
-					// TODO: return form with error messages populated
-					http.Error(w, "Invalid: Problem", 422)
+					// If there is a problem return form with errs
+					w.WriteHeader(422)
+					formData := views.TransactionFormData{
+						NameValue:   r.FormValue("name"),
+						MonthValue:  r.FormValue("month"),
+						YearValue:   r.FormValue("year"),
+						PriceValue:  r.FormValue("price"),
+						BucketValue: r.FormValue("bucket"),
+					}
+					if val, ok := problems["Name"]; ok {
+						formData.NameErr = &val
+					}
+					if val, ok := problems["Month"]; ok {
+						formData.MonthErr = &val
+					}
+					if val, ok := problems["Year"]; ok {
+						formData.YearErr = &val
+					}
+					if val, ok := problems["Price"]; ok {
+						formData.PriceErr = &val
+					}
+					if val, ok := problems["BucketId"]; ok {
+						formData.BucketErr = &val
+					}
+					tmplFinanceDiv := views.TransactionForm(buckets, formData, months)
+					err = tmplFinanceDiv.Render(context.TODO(), w)
+					if err != nil {
+						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
+					}
 					return
 				}
 				_, err = db.CreateItemTransaction(transactionInput)
