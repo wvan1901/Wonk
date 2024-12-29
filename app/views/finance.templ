@@ -20,18 +20,30 @@ templ FinancePage() {
 
 templ FinanceNavBar() {
 <div class="flex flex-row">
-	<a hx-get="/finance/submit" hx-target="#finance-content" hx-swap="outterHTML" class="mx-4">
+	<a hx-get="/finance/submit" hx-target="#finance-content" hx-swap="outerHTML" class="mx-4">
 		Submit
 	</a>
 	<a class="mx-4">View</a>
 </div>
 }
 
-templ FinanceSubmit(buckets []database.Bucket, formData TransactionFormData, monthData []Month){
-<div id="finance-content">
+templ FinanceSubmit(
+buckets []database.Bucket,
+formData TransactionFormData,
+monthData []Month,
+bucketFormData BucketFormData,
+){
+<div id="finance-content" class="overflow-scroll">
 	<h3 class="py-4">Create New Transaction:</h3>
 	<div>
+		if len(buckets) == 0 {
+		<p>No buckets found, create a bucket to be able to create a transaction</p>
+		}
 		@TransactionForm(buckets, formData, monthData)
+	</div>
+	<h3 class="py-4">Create New Bucket:</h3>
+	<div>
+		@BucketForm(bucketFormData)
 	</div>
 </div>
 }
@@ -107,4 +119,25 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 
 templ SuccessfulTransaction() {
 <div>Successfully created transaction item! Use top navbar to navigate.</div>
+}
+
+type BucketFormData struct {
+NameValue string
+NameErr *string
+}
+templ BucketForm(formData BucketFormData) {
+<form class="flex flex-col" autocomplete="off" hx-post="/finance/submit/bucket">
+	<label for="name" required>Bucket Name:</label>
+	<input id="name" name="name" type="text" autocomplete="off" value={formData.NameValue}
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+	if formData.NameErr != nil {
+	<div class="text-red-700">{*formData.NameErr}</div>
+	}
+	<input type="submit" value="Submit"
+		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2" />
+</form>
+}
+
+templ SuccessfulBucket() {
+<div>Successfully created Bucket! Use top navbar to navigate.</div>
 }

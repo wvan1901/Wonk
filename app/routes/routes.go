@@ -23,6 +23,7 @@ func AddRoutes(
 	mux.Handle("/home", handleHome(l))
 	mux.Handle("/finance", handleFinance(l))
 	mux.Handle("/finance/submit", handleFinanceSubmit(l, db))
+	mux.Handle("/finance/submit/bucket", handleFinanceSubmitBucket(l, db))
 }
 
 func handleHealth(l *slog.Logger) http.Handler {
@@ -118,7 +119,8 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
 					formData := views.TransactionFormData{}
-					tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months)
+					bucketData := views.BucketFormData{}
+					tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months, bucketData)
 					err = tmplFinanceDiv.Render(context.TODO(), w)
 					if err != nil {
 						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
@@ -211,6 +213,53 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 				if err != nil {
 					l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
 				}
+			default:
+				http.Error(w, "Not valid method", 404)
+			}
+		},
+	)
+}
+
+func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			// TODO: Use middleware to get user info
+			userId := 1
+			switch r.Method {
+			case "POST":
+				err := r.ParseForm()
+				if err != nil {
+					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("error", err.Error()), slog.String("DevNote", "Parse form err"))
+					http.Error(w, "Internal Error: Parsing Form", 500)
+					return
+				}
+				newName := r.FormValue("name")
+				if len(newName) > 20 || len(newName) == 0 {
+					nameErr := "Name value must not be empty or greater than 20 characters"
+					formData := views.BucketFormData{
+						NameValue: newName,
+						NameErr:   &nameErr,
+					}
+					w.WriteHeader(422)
+					bucketForm := views.BucketForm(formData)
+					err = bucketForm.Render(context.TODO(), w)
+					if err != nil {
+						l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "Invalid: Templ err"))
+					}
+					return
+				}
+				_, err = db.CreateBucket(userId, newName)
+				if err != nil {
+					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("error", err.Error()), slog.String("DevNote", "DB error"))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
+				successMessage := views.SuccessfulBucket()
+				err = successMessage.Render(context.TODO(), w)
+				if err != nil {
+					l.Error("handleFinanceSubmit", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "Success: Templ err"))
+				}
+
 			default:
 				http.Error(w, "Not valid method", 404)
 			}

@@ -634,6 +634,10 @@ video {
   justify-content: space-between;
 }
 
+.overflow-scroll {
+  overflow: scroll;
+}
+
 .overscroll-none {
   overscroll-behavior: none;
 }

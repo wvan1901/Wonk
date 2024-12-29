@@ -47,10 +47,10 @@ func (s *SqliteDb) CreateUser(username string) (int, error) {
 	return int(id), nil
 }
 
-func (s *SqliteDb) CreateBucket(userId int, bucketId string) (int, error) {
+func (s *SqliteDb) CreateBucket(userId int, bucketName string) (int, error) {
 	// TODO: Limit number of buckets a user can have, this logic should live in service layer!
 	query := "INSERT INTO " + BUCKETS_TABLE_NAME + " (name, user_id) VALUES (?, ?);"
-	res, err := s.Db.Exec(query, bucketId, userId)
+	res, err := s.Db.Exec(query, bucketName, userId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateBucket: Exec: %w", err)
 	}
