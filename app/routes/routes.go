@@ -119,8 +119,7 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
 					formData := views.TransactionFormData{}
-					bucketData := views.BucketFormData{}
-					tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months, bucketData)
+					tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months)
 					err = tmplFinanceDiv.Render(context.TODO(), w)
 					if err != nil {
 						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
@@ -226,6 +225,22 @@ func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handle
 			// TODO: Use middleware to get user info
 			userId := 1
 			switch r.Method {
+			case "GET":
+				htmxReqHeader := r.Header.Get("hx-request")
+				isHtmxRequest := htmxReqHeader == "true"
+				if isHtmxRequest {
+					formData := views.BucketFormData{}
+					tmplFinanceDiv := views.BucketForm(formData)
+					err := tmplFinanceDiv.Render(context.TODO(), w)
+					if err != nil {
+						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
+					}
+					return
+				} else {
+					// Build entire page or redirect to finance
+					w.WriteHeader(404)
+					return
+				}
 			case "POST":
 				err := r.ParseForm()
 				if err != nil {

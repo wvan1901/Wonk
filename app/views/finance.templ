@@ -31,7 +31,6 @@ templ FinanceSubmit(
 buckets []database.Bucket,
 formData TransactionFormData,
 monthData []Month,
-bucketFormData BucketFormData,
 ){
 <div id="finance-content" class="overflow-scroll">
 	<h3 class="py-4">Create New Transaction:</h3>
@@ -41,10 +40,10 @@ bucketFormData BucketFormData,
 		}
 		@TransactionForm(buckets, formData, monthData)
 	</div>
-	<h3 class="py-4">Create New Bucket:</h3>
-	<div>
-		@BucketForm(bucketFormData)
-	</div>
+	<br>
+	<a hx-get="/finance/submit/bucket" hx-target="#finance-content" hx-swap="innerHTML">
+		Create New Bucket
+	</a>
 </div>
 }
 
@@ -70,19 +69,19 @@ BucketErr *string
 templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, monthData []Month) {
 <form class="flex flex-col" autocomplete="off" hx-post="/finance/submit">
 	<label for="name" required>Purchase Name:</label>
-	<input id="name" name="name" type="text" autocomplete="off" value={formData.NameValue}
+	<input id="name" name="name" type="text" autocomplete="off" value={formData.NameValue} required
 		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
 	if formData.NameErr != nil {
 	<div class="text-red-700">{*formData.NameErr}</div>
 	}
 	<label for="price">Price</label>
-	<input id="price" name="price" type="number" step="0.01" value={formData.PriceValue}
+	<input id="price" name="price" type="number" step="0.01" value={formData.PriceValue} required
 		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
 	if formData.PriceErr != nil {
 	<div class="text-red-700">{*formData.PriceErr}</div>
 	}
 	<label for="month">Purchase Month:</label>
-	<select id="month" name="month"
+	<select id="month" name="month" required
 		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
 		for _, month := range monthData {
 		<option value={month.Value} if month.IsCurrent { selected="selected" }>{month.Name}</option>
@@ -92,7 +91,7 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 	<div class="text-red-700">{*formData.MonthErr}</div>
 	}
 	<label for="year">Purchase Year:</label>
-	<select id="year" name="year"
+	<select id="year" name="year" required
 		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
 		<option>2024</option>
 		<option>2025</option>
@@ -103,7 +102,7 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 	<div class="text-red-700">{*formData.YearErr}</div>
 	}
 	<label for="bucket">Bucket</label>
-	<select id="bucket" name="bucket"
+	<select id="bucket" name="bucket" required
 		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
 		for _, bucket:= range buckets{
 		<option value={strconv.Itoa(bucket.Id)}>{bucket.Name}</option>
@@ -128,7 +127,7 @@ NameErr *string
 templ BucketForm(formData BucketFormData) {
 <form class="flex flex-col" autocomplete="off" hx-post="/finance/submit/bucket">
 	<label for="name" required>Bucket Name:</label>
-	<input id="name" name="name" type="text" autocomplete="off" value={formData.NameValue}
+	<input id="name" name="name" type="text" autocomplete="off" value={formData.NameValue} required
 		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
 	if formData.NameErr != nil {
 	<div class="text-red-700">{*formData.NameErr}</div>
