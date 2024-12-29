@@ -1,5 +1,10 @@
 package views
 
+import (
+"wonk/app/database"
+"strconv"
+)
+
 templ Finance() {
 <div class="h-full">
 	@FinanceNavBar()
@@ -22,41 +27,84 @@ templ FinanceNavBar() {
 </div>
 }
 
-templ FinanceSubmit(){
+templ FinanceSubmit(buckets []database.Bucket, formData TransactionFormData, monthData []Month){
 <div id="finance-content">
 	<h3 class="py-4">Create New Transaction:</h3>
 	<div>
-		<form class="flex flex-col" autocomplete="off">
-			<label for="name" required>Purchase Name:</label>
-			<input id="name" name="name" type="text" autocomplete="off"
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-			<label for="price">Price</label>
-			<input id="price" name="price" type="number"
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-			<label for="month">Purchase Month:</label>
-			<select id="month" name="month"
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-				<option>Jan</option>
-				<option>Feb</option>
-				<option>Mar</option>
-			</select>
-			<label for="year">Purchase Year:</label>
-			<select id="year" name="year"
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-				<option>2024</option>
-				<option>2025</option>
-			</select>
-			<label for="bucket">Bucket</label>
-			<select id="bucket" name="bucket"
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-				<option>Rent</option>
-				<option>Gifts</option>
-			</select>
-			<button disabled
-				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2">
-				Submit
-			</button>
-		</form>
+		@TransactionForm(buckets, formData, monthData)
 	</div>
 </div>
+}
+
+type Month struct {
+Name string
+Value string
+IsCurrent bool
+}
+
+type TransactionFormData struct {
+NameValue string
+NameErr *string
+PriceValue string
+PriceErr *string
+MonthValue string
+MonthErr *string
+YearValue string
+YearErr *string
+BucketValue string
+BucketErr *string
+}
+
+templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, monthData []Month) {
+<form class="flex flex-col" autocomplete="off" hx-post="/finance/submit">
+	<label for="name" required>Purchase Name:</label>
+	<input id="name" name="name" type="text" autocomplete="off" value={formData.NameValue}
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+	if formData.NameErr != nil {
+	<div class="text-red-700">{*formData.NameErr}</div>
+	}
+	<label for="price">Price</label>
+	<input id="price" name="price" type="number" step="0.01" value={formData.PriceValue}
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+	if formData.PriceErr != nil {
+	<div class="text-red-700">{*formData.PriceErr}</div>
+	}
+	<label for="month">Purchase Month:</label>
+	<select id="month" name="month"
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+		for _, month := range monthData {
+		<option value={month.Value} if month.IsCurrent { selected="selected" }>{month.Name}</option>
+		}
+	</select>
+	if formData.MonthErr != nil {
+	<div class="text-red-700">{*formData.MonthErr}</div>
+	}
+	<label for="year">Purchase Year:</label>
+	<select id="year" name="year"
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+		<option>2024</option>
+		<option>2025</option>
+		<option>2026</option>
+		<option>2027</option>
+	</select>
+	if formData.YearErr != nil {
+	<div class="text-red-700">{*formData.YearErr}</div>
+	}
+	<label for="bucket">Bucket</label>
+	<select id="bucket" name="bucket"
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+		for _, bucket:= range buckets{
+		<option value={strconv.Itoa(bucket.Id)}>{bucket.Name}</option>
+		}
+	</select>
+	if formData.BucketErr != nil {
+	<div class="text-red-700">{*formData.BucketErr}</div>
+	}
+	<input type="submit" value="Submit"
+		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2" />
+</form>
+}
+
+templ SuccessfulTransaction() {
+<div>Successfully created transaction item! Use top navbar to navigate.</div>
 }

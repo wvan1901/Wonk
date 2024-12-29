@@ -5,6 +5,8 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
+	"time"
 	"wonk/app/database"
 	"wonk/app/views"
 )
@@ -20,7 +22,7 @@ func AddRoutes(
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 	mux.Handle("/home", handleHome(l))
 	mux.Handle("/finance", handleFinance(l))
-	mux.Handle("/finance/submit", handleFinanceSubmit(l))
+	mux.Handle("/finance/submit", handleFinanceSubmit(l, db))
 }
 
 func handleHealth(l *slog.Logger) http.Handler {
@@ -78,25 +80,109 @@ func handleFinance(l *slog.Logger) http.Handler {
 	)
 }
 
-func handleFinanceSubmit(l *slog.Logger) http.Handler {
+func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			// TODO: Refactor: Abstract logic & db
+			// TODO: Get userId from middleware
+			userId := 1
 			switch r.Method {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
-					tmplFinanceDiv := views.FinanceSubmit()
-					err := tmplFinanceDiv.Render(context.TODO(), w)
+					buckets, err := db.UserBuckets(userId)
 					if err != nil {
-						l.Error("/finance: error", slog.String("Error", err.Error()))
+						http.Error(w, "Internal error", 500)
+						return
+					}
+					// TODO: If no buckets found then promt user to create one
+					if len(buckets) < 1 {
+						http.Error(w, "Internal Error: no buckets found", 500)
+						return
+					}
+					months := []views.Month{
+						{Name: "Jan", Value: "1", IsCurrent: false},
+						{Name: "Feb", Value: "2", IsCurrent: false},
+						{Name: "Mar", Value: "3", IsCurrent: false},
+						{Name: "Apr", Value: "4", IsCurrent: false},
+						{Name: "May", Value: "5", IsCurrent: false},
+						{Name: "June", Value: "6", IsCurrent: false},
+						{Name: "July", Value: "7", IsCurrent: false},
+						{Name: "Aug", Value: "8", IsCurrent: false},
+						{Name: "Sep", Value: "9", IsCurrent: false},
+						{Name: "Oct", Value: "10", IsCurrent: false},
+						{Name: "Nov", Value: "11", IsCurrent: false},
+						{Name: "Dec", Value: "12", IsCurrent: false},
+					}
+					curMonth := int(time.Now().Month())
+					months[curMonth-1].IsCurrent = true
+					formData := views.TransactionFormData{}
+					tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months)
+					err = tmplFinanceDiv.Render(context.TODO(), w)
+					if err != nil {
+						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
 					}
 					return
 				} else {
 					// Build entire page or redirect to finance
 					w.WriteHeader(404)
-					//http.Error(w, "TODO: redirect or implement", 404)
 					return
+				}
+			case "POST":
+				err := r.ParseForm()
+				if err != nil {
+					l.Error("handleFinanceSubmit: /finance/submit: POST: parseForm:", slog.String("error", err.Error()))
+					http.Error(w, "Internal Error: Parsing Form", 500)
+					return
+				}
+				conversionProblems := make(map[string]string)
+				month, err := strconv.Atoi(r.FormValue("month"))
+				if err != nil {
+					conversionProblems["Month"] = "Invalid Month: Not a number"
+				}
+				year, err := strconv.Atoi(r.FormValue("year"))
+				if err != nil {
+					conversionProblems["Year"] = "Invalid Year: Not a number"
+				}
+				price, err := strconv.ParseFloat(r.FormValue("price"), 64)
+				if err != nil {
+					conversionProblems["Price"] = "Invalid Price: Not a decimal"
+				}
+				bucketId, err := strconv.Atoi(r.FormValue("bucket"))
+				if err != nil {
+					conversionProblems["BucketId"] = "Invalid BucketId: Not a number"
+				}
+				if len(conversionProblems) > 0 {
+					l.Error("handleFinanceSubmit", slog.String("Route", "/finance/submit"), slog.String("HttpMethod", "POST"), slog.Any("error", conversionProblems), slog.String("DevNote", "There was a conversion error with form values"))
+					http.Error(w, "Internal Error: Conversion Err", 500)
+					return
+				}
+				transactionInput := database.TransactionItemInput{
+					Name:     r.FormValue("name"),
+					Month:    month,
+					Year:     year,
+					Price:    price,
+					UserId:   userId,
+					BucketId: bucketId,
+				}
+				problems := transactionInput.Valid()
+				if len(problems) > 0 {
+					// TODO: return form with error messages populated
+					http.Error(w, "Invalid: Problem", 422)
+					return
+				}
+				_, err = db.CreateItemTransaction(transactionInput)
+				if err != nil {
+					l.Error("handleFinanceSubmit", slog.String("Route", "/finance/submit"), slog.String("HttpMethod", "POST"), slog.String("error", err.Error()), slog.String("DevNote", "DB error"))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
+
+				successMessage := views.SuccessfulTransaction()
+				err = successMessage.Render(context.TODO(), w)
+				if err != nil {
+					l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
 				}
 			default:
 				http.Error(w, "Not valid method", 404)
