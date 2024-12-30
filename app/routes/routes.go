@@ -92,11 +92,6 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 				http.Error(w, "Internal error", 500)
 				return
 			}
-			// TODO: If no buckets found then prompt user to create one
-			if len(buckets) < 1 {
-				http.Error(w, "Internal Error: no buckets found", 500)
-				return
-			}
 			months := []views.Month{
 				{Name: "Jan", Value: "1", IsCurrent: false},
 				{Name: "Feb", Value: "2", IsCurrent: false},
@@ -233,7 +228,7 @@ func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handle
 					tmplFinanceDiv := views.BucketForm(formData)
 					err := tmplFinanceDiv.Render(context.TODO(), w)
 					if err != nil {
-						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
+						l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "GET"), slog.String("Error", err.Error()))
 					}
 					return
 				} else {
@@ -272,9 +267,8 @@ func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handle
 				successMessage := views.SuccessfulBucket()
 				err = successMessage.Render(context.TODO(), w)
 				if err != nil {
-					l.Error("handleFinanceSubmit", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "Success: Templ err"))
+					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "Success: Templ err"))
 				}
-
 			default:
 				http.Error(w, "Not valid method", 404)
 			}

@@ -37,8 +37,9 @@ monthData []Month,
 	<div>
 		if len(buckets) == 0 {
 		<p>No buckets found, create a bucket to be able to create a transaction</p>
-		}
+		} else {
 		@TransactionForm(buckets, formData, monthData)
+		}
 	</div>
 	<br>
 	<a hx-get="/finance/submit/bucket" hx-target="#finance-content" hx-swap="innerHTML">
