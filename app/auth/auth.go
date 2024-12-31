@@ -21,7 +21,7 @@ import (
 )
 
 const (
-	COOKIE_NAME = "PrineAuth"
+	COOKIE_NAME = "WonkAuth"
 )
 
 var userCtxKey = &contextKey{"user"}
