@@ -15,6 +15,7 @@ const (
 )
 
 type Database interface {
+	Login(string, string) (int, error)
 	CreateUser(string) (int, error)
 	CreateBucket(int, string) (int, error)
 	CreateItemTransaction(TransactionItemInput) (int, error)
@@ -34,6 +35,10 @@ func InitDb() (Database, error) {
 	return &SqliteDb{Db: db}, nil
 }
 
+func (s *SqliteDb) Login(username, password string) (int, error) {
+	// TODO: Add login logic, and return userId
+	return 1, nil
+}
 func (s *SqliteDb) CreateUser(username string) (int, error) {
 	query := "INSERT INTO " + USER_TABLE_NAME + " (username) VALUES (?);"
 	res, err := s.Db.Exec(query, username)

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 	"wonk/app/database"
+	"wonk/app/services"
 	"wonk/app/views"
 )
 
@@ -15,15 +16,17 @@ func AddRoutes(
 	mux *http.ServeMux,
 	l *slog.Logger,
 	db database.Database,
+	s *services.Services,
 ) {
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/", http.NotFoundHandler())
 	mux.Handle("/health", handleHealth(l))
+	mux.Handle("/login", s.Auth.HandleLogin(db))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
-	mux.Handle("/home", handleHome(l))
-	mux.Handle("/finance", handleFinance(l))
-	mux.Handle("/finance/submit", handleFinanceSubmit(l, db))
-	mux.Handle("/finance/submit/bucket", handleFinanceSubmitBucket(l, db))
+	mux.Handle("/home", s.Auth.AuthMiddleware(handleHome(l)))
+	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l)))
+	mux.Handle("/finance/submit", s.Auth.AuthMiddleware(handleFinanceSubmit(l, db)))
+	mux.Handle("/finance/submit/bucket", s.Auth.AuthMiddleware(handleFinanceSubmitBucket(l, db)))
 }
 
 func handleHealth(l *slog.Logger) http.Handler {
