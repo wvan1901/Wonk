@@ -1,6 +1,6 @@
 package views
 
-templ LoginPage(formData LoginFormData) {
+templ LoginSignUpPage() {
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,17 +26,29 @@ templ LoginPage(formData LoginFormData) {
 			}
 		});
 	</script>
-	@Login(formData)
+	{ children... }
 </body>
 
 </html>
+}
+
+templ LoginPage(formData LoginFormData) {
+@LoginSignUpPage(){
+@Login(formData)
+}
+}
+
+templ SignUpPage(formData LoginFormData) {
+@LoginSignUpPage(){
+@SignUp(formData)
+}
 }
 
 templ Login(formData LoginFormData) {
 <div id="login-div">
 	<h1>Login</h1>
 	@LoginForm(formData)
-	<button hx-get="/signup">
+	<button hx-get="/signup" hx-target="#login-div" hx-swap="outerHTML" hx-push-url="/signup">
 		Sign Up
 	</button>
 </div>
@@ -54,6 +66,29 @@ templ LoginForm(formData LoginFormData) {
 	<input id="password" type="password" name="password" required>
 	<button>
 		Login
+	</button>
+	if formData.FormErr != nil {
+	<div class="text-red-700">{*formData.FormErr}</div>
+	}
+
+</form>
+}
+
+templ SignUp(formData LoginFormData) {
+<div id="signup-div">
+	<h1>Sign Up:</h1>
+	@SignUpForm(formData)
+</div>
+}
+
+templ SignUpForm(formData LoginFormData) {
+<form hx-swap="outerHTML" hx-post="/signup">
+	<label for="username">Username:</label>
+	<input id="username" type="text" name="username" required value={formData.Username}>
+	<label for="password">Password:</label>
+	<input id="password" type="password" name="password" required>
+	<button>
+		Create
 	</button>
 	if formData.FormErr != nil {
 	<div class="text-red-700">{*formData.FormErr}</div>

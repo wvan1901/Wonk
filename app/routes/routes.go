@@ -22,6 +22,7 @@ func AddRoutes(
 	mux.Handle("/", http.NotFoundHandler())
 	mux.Handle("/health", handleHealth(l))
 	mux.Handle("/login", s.Auth.HandleLogin())
+	mux.Handle("/signup", s.Auth.HandleSignUp())
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 	mux.Handle("/home", s.Auth.AuthMiddleware(handleHome(l)))
 	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l)))

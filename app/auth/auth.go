@@ -37,6 +37,7 @@ type UserInfo struct {
 
 type AuthService interface {
 	HandleLogin() http.Handler
+	HandleSignUp() http.Handler
 	AuthMiddleware(http.Handler) http.Handler
 }
 
@@ -289,6 +290,66 @@ func (a *Auth) HandleLogin() http.Handler {
 				http.SetCookie(w, cookie)
 				w.Header().Set("HX-Redirect", "/home")
 				w.WriteHeader(200)
+			default:
+				w.WriteHeader(404)
+			}
+		},
+	)
+}
+
+func (a *Auth) HandleSignUp() http.Handler {
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			switch r.Method {
+			case "GET":
+				htmxReqHeader := r.Header.Get("hx-request")
+				isHtmxRequest := htmxReqHeader == "true"
+				if isHtmxRequest {
+					signUpDiv := views.SignUp(views.LoginFormData{})
+					err := signUpDiv.Render(context.TODO(), w)
+					if err != nil {
+						a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
+					}
+					return
+				}
+				loginPage := views.LoginPage(views.LoginFormData{})
+				err := loginPage.Render(context.TODO(), w)
+				if err != nil {
+					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "full page render"))
+				}
+				return
+			case "POST":
+				// TODO: Handle errors properly (no user found, wrong password, ... )
+				err := r.ParseForm()
+				if err != nil {
+					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					w.WriteHeader(502)
+					return
+				}
+
+				userName := r.FormValue("username")
+				password := r.FormValue("password")
+
+				_, err = a.DB.CreateUser(userName, password)
+				if err != nil {
+					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					w.WriteHeader(422)
+					errMsg := "error creating user"
+					formData := views.LoginFormData{
+						FormErr: &errMsg,
+					}
+					signUpDiv := views.SignUp(formData)
+					err := signUpDiv.Render(context.TODO(), w)
+					if err != nil {
+						a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
+					}
+					return
+				}
+				// NOTE: We should hash the password in the client for added security
+				// TODO: Tell user if it was successful or not, also give button to redirect to login
+				w.Header().Set("HX-Redirect", "/login")
+				w.WriteHeader(200)
+				return
 			default:
 				w.WriteHeader(404)
 			}
