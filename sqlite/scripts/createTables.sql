@@ -1,7 +1,7 @@
 -- User Table
 CREATE TABLE IF NOT EXISTS user (
 	id INTEGER PRIMARY KEY,
-	username STRING NOT NULL,
+	username STRING NOT NULL UNIQUE,
 	password STRING NOT NULL
 );
 

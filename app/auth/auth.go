@@ -13,8 +13,8 @@ import (
 	"strconv"
 	"time"
 	"wonk/app/cuserr"
-	"wonk/app/database"
 	"wonk/app/secret"
+	"wonk/app/services/user"
 	"wonk/app/views"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -45,15 +45,15 @@ type Auth struct {
 	Logger          *slog.Logger
 	JwtSecretKey    string
 	CookieSecretKey string
-	DB              database.Database
+	User            user.User
 }
 
-func InitAuthService(s *secret.Secret, l *slog.Logger, db database.Database) AuthService {
+func InitAuthService(s *secret.Secret, l *slog.Logger, u user.User) AuthService {
 	return &Auth{
 		Logger:          l,
 		JwtSecretKey:    s.JwtKey,
 		CookieSecretKey: s.CookieKey,
-		DB:              db,
+		User:            u,
 	}
 }
 
@@ -266,7 +266,7 @@ func (a *Auth) HandleLogin() http.Handler {
 				userName := r.FormValue("username")
 				password := r.FormValue("password")
 
-				userId, err := a.DB.Login(userName, password)
+				userId, err := a.User.Login(userName, password)
 				if err != nil {
 					if errors.Is(err, &cuserr.NotFound{}) || errors.Is(err, &cuserr.InvalidCred{}) {
 						clientErr := "Invalid username or password"
@@ -339,7 +339,7 @@ func (a *Auth) HandleSignUp() http.Handler {
 				userName := r.FormValue("username")
 				password := r.FormValue("password")
 
-				_, err = a.DB.CreateUser(userName, password)
+				_, err = a.User.CreateUser(userName, password)
 				if err != nil {
 					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "POST"), slog.Any("error", err))
 					w.WriteHeader(422)

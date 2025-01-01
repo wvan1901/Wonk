@@ -2,12 +2,10 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"wonk/app/cuserr"
 
 	_ "github.com/mattn/go-sqlite3"
-	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -18,11 +16,11 @@ const (
 )
 
 type Database interface {
-	Login(string, string) (int, error)
 	CreateUser(string, string) (int, error)
 	CreateBucket(int, string) (int, error)
 	CreateItemTransaction(TransactionItemInput) (int, error)
 	UserBuckets(int) ([]Bucket, error)
+	UserByUserName(string) (*User, error)
 }
 
 type SqliteDb struct {
@@ -38,60 +36,23 @@ func InitDb() (Database, error) {
 	return &SqliteDb{Db: db}, nil
 }
 
-func (s *SqliteDb) Login(username, password string) (int, error) {
+func (s *SqliteDb) UserByUserName(username string) (*User, error) {
+	// User table has a unique constraint on username column
 	query := "SELECT * FROM " + USER_TABLE_NAME + " WHERE username=?"
-	rows, err := s.Db.Query(query, username)
+	row := s.Db.QueryRow(query, username)
+	curUser := User{}
+	err := row.Scan(&curUser.Id, &curUser.UserName, &curUser.Password)
 	if err != nil {
-		return -1, fmt.Errorf("Login: Exec: %w", err)
-	}
-	defer rows.Close()
-
-	var data []User
-	for rows.Next() {
-		b := User{}
-		err := rows.Scan(&b.Id, &b.UserName, &b.Password)
-		if err != nil {
-			return -1, fmt.Errorf("Login: rows next: %w", err)
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("UserByUserName: %w", &cuserr.NotFound{})
 		}
-		data = append(data, b)
+		return nil, fmt.Errorf("UserByUserName: %w", err)
 	}
-	if len(data) > 1 {
-		return -1, errors.New("Login: More than 2 users found! should not be possible")
-	}
-	if len(data) == 0 {
-		return -1, fmt.Errorf("Login: %w", &cuserr.NotFound{})
-	}
-	curUser := data[0]
+	return &curUser, nil
 
-	err = bcrypt.CompareHashAndPassword([]byte(curUser.Password), []byte(password))
-	if err != nil {
-		return -1, fmt.Errorf("Login: pass: %w", &cuserr.InvalidCred{})
-	}
-
-	return curUser.Id, nil
 }
 
-func (s *SqliteDb) CreateUser(username, password string) (int, error) {
-	// TODO: This logic to check for existing username should exist in service layer
-	tempColName := "num_users"
-	lookupQuery := "SELECT COUNT(*) AS " + tempColName + " FROM " + USER_TABLE_NAME + " WHERE username=?"
-	row := s.Db.QueryRow(lookupQuery, username)
-	curUser := struct{ NumUsers int }{}
-	err := row.Scan(&curUser.NumUsers)
-	if err != nil {
-		return -1, fmt.Errorf("CreateUser: numUser: %w", err)
-	}
-	if curUser.NumUsers > 0 {
-		return -1, fmt.Errorf("CreateUser: username already exists")
-	}
-	// TODO: Add salt to password
-
-	// Hash the password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return -1, fmt.Errorf("CreateUser: %w", err)
-	}
-
+func (s *SqliteDb) CreateUser(username, hashedPassword string) (int, error) {
 	query := "INSERT INTO " + USER_TABLE_NAME + " (username, password) VALUES (?, ?);"
 	res, err := s.Db.Exec(query, username, hashedPassword)
 	if err != nil {
