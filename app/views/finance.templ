@@ -3,6 +3,7 @@ package views
 import (
 "wonk/app/database"
 "strconv"
+"time"
 )
 
 templ Finance() {
@@ -140,4 +141,25 @@ templ BucketForm(formData BucketFormData) {
 
 templ SuccessfulBucket() {
 <div>Successfully created Bucket! Use top navbar to navigate.</div>
+}
+
+func GetMonths() []Month{
+months := []Month{
+{Name: "Jan", Value: "1", IsCurrent: false},
+{Name: "Feb", Value: "2", IsCurrent: false},
+{Name: "Mar", Value: "3", IsCurrent: false},
+{Name: "Apr", Value: "4", IsCurrent: false},
+{Name: "May", Value: "5", IsCurrent: false},
+{Name: "June", Value: "6", IsCurrent: false},
+{Name: "July", Value: "7", IsCurrent: false},
+{Name: "Aug", Value: "8", IsCurrent: false},
+{Name: "Sep", Value: "9", IsCurrent: false},
+{Name: "Oct", Value: "10", IsCurrent: false},
+{Name: "Nov", Value: "11", IsCurrent: false},
+{Name: "Dec", Value: "12", IsCurrent: false},
+}
+curMonth := int(time.Now().Month())
+months[curMonth-1].IsCurrent = true
+
+return months
 }

@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"net/http"
 	"strconv"
-	"time"
 	"wonk/app/auth"
 	"wonk/app/database"
 	"wonk/app/services"
@@ -102,22 +101,7 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 				http.Error(w, "Internal error", 500)
 				return
 			}
-			months := []views.Month{
-				{Name: "Jan", Value: "1", IsCurrent: false},
-				{Name: "Feb", Value: "2", IsCurrent: false},
-				{Name: "Mar", Value: "3", IsCurrent: false},
-				{Name: "Apr", Value: "4", IsCurrent: false},
-				{Name: "May", Value: "5", IsCurrent: false},
-				{Name: "June", Value: "6", IsCurrent: false},
-				{Name: "July", Value: "7", IsCurrent: false},
-				{Name: "Aug", Value: "8", IsCurrent: false},
-				{Name: "Sep", Value: "9", IsCurrent: false},
-				{Name: "Oct", Value: "10", IsCurrent: false},
-				{Name: "Nov", Value: "11", IsCurrent: false},
-				{Name: "Dec", Value: "12", IsCurrent: false},
-			}
-			curMonth := int(time.Now().Month())
-			months[curMonth-1].IsCurrent = true
+			months := views.GetMonths()
 			switch r.Method {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
