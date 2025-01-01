@@ -11,7 +11,7 @@ templ LoginSignUpPage() {
 	<script src="/static/script/htmx.min.js"></script>
 </head>
 
-<body>
+<body class="overscroll-none">
 	<script>
 		document.body.addEventListener('htmx:beforeSwap', function (evt) {
 			if (evt.detail.xhr.status === 404) {
@@ -45,12 +45,21 @@ templ SignUpPage(formData LoginFormData) {
 }
 
 templ Login(formData LoginFormData) {
-<div id="login-div">
-	<h1>Login</h1>
-	@LoginForm(formData)
-	<button hx-get="/signup" hx-target="#login-div" hx-swap="outerHTML" hx-push-url="/signup">
-		Sign Up
-	</button>
+<div id="login-div" class="h-screen bg-stone-100 flex flex-col justify-center items-center">
+	<div class="flex flex-col bg-stone-300 w-2/3 h-4/5 rounded-lg p-12 justify-between">
+		<div>
+			<h1 class="text-xl">Log In</h1>
+			<br>
+			@LoginForm(formData)
+		</div>
+		<div class="w-full">
+			<p>New to Wonk?</p>
+			<button hx-get="/signup" hx-target="#login-div" hx-swap="outerHTML" hx-push-url="/signup"
+				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full">
+				Sign Up
+			</button>
+		</div>
+	</div>
 </div>
 }
 
@@ -59,12 +68,14 @@ Username string
 FormErr *string
 }
 templ LoginForm(formData LoginFormData) {
-<form hx-swap="outerHTML" hx-post="/login">
+<form hx-swap="outerHTML" hx-post="/login" class="flex flex-col">
 	<label for="username">Username:</label>
-	<input id="username" type="text" name="username" required value={formData.Username}>
+	<input id="username" type="text" name="username" required value={formData.Username}
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
 	<label for="password">Password:</label>
-	<input id="password" type="password" name="password" required>
-	<button>
+	<input id="password" type="password" name="password" required
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+	<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2">
 		Login
 	</button>
 	if formData.FormErr != nil {
