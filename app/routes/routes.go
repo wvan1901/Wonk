@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"wonk/app/auth"
 	"wonk/app/database"
 	"wonk/app/services"
 	"wonk/app/views"
@@ -86,12 +87,17 @@ func handleFinance(l *slog.Logger) http.Handler {
 }
 
 func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
+	funcName := "handleFinanceSubmit"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			// TODO: Refactor: Abstract logic & db
-			// TODO: Get userId from middleware
-			userId := 1
-			buckets, err := db.UserBuckets(userId)
+			curUser, err := auth.UserCtx(r.Context())
+			if err != nil {
+				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				http.Error(w, "Internal Error, try logging in again", 500)
+				return
+			}
+			buckets, err := db.UserBuckets(curUser.UserId)
 			if err != nil {
 				http.Error(w, "Internal error", 500)
 				return
@@ -163,7 +169,7 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 					Month:    month,
 					Year:     year,
 					Price:    price,
-					UserId:   userId,
+					UserId:   curUser.UserId,
 					BucketId: bucketId,
 				}
 				problems := transactionInput.Valid()
@@ -219,10 +225,15 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 }
 
 func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handler {
+	funcName := "handleFinanceSubmitBucket"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			// TODO: Use middleware to get user info
-			userId := 1
+			curUser, err := auth.UserCtx(r.Context())
+			if err != nil {
+				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				http.Error(w, "Internal Error, try logging in again", 500)
+				return
+			}
 			switch r.Method {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
@@ -262,7 +273,7 @@ func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handle
 					}
 					return
 				}
-				_, err = db.CreateBucket(userId, newName)
+				_, err = db.CreateBucket(curUser.UserId, newName)
 				if err != nil {
 					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("error", err.Error()), slog.String("DevNote", "DB error"))
 					http.Error(w, "Internal Error", 500)

@@ -357,4 +357,10 @@ func (a *Auth) HandleSignUp() http.Handler {
 	)
 }
 
-// TODO: Add method to get user info from auth ctx
+func UserCtx(ctx context.Context) (*UserInfo, error) {
+	user, ok := ctx.Value(userCtxKey).(UserInfo)
+	if !ok {
+		return nil, errors.New("UserCtx: userInfo not found")
+	}
+	return &user, nil
+}
