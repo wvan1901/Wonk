@@ -355,7 +355,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label for=\"year\">Purchase Year:</label> <select id=\"year\" name=\"year\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"><option>2024</option> <option>2025</option> <option>2026</option> <option>2027</option></select> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label for=\"year\">Purchase Year:</label> <select id=\"year\" name=\"year\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"><option>2024</option> <option selected=\"selected\">2025</option> <option>2026</option> <option>2027</option></select> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
