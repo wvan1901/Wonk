@@ -1,7 +1,8 @@
 -- User Table
 CREATE TABLE IF NOT EXISTS user (
 	id INTEGER PRIMARY KEY,
-	username STRING NOT NULL
+	username STRING NOT NULL,
+	password STRING NOT NULL
 );
 
 -- Bucket Table

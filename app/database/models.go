@@ -5,6 +5,12 @@ import (
 	"math"
 )
 
+type User struct {
+	Id       int
+	UserName string
+	Password string
+}
+
 type TransactionItemInput struct {
 	Name     string
 	Month    int

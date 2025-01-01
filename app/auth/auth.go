@@ -256,7 +256,6 @@ func (a *Auth) HandleLogin() http.Handler {
 				userName := r.FormValue("username")
 				password := r.FormValue("password")
 
-				// TODO Get user id from login
 				userId, err := a.DB.Login(userName, password)
 				if err != nil {
 					if errors.Is(err, &cuserr.NotFound{}) || errors.Is(err, &cuserr.InvalidCred{}) {
@@ -338,7 +337,7 @@ func (a *Auth) HandleSignUp() http.Handler {
 					formData := views.LoginFormData{
 						FormErr: &errMsg,
 					}
-					signUpDiv := views.SignUp(formData)
+					signUpDiv := views.SignUpForm(formData)
 					err := signUpDiv.Render(context.TODO(), w)
 					if err != nil {
 						a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
