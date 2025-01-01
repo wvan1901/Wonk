@@ -26,7 +26,11 @@ templ LoginSignUpPage() {
 			}
 		});
 	</script>
-	{ children... }
+	<div class="h-screen bg-stone-100 flex flex-col justify-center items-center">
+		<div id="contain-div" class="flex flex-col bg-stone-300 w-2/3 h-4/5 rounded-lg p-12 justify-between">
+			{ children... }
+		</div>
+	</div>
 </body>
 
 </html>
@@ -45,21 +49,17 @@ templ SignUpPage(formData LoginFormData) {
 }
 
 templ Login(formData LoginFormData) {
-<div id="login-div" class="h-screen bg-stone-100 flex flex-col justify-center items-center">
-	<div class="flex flex-col bg-stone-300 w-2/3 h-4/5 rounded-lg p-12 justify-between">
-		<div>
-			<h1 class="text-xl">Log In</h1>
-			<br>
-			@LoginForm(formData)
-		</div>
-		<div class="w-full">
-			<p>New to Wonk?</p>
-			<button hx-get="/signup" hx-target="#login-div" hx-swap="outerHTML" hx-push-url="/signup"
-				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full">
-				Sign Up
-			</button>
-		</div>
-	</div>
+<div>
+	<h1 class="text-xl">Log In</h1>
+	<br>
+	@LoginForm(formData)
+</div>
+<div class="w-full">
+	<p>New to Wonk?</p>
+	<button hx-get="/signup" hx-target="#contain-div" hx-swap="innerHTML" hx-push-url="/signup"
+		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full">
+		Sign Up
+	</button>
 </div>
 }
 
@@ -68,7 +68,7 @@ Username string
 FormErr *string
 }
 templ LoginForm(formData LoginFormData) {
-<form hx-swap="outerHTML" hx-post="/login" class="flex flex-col">
+<form hx-swap="outerHTML" hx-post="/login" class="flex flex-col" autocomplete="off">
 	<label for="username">Username:</label>
 	<input id="username" type="text" name="username" required value={formData.Username}
 		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
@@ -86,19 +86,29 @@ templ LoginForm(formData LoginFormData) {
 }
 
 templ SignUp(formData LoginFormData) {
-<div id="signup-div">
-	<h1>Sign Up:</h1>
+<div>
+	<h1 class="text-xl">Sign Up</h1>
+	<br>
 	@SignUpForm(formData)
+</div>
+<div class="w-full">
+	<p>Already have an account?</p>
+	<button hx-get="/login" hx-target="#contain-div" hx-swap="innerHTML" hx-push-url="/login"
+		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full">
+		Log In
+	</button>
 </div>
 }
 
 templ SignUpForm(formData LoginFormData) {
-<form hx-swap="outerHTML" hx-post="/signup">
+<form hx-swap="outerHTML" hx-post="/signup" autocomplete="off">
 	<label for="username">Username:</label>
-	<input id="username" type="text" name="username" required value={formData.Username}>
+	<input id="username" type="text" name="username" required value={formData.Username}
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
 	<label for="password">Password:</label>
-	<input id="password" type="password" name="password" required>
-	<button>
+	<input id="password" type="password" name="password" required
+		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+	<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full">
 		Create
 	</button>
 	if formData.FormErr != nil {

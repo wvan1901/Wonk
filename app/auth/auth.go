@@ -239,6 +239,16 @@ func (a *Auth) HandleLogin() http.Handler {
 		func(w http.ResponseWriter, r *http.Request) {
 			switch r.Method {
 			case "GET":
+				htmxReqHeader := r.Header.Get("hx-request")
+				isHtmxRequest := htmxReqHeader == "true"
+				if isHtmxRequest {
+					signUpDiv := views.Login(views.LoginFormData{})
+					err := signUpDiv.Render(context.TODO(), w)
+					if err != nil {
+						a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
+					}
+					return
+				}
 				loginPage := views.LoginPage(views.LoginFormData{})
 				err := loginPage.Render(context.TODO(), w)
 				if err != nil {
@@ -311,7 +321,7 @@ func (a *Auth) HandleSignUp() http.Handler {
 					}
 					return
 				}
-				loginPage := views.LoginPage(views.LoginFormData{})
+				loginPage := views.SignUpPage(views.LoginFormData{})
 				err := loginPage.Render(context.TODO(), w)
 				if err != nil {
 					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "full page render"))
