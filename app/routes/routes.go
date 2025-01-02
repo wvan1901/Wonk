@@ -27,7 +27,7 @@ func AddRoutes(
 	mux.Handle("/home", s.Auth.AuthMiddleware(handleHome(l)))
 	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l)))
 	mux.Handle("/finance/submit", s.Auth.AuthMiddleware(handleFinanceSubmit(l, s.Finance)))
-	mux.Handle("/finance/submit/bucket", s.Auth.AuthMiddleware(handleFinanceSubmitBucket(l, db)))
+	mux.Handle("/finance/submit/bucket", s.Auth.AuthMiddleware(handleFinanceSubmitBucket(l, s.Finance)))
 }
 
 func handleHealth(l *slog.Logger) http.Handler {
@@ -185,7 +185,7 @@ func handleFinanceSubmit(l *slog.Logger, f finance.Finance) http.Handler {
 	)
 }
 
-func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handler {
+func handleFinanceSubmitBucket(l *slog.Logger, f finance.Finance) http.Handler {
 	funcName := "handleFinanceSubmitBucket"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
@@ -220,8 +220,17 @@ func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handle
 					return
 				}
 				newName := r.FormValue("name")
-				if len(newName) > 20 || len(newName) == 0 {
-					nameErr := "Name value must not be empty or greater than 20 characters"
+				problems, err := f.CreateBucket(curUser.UserId, newName)
+				if err != nil {
+					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("error", err.Error()))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
+				if len(problems) > 0 {
+					nameErr := "Internal Error"
+					if val, ok := problems["Name"]; ok {
+						nameErr = val
+					}
 					formData := views.BucketFormData{
 						NameValue: newName,
 						NameErr:   &nameErr,
@@ -232,12 +241,6 @@ func handleFinanceSubmitBucket(l *slog.Logger, db database.Database) http.Handle
 					if err != nil {
 						l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "Invalid: Templ err"))
 					}
-					return
-				}
-				_, err = db.CreateBucket(curUser.UserId, newName)
-				if err != nil {
-					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("error", err.Error()), slog.String("DevNote", "DB error"))
-					http.Error(w, "Internal Error", 500)
 					return
 				}
 				successMessage := views.SuccessfulBucket()

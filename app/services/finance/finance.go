@@ -9,6 +9,7 @@ import (
 type Finance interface {
 	UserBuckets(int) ([]database.Bucket, error)
 	SubmitNewTransaction(TransactionFormInput) (map[string]string, error)
+	CreateBucket(int, string) (map[string]string, error)
 }
 
 type FinanceLogic struct {
@@ -71,6 +72,22 @@ func (f *FinanceLogic) SubmitNewTransaction(inputForm TransactionFormInput) (map
 		return nil, fmt.Errorf("SubmitNewTransaction: db: %w", err)
 	}
 
+	return nil, nil
+}
+
+func (f *FinanceLogic) CreateBucket(userId int, newName string) (map[string]string, error) {
+	// TODO: Limit the number of buckers a user can have to 30
+	problems := make(map[string]string)
+	if len(newName) > 20 || len(newName) == 0 {
+		problems["Name"] = "Name value must not be empty or greater than 20 characters"
+	}
+	if len(problems) > 0 {
+		return problems, nil
+	}
+	_, err := f.DB.CreateBucket(userId, newName)
+	if err != nil {
+		return nil, fmt.Errorf("CreateBucket: db: %w", err)
+	}
 	return nil, nil
 }
 
