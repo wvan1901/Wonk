@@ -5,10 +5,10 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
-	"strconv"
 	"wonk/app/auth"
 	"wonk/app/database"
 	"wonk/app/services"
+	"wonk/app/services/finance"
 	"wonk/app/views"
 )
 
@@ -26,7 +26,7 @@ func AddRoutes(
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 	mux.Handle("/home", s.Auth.AuthMiddleware(handleHome(l)))
 	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l)))
-	mux.Handle("/finance/submit", s.Auth.AuthMiddleware(handleFinanceSubmit(l, db)))
+	mux.Handle("/finance/submit", s.Auth.AuthMiddleware(handleFinanceSubmit(l, s.Finance)))
 	mux.Handle("/finance/submit/bucket", s.Auth.AuthMiddleware(handleFinanceSubmitBucket(l, db)))
 }
 
@@ -85,18 +85,17 @@ func handleFinance(l *slog.Logger) http.Handler {
 	)
 }
 
-func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
+func handleFinanceSubmit(l *slog.Logger, f finance.Finance) http.Handler {
 	funcName := "handleFinanceSubmit"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			// TODO: Refactor: Abstract logic & db
 			curUser, err := auth.UserCtx(r.Context())
 			if err != nil {
 				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
-			buckets, err := db.UserBuckets(curUser.UserId)
+			buckets, err := f.UserBuckets(curUser.UserId)
 			if err != nil {
 				http.Error(w, "Internal error", 500)
 				return
@@ -126,46 +125,30 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 					http.Error(w, "Internal Error: Parsing Form", 500)
 					return
 				}
-				conversionProblems := make(map[string]string)
-				month, err := strconv.Atoi(r.FormValue("month"))
-				if err != nil {
-					conversionProblems["Month"] = "Invalid Month: Not a number"
+				formData := finance.TransactionFormInput{
+					Name:     r.FormValue("name"),
+					Month:    r.FormValue("month"),
+					Year:     r.FormValue("year"),
+					Price:    r.FormValue("price"),
+					UserId:   curUser.UserId,
+					BucketId: r.FormValue("bucket"),
 				}
-				year, err := strconv.Atoi(r.FormValue("year"))
+				problems, err := f.SubmitNewTransaction(formData)
 				if err != nil {
-					conversionProblems["Year"] = "Invalid Year: Not a number"
-				}
-				price, err := strconv.ParseFloat(r.FormValue("price"), 64)
-				if err != nil {
-					conversionProblems["Price"] = "Invalid Price: Not a decimal"
-				}
-				bucketId, err := strconv.Atoi(r.FormValue("bucket"))
-				if err != nil {
-					conversionProblems["BucketId"] = "Invalid BucketId: Not a number"
-				}
-				if len(conversionProblems) > 0 {
-					l.Error("handleFinanceSubmit", slog.String("Route", "/finance/submit"), slog.String("HttpMethod", "POST"), slog.Any("error", conversionProblems), slog.String("DevNote", "There was a conversion error with form values"))
-					http.Error(w, "Internal Error: Conversion Err", 500)
+					l.Error("handleFinanceSubmit", slog.String("Route", "/finance/submit"), slog.String("HttpMethod", "POST"), slog.String("error", err.Error()))
+					http.Error(w, "Internal Error", 500)
 					return
 				}
-				transactionInput := database.TransactionItemInput{
-					Name:     r.FormValue("name"),
-					Month:    month,
-					Year:     year,
-					Price:    price,
-					UserId:   curUser.UserId,
-					BucketId: bucketId,
-				}
-				problems := transactionInput.Valid()
+
 				if len(problems) > 0 {
 					// If there is a problem return form with errs
 					w.WriteHeader(422)
 					formData := views.TransactionFormData{
-						NameValue:   r.FormValue("name"),
-						MonthValue:  r.FormValue("month"),
-						YearValue:   r.FormValue("year"),
-						PriceValue:  r.FormValue("price"),
-						BucketValue: r.FormValue("bucket"),
+						NameValue:   formData.Name,
+						MonthValue:  formData.Month,
+						YearValue:   formData.Year,
+						PriceValue:  formData.Price,
+						BucketValue: formData.BucketId,
 					}
 					if val, ok := problems["Name"]; ok {
 						formData.NameErr = &val
@@ -187,12 +170,6 @@ func handleFinanceSubmit(l *slog.Logger, db database.Database) http.Handler {
 					if err != nil {
 						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
 					}
-					return
-				}
-				_, err = db.CreateItemTransaction(transactionInput)
-				if err != nil {
-					l.Error("handleFinanceSubmit", slog.String("Route", "/finance/submit"), slog.String("HttpMethod", "POST"), slog.String("error", err.Error()), slog.String("DevNote", "DB error"))
-					http.Error(w, "Internal Error", 500)
 					return
 				}
 
