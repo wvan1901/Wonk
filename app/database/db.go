@@ -21,6 +21,7 @@ type Database interface {
 	CreateItemTransaction(TransactionItemInput) (int, error)
 	UserBuckets(int) ([]Bucket, error)
 	UserByUserName(string) (*User, error)
+	NumBuckets(int) (int, error)
 }
 
 type SqliteDb struct {
@@ -66,7 +67,6 @@ func (s *SqliteDb) CreateUser(username, hashedPassword string) (int, error) {
 }
 
 func (s *SqliteDb) CreateBucket(userId int, bucketName string) (int, error) {
-	// TODO: Limit number of buckets a user can have, this logic should live in service layer!
 	query := "INSERT INTO " + BUCKETS_TABLE_NAME + " (name, user_id) VALUES (?, ?);"
 	res, err := s.Db.Exec(query, bucketName, userId)
 	if err != nil {
@@ -110,4 +110,17 @@ func (s *SqliteDb) UserBuckets(userId int) ([]Bucket, error) {
 	}
 
 	return data, nil
+}
+
+func (s *SqliteDb) NumBuckets(userId int) (int, error) {
+	tempColName := "num"
+	lookupQuery := "SELECT COUNT(*) AS " + tempColName + " FROM " + BUCKETS_TABLE_NAME + " WHERE user_id=?"
+	row := s.Db.QueryRow(lookupQuery, userId)
+	numBuckets := struct{ Num int }{}
+	err := row.Scan(&numBuckets.Num)
+	if err != nil {
+		return -1, fmt.Errorf("NumBuckets: %w", err)
+	}
+
+	return numBuckets.Num, nil
 }

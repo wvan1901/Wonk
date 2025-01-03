@@ -1,9 +1,14 @@
 package finance
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"wonk/app/database"
+)
+
+const (
+	MAX_BUCKETS = 5
 )
 
 type Finance interface {
@@ -76,7 +81,14 @@ func (f *FinanceLogic) SubmitNewTransaction(inputForm TransactionFormInput) (map
 }
 
 func (f *FinanceLogic) CreateBucket(userId int, newName string) (map[string]string, error) {
-	// TODO: Limit the number of buckers a user can have to 30
+	numBuckets, err := f.DB.NumBuckets(userId)
+	if err != nil {
+		return nil, fmt.Errorf("CreateBucket: num: %w", err)
+	}
+	if numBuckets >= MAX_BUCKETS {
+		return nil, errors.New("CreateBucket: user can't have more buckets")
+	}
+
 	problems := make(map[string]string)
 	if len(newName) > 20 || len(newName) == 0 {
 		problems["Name"] = "Name value must not be empty or greater than 20 characters"
@@ -84,7 +96,7 @@ func (f *FinanceLogic) CreateBucket(userId int, newName string) (map[string]stri
 	if len(problems) > 0 {
 		return problems, nil
 	}
-	_, err := f.DB.CreateBucket(userId, newName)
+	_, err = f.DB.CreateBucket(userId, newName)
 	if err != nil {
 		return nil, fmt.Errorf("CreateBucket: db: %w", err)
 	}
