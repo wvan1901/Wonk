@@ -22,6 +22,7 @@ type Database interface {
 	UserBuckets(int) ([]Bucket, error)
 	UserByUserName(string) (*User, error)
 	NumBuckets(int) (int, error)
+	TransactionsInBucket(int, int, int) ([]TransactionItem, error)
 }
 
 type SqliteDb struct {
@@ -123,4 +124,25 @@ func (s *SqliteDb) NumBuckets(userId int) (int, error) {
 	}
 
 	return numBuckets.Num, nil
+}
+
+func (s *SqliteDb) TransactionsInBucket(bucketId, month, year int) ([]TransactionItem, error) {
+	query := "SELECT * FROM " + TRANSACTION_ITEMS_TABLE_NAME + " WHERE bucket_id=? AND month=? AND year=?"
+	rows, err := s.Db.Query(query, bucketId, month, year)
+	if err != nil {
+		return nil, fmt.Errorf("TransactionsInBucket: Exec: %w", err)
+	}
+	defer rows.Close()
+
+	var data []TransactionItem
+	for rows.Next() {
+		b := TransactionItem{}
+		err := rows.Scan(&b.Id, &b.Name, &b.Month, &b.Year, &b.Price, &b.UserId, &b.BucketId)
+		if err != nil {
+			return nil, fmt.Errorf("TransactionsInBucket: rows next: %w", err)
+		}
+		data = append(data, b)
+	}
+
+	return data, nil
 }

@@ -11,7 +11,14 @@ type User struct {
 	Password string
 }
 
-type TransactionItemInput struct {
+type Bucket struct {
+	Id     int
+	Name   string
+	UserId int
+}
+
+type TransactionItem struct {
+	Id       int
 	Name     string
 	Month    int
 	Year     int
@@ -20,10 +27,13 @@ type TransactionItemInput struct {
 	BucketId int
 }
 
-type Bucket struct {
-	Id     int
-	Name   string
-	UserId int
+type TransactionItemInput struct {
+	Name     string
+	Month    int
+	Year     int
+	Price    float64
+	UserId   int
+	BucketId int
 }
 
 func (t *TransactionItemInput) Valid() map[string]string {

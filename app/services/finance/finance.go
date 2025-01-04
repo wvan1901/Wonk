@@ -15,6 +15,7 @@ type Finance interface {
 	UserBuckets(int) ([]database.Bucket, error)
 	SubmitNewTransaction(TransactionFormInput) (map[string]string, error)
 	CreateBucket(int, string) (map[string]string, error)
+	BucketsMonthlySummary(int, int, int) ([]BucketSummary, error)
 }
 
 type FinanceLogic struct {
@@ -110,4 +111,46 @@ type TransactionFormInput struct {
 	Price    string
 	UserId   int
 	BucketId string
+}
+
+type BucketSummary struct {
+	Reference database.Bucket
+	Price     float64
+}
+
+func (f *FinanceLogic) BucketsMonthlySummary(userId, month, year int) ([]BucketSummary, error) {
+	buckets, err := f.DB.UserBuckets(userId)
+	if err != nil {
+		return nil, fmt.Errorf("BucketsMonthlySummary: %w", err)
+	}
+
+	newBuckets := []BucketSummary{}
+	for _, b := range buckets {
+		totalPrice, err := f.bucketMonthPrice(b.Id, month, year)
+		if err != nil {
+			return nil, fmt.Errorf("BucketsMonthlySummary: %w", err)
+		}
+		newB := BucketSummary{
+			Reference: b,
+			Price:     totalPrice,
+		}
+		newBuckets = append(newBuckets, newB)
+	}
+	return newBuckets, nil
+
+}
+
+func (f *FinanceLogic) bucketMonthPrice(bucketId int, month int, year int) (float64, error) {
+	transactions, err := f.DB.TransactionsInBucket(bucketId, month, year)
+	if err != nil {
+		return 0, fmt.Errorf("bucketMonthPrice: db: %w", err)
+	}
+
+	// Get the price of all
+	totalPrice := 0.0
+	for _, t := range transactions {
+		totalPrice += t.Price
+	}
+
+	return totalPrice, nil
 }

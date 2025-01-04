@@ -2,20 +2,22 @@ package views
 
 import (
 "wonk/app/database"
+"wonk/app/services/finance"
 "strconv"
 "time"
+"fmt"
 )
 
-templ Finance() {
+templ Finance(buckets []finance.BucketSummary) {
 <div class="h-full">
 	@FinanceNavBar()
-	<div id="finance-content">TODO: Display summary of the month</div>
+	@MontlySummary(buckets)
 </div>
 }
 
-templ FinancePage() {
+templ FinancePage(buckets []finance.BucketSummary) {
 @Page(){
-@Finance()
+@Finance(buckets)
 }
 }
 
@@ -25,6 +27,28 @@ templ FinanceNavBar() {
 		Submit
 	</a>
 	<a class="mx-4">View</a>
+</div>
+}
+
+templ MontlySummary(buckets []finance.BucketSummary){
+<div id="finance-content" class="h-full overflow-scroll">
+	<h3>Monthly Summary</h3>
+	<table class="w-full text-left">
+		<thead class="uppercase">
+			<tr>
+				<th>Bucket Name</th>
+				<th>Total Price($)</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, b:= range buckets{
+			<tr class="border-b">
+				<td>{b.Reference.Name}</td>
+				<td>{fmt.Sprintf("%.2f",b.Price)}</td>
+			</tr>
+			}
+		</tbody>
+	</table>
 </div>
 }
 

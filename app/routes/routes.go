@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"time"
 	"wonk/app/auth"
 	"wonk/app/database"
 	"wonk/app/services"
@@ -25,7 +26,7 @@ func AddRoutes(
 	mux.Handle("/signup", s.Auth.HandleSignUp())
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 	mux.Handle("/home", s.Auth.AuthMiddleware(handleHome(l)))
-	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l)))
+	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l, s.Finance)))
 	mux.Handle("/finance/submit", s.Auth.AuthMiddleware(handleFinanceSubmit(l, s.Finance)))
 	mux.Handle("/finance/submit/bucket", s.Auth.AuthMiddleware(handleFinanceSubmitBucket(l, s.Finance)))
 }
@@ -56,22 +57,36 @@ func handleHome(l *slog.Logger) http.Handler {
 	)
 }
 
-func handleFinance(l *slog.Logger) http.Handler {
+func handleFinance(l *slog.Logger, f finance.Finance) http.Handler {
+	funcName := "handleFinance"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			curUser, err := auth.UserCtx(r.Context())
+			if err != nil {
+				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				http.Error(w, "Internal Error, try logging in again", 500)
+				return
+			}
 			switch r.Method {
 			case "GET":
+				curTime := time.Now()
+				buckets, err := f.BucketsMonthlySummary(curUser.UserId, int(curTime.Month()), curTime.Year())
+				if err != nil {
+					l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue with user buckets"))
+					http.Error(w, "Internal Error, try logging in again", 500)
+					return
+				}
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
-					tmplFinanceDiv := views.Finance()
+					tmplFinanceDiv := views.Finance(buckets)
 					err := tmplFinanceDiv.Render(context.TODO(), w)
 					if err != nil {
 						l.Error("/finance: error", slog.String("Error", err.Error()))
 					}
 					return
 				} else {
-					tmplFinanceDiv := views.FinancePage()
+					tmplFinanceDiv := views.FinancePage(buckets)
 					err := tmplFinanceDiv.Render(context.TODO(), w)
 					if err != nil {
 						l.Error("/finance: error", slog.String("Error", err.Error()))
