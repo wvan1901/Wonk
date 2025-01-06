@@ -33,21 +33,29 @@ templ FinanceNavBar() {
 templ MontlySummary(buckets []finance.BucketSummary){
 <div id="finance-content" class="h-full overflow-scroll">
 	<h3>Monthly Summary</h3>
-	<table class="w-full text-left">
-		<thead class="uppercase">
+	<table class="w-full text-left rounded">
+		<thead class="uppercase bg-sky-200">
 			<tr>
-				<th>Bucket Name</th>
-				<th>Total Price($)</th>
+				<th class="px-6 py-3">Bucket Name</th>
+				<th class="px-6 py-3">Total Price($)</th>
 			</tr>
 		</thead>
+		{{ totalPrice := 0.0 }}
 		<tbody>
 			for _, b:= range buckets{
-			<tr class="border-b">
-				<td>{b.Reference.Name}</td>
-				<td>{fmt.Sprintf("%.2f",b.Price)}</td>
+			{{ totalPrice += b.Price }}
+			<tr class="border-b bg-sky-100">
+				<td class="px-6 py-y font-medium">{b.Reference.Name}</td>
+				<td class="px-6 py-y">{fmt.Sprintf("%.2f",b.Price)}</td>
 			</tr>
 			}
 		</tbody>
+		<tfoot>
+			<tr class="font-semibold bg-sky-300">
+				<th class="px-6 py-3">Total Price</th>
+				<th class="px-6 py-3">{fmt.Sprintf("%.2f", totalPrice)}</th>
+			</tr>
+		</tfoot>
 	</table>
 </div>
 }
