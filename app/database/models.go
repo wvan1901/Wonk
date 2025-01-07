@@ -18,22 +18,24 @@ type Bucket struct {
 }
 
 type TransactionItem struct {
-	Id       int
-	Name     string
-	Month    int
-	Year     int
-	Price    float64
-	UserId   int
-	BucketId int
+	Id        int
+	Name      string
+	Month     int
+	Year      int
+	Price     float64
+	IsExpense bool
+	UserId    int
+	BucketId  int
 }
 
 type TransactionItemInput struct {
-	Name     string
-	Month    int
-	Year     int
-	Price    float64
-	UserId   int
-	BucketId int
+	Name      string
+	Month     int
+	Year      int
+	Price     float64
+	IsExpense bool
+	UserId    int
+	BucketId  int
 }
 
 func (t *TransactionItemInput) Valid() map[string]string {
@@ -59,7 +61,6 @@ func (t *TransactionItemInput) Valid() map[string]string {
 	}
 	twoOrLessDecimalPlaces := math.Floor(t.Price*100) == 100*t.Price
 	if !twoOrLessDecimalPlaces {
-		fmt.Println("Wicho: DEBUG:", math.Floor(t.Price*100), "==", 100*t.Price, twoOrLessDecimalPlaces)
 		problems["Price"] = "Invalid Price: has more than 2 decimal places"
 	}
 

@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS transaction_item (
 	month INTEGER NOT NULL,
 	year INTEGER NOT NULL,
 	price REAL NOT NULL,
+	is_expense BOOLEAN NOT NULL,
 	user_id INTEGER NOT NULL,
 	bucket_id INTEGER NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES user (id)

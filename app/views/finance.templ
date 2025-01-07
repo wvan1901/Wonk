@@ -96,6 +96,7 @@ MonthValue string
 MonthErr *string
 YearValue string
 YearErr *string
+ExpenseErr *string
 BucketValue string
 BucketErr *string
 }
@@ -113,6 +114,20 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
 	if formData.PriceErr != nil {
 	<div class="text-red-700">{*formData.PriceErr}</div>
+	}
+	<label for="isExpense">Is this an Income or Expense?</label>
+	<label class="flex justify-between items-center">
+		<input id="isExpense" name="isExpense" type="checkbox" class="peer appearance-none rounded-md"
+			checked />
+		<span
+			class="w-full h-10 flex items-center flex-shrink-0 p-1 bg-green-300 rounded-full duration-300 ease-in-out peer-checked:bg-red-400 after:w-1/2 after:h-8 after:bg-white after:rounded-full after:shadow-md after:duration-300 peer-checked:after:translate-x-full"></span>
+	</label>
+	<div class="flex flex-row justify-around items-center text-xs">
+		<p>Income</p>
+		<p>Expense</p>
+	</div>
+	if formData.ExpenseErr != nil {
+	<div class="text-red-700">{*formData.ExpenseErr}</div>
 	}
 	<label for="month">Purchase Month:</label>
 	<select id="month" name="month" required

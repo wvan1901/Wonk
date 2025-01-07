@@ -51,6 +51,15 @@ func (f *FinanceLogic) SubmitNewTransaction(inputForm TransactionFormInput) (map
 	if err != nil {
 		conversionProblems["Price"] = "Invalid Price: Not a decimal"
 	}
+	isExpense := false
+	switch inputForm.IsExpense {
+	case "on":
+		isExpense = true
+	case "":
+		isExpense = false
+	default:
+		conversionProblems["IsExpense"] = "Invalid Expense: Not valid"
+	}
 	bucketId, err := strconv.Atoi(inputForm.BucketId)
 	if err != nil {
 		conversionProblems["BucketId"] = "Invalid BucketId: Not a number"
@@ -60,12 +69,13 @@ func (f *FinanceLogic) SubmitNewTransaction(inputForm TransactionFormInput) (map
 	}
 	// Validate DB input
 	transactionInput := database.TransactionItemInput{
-		Name:     inputForm.Name,
-		Month:    month,
-		Year:     year,
-		Price:    price,
-		UserId:   inputForm.UserId,
-		BucketId: bucketId,
+		Name:      inputForm.Name,
+		Month:     month,
+		Year:      year,
+		Price:     price,
+		IsExpense: isExpense,
+		UserId:    inputForm.UserId,
+		BucketId:  bucketId,
 	}
 	problems := transactionInput.Valid()
 	if len(problems) > 0 {
@@ -105,12 +115,13 @@ func (f *FinanceLogic) CreateBucket(userId int, newName string) (map[string]stri
 }
 
 type TransactionFormInput struct {
-	Name     string
-	Month    string
-	Year     string
-	Price    string
-	UserId   int
-	BucketId string
+	Name      string
+	Month     string
+	Year      string
+	Price     string
+	IsExpense string
+	UserId    int
+	BucketId  string
 }
 
 type BucketSummary struct {
@@ -149,7 +160,11 @@ func (f *FinanceLogic) bucketMonthPrice(bucketId int, month int, year int) (floa
 	// Get the price of all
 	totalPrice := 0.0
 	for _, t := range transactions {
-		totalPrice += t.Price
+		factor := 1
+		if t.IsExpense {
+			factor = factor * -1
+		}
+		totalPrice += t.Price * float64(factor)
 	}
 
 	return totalPrice, nil

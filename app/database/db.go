@@ -81,8 +81,8 @@ func (s *SqliteDb) CreateBucket(userId int, bucketName string) (int, error) {
 }
 
 func (s *SqliteDb) CreateItemTransaction(input TransactionItemInput) (int, error) {
-	query := "INSERT INTO " + TRANSACTION_ITEMS_TABLE_NAME + " (name, month, year, price, user_id, bucket_id) VALUES (?, ?, ?, ?, ?, ?);"
-	res, err := s.Db.Exec(query, input.Name, input.Month, input.Year, input.Price, input.UserId, input.BucketId)
+	query := "INSERT INTO " + TRANSACTION_ITEMS_TABLE_NAME + " (name, month, year, price, is_expense, user_id, bucket_id) VALUES (?, ?, ?, ?, ?, ?, ?);"
+	res, err := s.Db.Exec(query, input.Name, input.Month, input.Year, input.Price, input.IsExpense, input.UserId, input.BucketId)
 	if err != nil {
 		return 0, fmt.Errorf("CreateItemTransaction: Exec: %w", err)
 	}
@@ -137,7 +137,7 @@ func (s *SqliteDb) TransactionsInBucket(bucketId, month, year int) ([]Transactio
 	var data []TransactionItem
 	for rows.Next() {
 		b := TransactionItem{}
-		err := rows.Scan(&b.Id, &b.Name, &b.Month, &b.Year, &b.Price, &b.UserId, &b.BucketId)
+		err := rows.Scan(&b.Id, &b.Name, &b.Month, &b.Year, &b.Price, &b.IsExpense, &b.UserId, &b.BucketId)
 		if err != nil {
 			return nil, fmt.Errorf("TransactionsInBucket: rows next: %w", err)
 		}

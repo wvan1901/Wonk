@@ -2,6 +2,7 @@ package routes
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -141,12 +142,13 @@ func handleFinanceSubmit(l *slog.Logger, f finance.Finance) http.Handler {
 					return
 				}
 				formData := finance.TransactionFormInput{
-					Name:     r.FormValue("name"),
-					Month:    r.FormValue("month"),
-					Year:     r.FormValue("year"),
-					Price:    r.FormValue("price"),
-					UserId:   curUser.UserId,
-					BucketId: r.FormValue("bucket"),
+					Name:      r.FormValue("name"),
+					Month:     r.FormValue("month"),
+					Year:      r.FormValue("year"),
+					Price:     r.FormValue("price"),
+					IsExpense: r.FormValue("isExpense"),
+					UserId:    curUser.UserId,
+					BucketId:  r.FormValue("bucket"),
 				}
 				problems, err := f.SubmitNewTransaction(formData)
 				if err != nil {
