@@ -15,7 +15,7 @@ type Finance interface {
 	UserBuckets(int) ([]database.Bucket, error)
 	SubmitNewTransaction(TransactionFormInput) (map[string]string, error)
 	CreateBucket(int, string) (map[string]string, error)
-	BucketsMonthlySummary(int, int, int) ([]BucketSummary, error)
+	MonthlySummary(int, int, int) (*MonthSummary, error)
 }
 
 type FinanceLogic struct {
@@ -129,11 +129,20 @@ type BucketSummary struct {
 	Price     float64
 }
 
-func (f *FinanceLogic) BucketsMonthlySummary(userId, month, year int) ([]BucketSummary, error) {
+type MonthSummary struct {
+	BucketsSummary []BucketSummary
+	TotalIncome    float64
+	TotalExpense   float64
+}
+
+func (f *FinanceLogic) MonthlySummary(userId, month, year int) (*MonthSummary, error) {
 	buckets, err := f.DB.UserBuckets(userId)
 	if err != nil {
 		return nil, fmt.Errorf("BucketsMonthlySummary: %w", err)
 	}
+
+	totalIncome := 0.0
+	totalExpense := 0.0
 
 	newBuckets := []BucketSummary{}
 	for _, b := range buckets {
@@ -146,9 +155,20 @@ func (f *FinanceLogic) BucketsMonthlySummary(userId, month, year int) ([]BucketS
 			Price:     totalPrice,
 		}
 		newBuckets = append(newBuckets, newB)
+		if totalPrice < 0 {
+			totalExpense += totalPrice
+		} else {
+			totalIncome += totalPrice
+		}
 	}
-	return newBuckets, nil
 
+	summary := &MonthSummary{
+		BucketsSummary: newBuckets,
+		TotalIncome:    totalIncome,
+		TotalExpense:   totalExpense,
+	}
+
+	return summary, nil
 }
 
 func (f *FinanceLogic) bucketMonthPrice(bucketId int, month int, year int) (float64, error) {

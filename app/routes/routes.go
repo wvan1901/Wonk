@@ -70,7 +70,7 @@ func handleFinance(l *slog.Logger, f finance.Finance) http.Handler {
 			switch r.Method {
 			case "GET":
 				curTime := time.Now()
-				buckets, err := f.BucketsMonthlySummary(curUser.UserId, int(curTime.Month()), curTime.Year())
+				summary, err := f.MonthlySummary(curUser.UserId, int(curTime.Month()), curTime.Year())
 				if err != nil {
 					l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue with user buckets"))
 					http.Error(w, "Internal Error, try logging in again", 500)
@@ -79,14 +79,14 @@ func handleFinance(l *slog.Logger, f finance.Finance) http.Handler {
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
-					tmplFinanceDiv := views.Finance(buckets)
+					tmplFinanceDiv := views.Finance(*summary)
 					err := tmplFinanceDiv.Render(context.TODO(), w)
 					if err != nil {
 						l.Error("/finance: error", slog.String("Error", err.Error()))
 					}
 					return
 				} else {
-					tmplFinanceDiv := views.FinancePage(buckets)
+					tmplFinanceDiv := views.FinancePage(*summary)
 					err := tmplFinanceDiv.Render(context.TODO(), w)
 					if err != nil {
 						l.Error("/finance: error", slog.String("Error", err.Error()))

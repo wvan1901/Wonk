@@ -8,16 +8,16 @@ import (
 "fmt"
 )
 
-templ Finance(buckets []finance.BucketSummary) {
+templ Finance(s finance.MonthSummary) {
 <div class="h-full">
 	@FinanceNavBar()
-	@MontlySummary(buckets)
+	@MontlySummary(s)
 </div>
 }
 
-templ FinancePage(buckets []finance.BucketSummary) {
+templ FinancePage(s finance.MonthSummary) {
 @Page(){
-@Finance(buckets)
+@Finance(s)
 }
 }
 
@@ -30,7 +30,7 @@ templ FinanceNavBar() {
 </div>
 }
 
-templ MontlySummary(buckets []finance.BucketSummary){
+templ MontlySummary(s finance.MonthSummary){
 <div id="finance-content" class="h-full overflow-scroll">
 	<h3>Monthly Summary</h3>
 	<table class="w-full text-left rounded">
@@ -40,20 +40,26 @@ templ MontlySummary(buckets []finance.BucketSummary){
 				<th class="px-6 py-3">Total Price($)</th>
 			</tr>
 		</thead>
-		{{ totalPrice := 0.0 }}
 		<tbody>
-			for _, b:= range buckets{
-			{{ totalPrice += b.Price }}
+			for _, b:= range s.BucketsSummary{
 			<tr class="border-b bg-sky-100">
-				<td class="px-6 py-y font-medium">{b.Reference.Name}</td>
-				<td class="px-6 py-y">{fmt.Sprintf("%.2f",b.Price)}</td>
+				<td class="px-6 py-1 font-medium">{b.Reference.Name}</td>
+				<td class="px-6 py-1">{fmt.Sprintf("%.2f",b.Price)}</td>
 			</tr>
 			}
 		</tbody>
 		<tfoot>
 			<tr class="font-semibold bg-sky-300">
-				<th class="px-6 py-3">Total Price</th>
-				<th class="px-6 py-3">{fmt.Sprintf("%.2f", totalPrice)}</th>
+				<th class="px-6 py-1">Total Income:</th>
+				<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalIncome)}</th>
+			</tr>
+			<tr class="font-semibold bg-sky-300">
+				<th class="px-6 py-1">Total Expense:</th>
+				<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalExpense)}</th>
+			</tr>
+			<tr class="font-semibold bg-sky-300">
+				<th class="px-6 py-1">NET:</th>
+				<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalIncome + s.TotalExpense)}</th>
 			</tr>
 		</tfoot>
 	</table>
