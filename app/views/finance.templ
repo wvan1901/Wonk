@@ -9,7 +9,7 @@ import (
 )
 
 templ Finance(s finance.MonthSummary) {
-<div class="h-full">
+<div class="h-full overflow-scroll">
 	@FinanceNavBar()
 	@MontlySummary(s)
 </div>
@@ -31,7 +31,7 @@ templ FinanceNavBar() {
 }
 
 templ MontlySummary(s finance.MonthSummary){
-<div id="finance-content" class="h-full overflow-scroll">
+<div id="finance-content" class="h-full">
 	<h3>Monthly Summary</h3>
 	<table class="w-full text-left rounded">
 		<thead class="uppercase bg-sky-200">
@@ -71,7 +71,7 @@ buckets []database.Bucket,
 formData TransactionFormData,
 monthData []Month,
 ){
-<div id="finance-content" class="overflow-scroll">
+<div id="finance-content">
 	<h3 class="py-4">Create New Transaction:</h3>
 	<div>
 		if len(buckets) == 0 {
