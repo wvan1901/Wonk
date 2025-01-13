@@ -6,8 +6,8 @@ import (
 )
 
 type Secret struct {
-	CookieKey string
-	JwtKey    string
+	CookieKey string // Hex string
+	JwtKey    string // Random string
 }
 
 func (s *Secret) Valid() error {
