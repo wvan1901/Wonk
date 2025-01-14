@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	MAX_BUCKETS = 5
+	MAX_BUCKETS = 40
 )
 
 type Finance interface {
