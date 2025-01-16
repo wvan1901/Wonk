@@ -9,7 +9,7 @@ import (
 )
 
 templ Finance(s finance.MonthSummary) {
-<div class="h-full overflow-scroll">
+<div class="overflow-scroll">
 	@FinanceNavBar()
 	@MontlySummary(s)
 </div>
@@ -32,38 +32,62 @@ templ FinanceNavBar() {
 
 templ MontlySummary(s finance.MonthSummary){
 <div id="finance-content" class="h-full">
-	<h3>Monthly Summary</h3>
-	<table class="w-full text-left rounded">
-		<thead class="uppercase bg-sky-200">
-			<tr>
-				<th class="px-6 py-3">Bucket Name</th>
-				<th class="px-6 py-3">Total Price($)</th>
-			</tr>
-		</thead>
-		<tbody>
-			for _, b:= range s.BucketsSummary{
-			<tr class="border-b bg-sky-100">
-				<td class="px-6 py-1 font-medium">{b.Reference.Name}</td>
-				<td class="px-6 py-1">{fmt.Sprintf("%.2f",b.Price)}</td>
-			</tr>
+	<h3>Search Monthly Summary</h3>
+	<form class="flex flex-col" autocomplete="off" hx-post="/finance" hx-target="#monthlyTable" hx-swap="outerHTML">
+		<label for="month">Month:</label>
+		<select id="month" name="month" required
+			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+			for _, month := range GetMonths() {
+			<option value={month.Value} if month.IsCurrent { selected="selected" }>{month.Name}</option>
 			}
-		</tbody>
-		<tfoot>
-			<tr class="font-semibold bg-sky-300">
-				<th class="px-6 py-1">Total Income:</th>
-				<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalIncome)}</th>
-			</tr>
-			<tr class="font-semibold bg-sky-300">
-				<th class="px-6 py-1">Total Expense:</th>
-				<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalExpense)}</th>
-			</tr>
-			<tr class="font-semibold bg-sky-300">
-				<th class="px-6 py-1">NET:</th>
-				<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalIncome + s.TotalExpense)}</th>
-			</tr>
-		</tfoot>
-	</table>
+		</select>
+		<label for="year">Year:</label>
+		<select id="year" name="year" required
+			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+			<option>2024</option>
+			<option selected="selected">2025</option>
+			<option>2026</option>
+			<option>2027</option>
+		</select>
+		<input type="submit" value="Search"
+			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2" />
+	</form>
+	<h3>Monthly Summary</h3>
+	@MonthlyTable(s)
 </div>
+}
+
+templ MonthlyTable(s finance.MonthSummary) {
+<table id="monthlyTable" class="w-full text-left rounded">
+	<thead class="uppercase bg-sky-200">
+		<tr>
+			<th class="px-6 py-3">Bucket Name</th>
+			<th class="px-6 py-3">Total Price($)</th>
+		</tr>
+	</thead>
+	<tbody>
+		for _, b:= range s.BucketsSummary{
+		<tr class="border-b bg-sky-100">
+			<td class="px-6 py-1 font-medium">{b.Reference.Name}</td>
+			<td class="px-6 py-1">{fmt.Sprintf("%.2f",b.Price)}</td>
+		</tr>
+		}
+	</tbody>
+	<tfoot>
+		<tr class="font-semibold bg-sky-300">
+			<th class="px-6 py-1">Total Income:</th>
+			<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalIncome)}</th>
+		</tr>
+		<tr class="font-semibold bg-sky-300">
+			<th class="px-6 py-1">Total Expense:</th>
+			<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalExpense)}</th>
+		</tr>
+		<tr class="font-semibold bg-sky-300">
+			<th class="px-6 py-1">NET:</th>
+			<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalIncome + s.TotalExpense)}</th>
+		</tr>
+	</tfoot>
+</table>
 }
 
 templ FinanceSubmit(

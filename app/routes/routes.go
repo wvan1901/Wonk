@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 	"time"
 	"wonk/app/auth"
 	"wonk/app/database"
@@ -93,6 +94,37 @@ func handleFinance(l *slog.Logger, f finance.Finance) http.Handler {
 					}
 					return
 				}
+			case "POST":
+				err := r.ParseForm()
+				if err != nil {
+					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()))
+					http.Error(w, "Internal Error: Parsing Form", 500)
+					return
+				}
+				month := r.FormValue("month")
+				year := r.FormValue("year")
+				monthInt, err := strconv.Atoi(month)
+				if err != nil {
+					http.Error(w, "Bad Request: Month Isn't a int", 400)
+					return
+				}
+				yearInt, err := strconv.Atoi(year)
+				if err != nil {
+					http.Error(w, "Bad Request: Year Isn't a int", 400)
+					return
+				}
+				summary, err := f.MonthlySummary(curUser.UserId, monthInt, yearInt)
+				if err != nil {
+					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
+				tmplFinanceDiv := views.MonthlyTable(*summary)
+				err = tmplFinanceDiv.Render(context.TODO(), w)
+				if err != nil {
+					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "templ"))
+				}
+				return
 			default:
 				http.Error(w, "Not valid method", 404)
 			}
