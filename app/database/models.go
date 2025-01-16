@@ -1,7 +1,10 @@
 package database
 
 import (
+	"fmt"
 	"math"
+	"strconv"
+	"strings"
 )
 
 type User struct {
@@ -58,7 +61,17 @@ func (t *TransactionItemInput) Valid() map[string]string {
 	if t.Price <= 0 {
 		problems["Price"] = "Invalid Price"
 	}
-	twoOrLessDecimalPlaces := math.Floor(t.Price*100) == 100*t.Price
+
+	floatStr := strconv.FormatFloat(t.Price, 'f', -1, 64)
+	parts := strings.Split(floatStr, ".")
+
+	twoOrLessDecimalPlaces := false
+	if len(parts) < 2 {
+		twoOrLessDecimalPlaces = true
+	} else {
+		twoOrLessDecimalPlaces = len(parts[1]) <= 2
+	}
+
 	if !twoOrLessDecimalPlaces {
 		problems["Price"] = "Invalid Price: has more than 2 decimal places"
 	}
