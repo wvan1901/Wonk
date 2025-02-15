@@ -29,7 +29,7 @@ func LoginSignUpPage() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>Wonk</title><link rel=\"stylesheet\" href=\"static/css/output.css\"><script src=\"/static/script/htmx.min.js\"></script></head><body class=\"overscroll-none\"><script>\n\t\tdocument.body.addEventListener('htmx:beforeSwap', function (evt) {\n\t\t\tif (evt.detail.xhr.status === 404) {\n\t\t\t\t// alert the user when a 404 occurs (maybe use a nicer mechanism than alert())\n\t\t\t\talert(\"Error: Could Not Find Resource\");\n\t\t\t} else if (evt.detail.xhr.status === 422) {\n\t\t\t\t// allow 422 responses to swap as we are using this as a signal that\n\t\t\t\t// a form was submitted with bad data and want to rerender with the errors\n\t\t\t\t// set isError to false to avoid error logging in console\n\t\t\t\tevt.detail.shouldSwap = true;\n\t\t\t\tevt.detail.isError = false;\n\t\t\t}\n\t\t});\n\t</script><div class=\"h-screen bg-stone-100 flex flex-col justify-center items-center\"><div id=\"contain-div\" class=\"flex flex-col bg-stone-300 w-2/3 h-4/5 rounded-lg p-12 justify-between\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<!doctype html><html lang=\"en\"><head><meta charset=\"UTF-8\"><title>Wonk</title><link rel=\"stylesheet\" href=\"static/css/output.css\"><script src=\"/static/script/htmx.min.js\"></script></head><body class=\"overscroll-none light\"><script>\n\t\tdocument.body.addEventListener('htmx:beforeSwap', function (evt) {\n\t\t\tif (evt.detail.xhr.status === 404) {\n\t\t\t\t// alert the user when a 404 occurs (maybe use a nicer mechanism than alert())\n\t\t\t\talert(\"Error: Could Not Find Resource\");\n\t\t\t} else if (evt.detail.xhr.status === 422) {\n\t\t\t\t// allow 422 responses to swap as we are using this as a signal that\n\t\t\t\t// a form was submitted with bad data and want to rerender with the errors\n\t\t\t\t// set isError to false to avoid error logging in console\n\t\t\t\tevt.detail.shouldSwap = true;\n\t\t\t\tevt.detail.isError = false;\n\t\t\t}\n\t\t});\n\t</script><div class=\"h-screen bg-stone-100 flex flex-col justify-center items-center\"><div id=\"contain-div\" class=\"flex flex-col bg-stone-300 w-2/3 h-4/5 rounded-lg p-12 justify-between\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -168,7 +168,7 @@ func Login(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"w-full\"><p>New to Wonk?</p><button hx-get=\"/signup\" hx-target=\"#contain-div\" hx-swap=\"innerHTML\" hx-push-url=\"/signup\" class=\"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full\">Sign Up</button></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"w-full\"><p>New to Wonk?</p><button hx-get=\"/signup\" hx-target=\"#contain-div\" hx-swap=\"innerHTML\" hx-push-url=\"/signup\" class=\"bg-transparent text-varient-primary border border-varient-primary font-bold py-2 px-4 rounded my-2 w-full\">Sign Up</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -215,7 +215,7 @@ func LoginForm(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"> <label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"> <button class=\"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2\">Login</button> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"> <label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"> <button class=\"bg-varient-primary hover:bg-varient-primary-hover text-white font-bold py-2 px-4 rounded my-2\">Login</button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -275,7 +275,7 @@ func SignUp(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"w-full\"><p>Already have an account?</p><button hx-get=\"/login\" hx-target=\"#contain-div\" hx-swap=\"innerHTML\" hx-push-url=\"/login\" class=\"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full\">Log In</button></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"w-full\"><p>Already have an account?</p><button hx-get=\"/login\" hx-target=\"#contain-div\" hx-swap=\"innerHTML\" hx-push-url=\"/login\" class=\"bg-transparent text-varient-primary border border-varient-primary font-bold py-2 px-4 rounded my-2 w-full\">Log In</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -317,7 +317,7 @@ func SignUpForm(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"> <label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"> <button class=\"bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full\">Create</button> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"> <label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"> <button class=\"bg-varient-primary hover:bg-varient-primary-hover text-white font-bold py-2 px-4 rounded my-2 w-full\">Create</button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -329,7 +329,7 @@ func SignUpForm(formData LoginFormData) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 115, Col: 45}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 116, Col: 45}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {

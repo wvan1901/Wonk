@@ -1,3 +1,25 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme inline {
+  --color-varient-primary: rgb(var(--varient-primary));
+  --color-varient-primary-hover: rgb(var(--varient-primary-hover));
+  --color-varient-secondary: rgb(var(--varient-secondary));
+  --color-varient-success: rgb(var(--varient-success));
+  --color-varient-warning: rgb(var(--varient-warning));
+  --color-varient-info: rgb(var(--varient-info));
+  --color-varient-error: rgb(var(--varient-error));
+}
+
+.light {
+  --varient-primary: 43, 151, 119;
+  --varient-primary-hover: 34, 121, 95;
+  --varient-secondary: 151, 43, 75);
+  --varient-success: 92, 184, 92;
+  --varient-warning: 255, 95, 21;
+  --varient-info: 130, 219, 192;
+  --varient-error: 255, 0, 51;
+}
+
+.dark {
+  --varient-primary: 130, 219, 192;
+}

@@ -11,7 +11,7 @@ templ LoginSignUpPage() {
 	<script src="/static/script/htmx.min.js"></script>
 </head>
 
-<body class="overscroll-none">
+<body class="overscroll-none light">
 	<script>
 		document.body.addEventListener('htmx:beforeSwap', function (evt) {
 			if (evt.detail.xhr.status === 404) {
@@ -57,7 +57,7 @@ templ Login(formData LoginFormData) {
 <div class="w-full">
 	<p>New to Wonk?</p>
 	<button hx-get="/signup" hx-target="#contain-div" hx-swap="innerHTML" hx-push-url="/signup"
-		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full">
+		class="bg-transparent text-varient-primary border border-varient-primary font-bold py-2 px-4 rounded my-2 w-full">
 		Sign Up
 	</button>
 </div>
@@ -71,11 +71,11 @@ templ LoginForm(formData LoginFormData) {
 <form hx-swap="outerHTML" hx-post="/login" class="flex flex-col" autocomplete="off">
 	<label for="username">Username:</label>
 	<input id="username" type="text" name="username" required value={formData.Username}
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+		class="border border-varient-primary text-sm rounded-lg block w-full p-2.5">
 	<label for="password">Password:</label>
 	<input id="password" type="password" name="password" required
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-	<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2">
+		class="border border-varient-primary text-sm rounded-lg block w-full p-2.5">
+	<button class="bg-varient-primary hover:bg-varient-primary-hover text-white font-bold py-2 px-4 rounded my-2">
 		Login
 	</button>
 	if formData.FormErr != nil {
@@ -94,7 +94,7 @@ templ SignUp(formData LoginFormData) {
 <div class="w-full">
 	<p>Already have an account?</p>
 	<button hx-get="/login" hx-target="#contain-div" hx-swap="innerHTML" hx-push-url="/login"
-		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full">
+		class="bg-transparent text-varient-primary border border-varient-primary font-bold py-2 px-4 rounded my-2 w-full">
 		Log In
 	</button>
 </div>
@@ -104,11 +104,12 @@ templ SignUpForm(formData LoginFormData) {
 <form hx-swap="outerHTML" hx-post="/signup" autocomplete="off">
 	<label for="username">Username:</label>
 	<input id="username" type="text" name="username" required value={formData.Username}
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+		class="border border-varient-primary text-sm rounded-lg block w-full p-2.5">
 	<label for="password">Password:</label>
 	<input id="password" type="password" name="password" required
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-	<button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2 w-full">
+		class="border border-varient-primary text-sm rounded-lg block w-full p-2.5">
+	<button
+		class="bg-varient-primary hover:bg-varient-primary-hover text-white font-bold py-2 px-4 rounded my-2 w-full">
 		Create
 	</button>
 	if formData.FormErr != nil {
