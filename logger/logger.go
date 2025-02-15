@@ -3,6 +3,8 @@ package logger
 import (
 	"log/slog"
 	"os"
+
+	"github.com/wvan1901/wicho/devlog"
 )
 
 func InitLogger(fmtInput string) *slog.Logger {
@@ -16,6 +18,8 @@ func InitLogger(fmtInput string) *slog.Logger {
 		logger = slog.New(slog.NewTextHandler(os.Stdout, opts))
 	case "color":
 		logger = slog.New(newColorHandler(opts))
+	case "devlog":
+		logger = slog.New(devlog.New(os.Stdout, nil, nil))
 	default:
 		logger = slog.New(slog.NewJSONHandler(os.Stdout, opts))
 	}
