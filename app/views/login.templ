@@ -14,7 +14,7 @@ templ LoginSignUpPage() {
 			<link rel="stylesheet" href="static/css/output.css"/>
 			<script src="/static/script/htmx.min.js"></script>
 		</head>
-		<body class="overscroll-none light">
+		<body class="overscroll-none light text-txt-primary bg-bg-main">
 			<script>
 		document.body.addEventListener('htmx:beforeSwap', function (evt) {
 			if (evt.detail.xhr.status === 404) {
@@ -28,9 +28,9 @@ templ LoginSignUpPage() {
 				evt.detail.isError = false;
 			}
 		});
-	</script>
-			<div class="h-screen bg-stone-100 flex flex-col justify-center items-center">
-				<div id="contain-div" class="flex flex-col bg-stone-300 w-2/3 h-4/5 rounded-lg p-12 justify-between">
+		</script>
+			<div class="h-screen flex flex-col justify-center items-center">
+				<div id="contain-div" class="flex flex-col border w-2/3 h-4/5 rounded-lg p-12 justify-between">
 					{ children... }
 				</div>
 			</div>

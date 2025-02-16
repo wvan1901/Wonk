@@ -33,13 +33,13 @@ func (b *ButtonOptions) TemplAttributes() templ.Attributes {
 	btnClasses := " uppercase font-bold py-2 px-4 rounded my-2 w-full disabled:bg-stone-400 disabled:text-white"
 	switch b.Varient {
 	case "contained":
-		tmplAttr["class"] = "bg-varient-primary hover:bg-varient-primary-hover text-white" + btnClasses
+		tmplAttr["class"] = "bg-varient-primary hover:bg-varient-primary-hover text-bg-main" + btnClasses
 	case "text":
 		tmplAttr["class"] = "bg-transparent text-varient-primary hover:border hover:border-varient-primary" + btnClasses
 	case "outline":
-		tmplAttr["class"] = "bg-transparent text-varient-primary border border-varient-primary" + btnClasses
+		tmplAttr["class"] = "bg-transparent text-varient-primary border border-varient-primary hover:bg-varient-primary/10" + btnClasses
 	default:
-		tmplAttr["class"] = "bg-varient-primary hover:bg-varient-primary-hover text-white" + btnClasses
+		tmplAttr["class"] = "bg-varient-primary hover:bg-varient-primary-hover text-bg-main" + btnClasses
 	}
 
 	htmxAttr := b.Htmx.TemplAttributes()

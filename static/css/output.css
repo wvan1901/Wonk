@@ -377,6 +377,7 @@
     --color-varient-error: rgb(var(--varient-error));
     --color-bg-main: rgb(var(--bg-main));
     --color-brdr-main: rgb(var(--brdr-main));
+    --color-txt-primary: rgb(var(--txt-primary));
   }
 }
 @layer base {
@@ -693,12 +694,6 @@
   .bg-sky-300 {
     background-color: var(--color-sky-300);
   }
-  .bg-stone-100 {
-    background-color: var(--color-stone-100);
-  }
-  .bg-stone-300 {
-    background-color: var(--color-stone-300);
-  }
   .bg-transparent {
     background-color: transparent;
   }
@@ -768,14 +763,17 @@
     --tw-font-weight: var(--font-weight-semibold);
     font-weight: var(--font-weight-semibold);
   }
+  .text-bg-main {
+    color: rgb(var(--bg-main));
+  }
   .text-red-700 {
     color: var(--color-red-700);
   }
+  .text-txt-primary {
+    color: rgb(var(--txt-primary));
+  }
   .text-varient-primary {
     color: rgb(var(--varient-primary));
-  }
-  .text-white {
-    color: var(--color-white);
   }
   .uppercase {
     text-transform: uppercase;
@@ -897,6 +895,13 @@
       }
     }
   }
+  .hover\:bg-varient-primary\/10 {
+    &:hover {
+      @media (hover: hover) {
+        background-color: color-mix(in oklab, rgb(var(--varient-primary)) 10%, transparent);
+      }
+    }
+  }
   .focus\:border-blue-500 {
     &:focus {
       border-color: var(--color-blue-500);
@@ -928,9 +933,19 @@
   --varient-error: 255, 0, 51;
   --bg-main: 255, 255, 255;
   --brdr-main: 204, 204, 204;
+  --txt-primary: 0, 0, 0;
 }
 .dark {
   --varient-primary: 130, 219, 192;
+  --varient-primary-hover: 34, 121, 95;
+  --varient-secondary: 151, 43, 75);
+  --varient-success: 92, 184, 92;
+  --varient-warning: 255, 95, 21;
+  --varient-info: 130, 219, 192;
+  --varient-error: 255, 0, 51;
+  --bg-main: 17, 17, 17;
+  --brdr-main: 204, 204, 204;
+  --txt-primary: 255, 255, 255;
 }
 @keyframes spin {
   to {
