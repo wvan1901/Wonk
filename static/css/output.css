@@ -375,6 +375,8 @@
     --color-varient-warning: rgb(var(--varient-warning));
     --color-varient-info: rgb(var(--varient-info));
     --color-varient-error: rgb(var(--varient-error));
+    --color-bg-main: rgb(var(--bg-main));
+    --color-brdr-main: rgb(var(--brdr-main));
   }
 }
 @layer base {
@@ -534,9 +536,6 @@
   .m-2 {
     margin: calc(var(--spacing) * 2);
   }
-  .m-3 {
-    margin: calc(var(--spacing) * 3);
-  }
   .mx-4 {
     margin-inline: calc(var(--spacing) * 4);
   }
@@ -625,6 +624,28 @@
   .justify-start {
     justify-content: flex-start;
   }
+  .divide-x-1 {
+    :where(& > :not(:last-child)) {
+      --tw-divide-x-reverse: 0;
+      border-inline-style: var(--tw-border-style);
+      border-inline-start-width: calc(1px * var(--tw-divide-x-reverse));
+      border-inline-end-width: calc(1px * calc(1 - var(--tw-divide-x-reverse)));
+    }
+  }
+  .divide-y-1 {
+    :where(& > :not(:last-child)) {
+      --tw-divide-y-reverse: 0;
+      border-bottom-style: var(--tw-border-style);
+      border-top-style: var(--tw-border-style);
+      border-top-width: calc(1px * var(--tw-divide-y-reverse));
+      border-bottom-width: calc(1px * calc(1 - var(--tw-divide-y-reverse)));
+    }
+  }
+  .divide-brdr-main {
+    :where(& > :not(:last-child)) {
+      border-color: rgb(var(--brdr-main));
+    }
+  }
   .overflow-scroll {
     overflow: scroll;
   }
@@ -657,11 +678,8 @@
   .border-varient-primary {
     border-color: rgb(var(--varient-primary));
   }
-  .bg-gray-200 {
-    background-color: var(--color-gray-200);
-  }
-  .bg-gray-300 {
-    background-color: var(--color-gray-300);
+  .bg-bg-main {
+    background-color: rgb(var(--bg-main));
   }
   .bg-green-300 {
     background-color: var(--color-green-300);
@@ -908,6 +926,8 @@
   --varient-warning: 255, 95, 21;
   --varient-info: 130, 219, 192;
   --varient-error: 255, 0, 51;
+  --bg-main: 255, 255, 255;
+  --brdr-main: 204, 204, 204;
 }
 .dark {
   --varient-primary: 130, 219, 192;
@@ -938,10 +958,20 @@
     animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
   }
 }
+@property --tw-divide-x-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
+}
 @property --tw-border-style {
   syntax: "*";
   inherits: false;
   initial-value: solid;
+}
+@property --tw-divide-y-reverse {
+  syntax: "*";
+  inherits: false;
+  initial-value: 0;
 }
 @property --tw-font-weight {
   syntax: "*";

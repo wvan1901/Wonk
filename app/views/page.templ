@@ -1,20 +1,19 @@
 package views
 
 import (
-"wonk/app/components"
+	"wonk/app/components"
 )
 
 templ Page() {
-<!DOCTYPE html>
-<html>
-
-<head>
-	<meta charset="UTF-8">
-	<title>Wonk</title>
-	<link rel="stylesheet" href="static/css/output.css">
-	<script src="/static/script/htmx.min.js"></script>
-	<script src="/static/script/hyperscript.min.js"></script>
-	<script>
+	<!DOCTYPE html>
+	<html>
+		<head>
+			<meta charset="UTF-8"/>
+			<title>Wonk</title>
+			<link rel="stylesheet" href="static/css/output.css"/>
+			<script src="/static/script/htmx.min.js"></script>
+			<script src="/static/script/hyperscript.min.js"></script>
+			<script>
 		document.addEventListener('DOMContentLoaded', (event) => {
 			document.body.addEventListener('htmx:beforeSwap', function (evt) {
 				if (evt.detail.xhr.status === 404) {
@@ -32,21 +31,19 @@ templ Page() {
 			});
 		})
 	</script>
-</head>
-
-<body class="overscroll-none light">
-	<div class="h-screen">
-		<div class="h-full flex flex-col">
-			@components.Header()
-			<div class="flex flex-row h-[94%]">
-				@components.NavBar()
-				<div id="content-div" class="w-full m-3 bg-gray-200 rounded-md p-4">
-					{ children... }
+		</head>
+		<body class="overscroll-none light">
+			<div class="h-screen">
+				<div class="h-full flex flex-col divide-y-1 divide-brdr-main">
+					@components.Header()
+					<div class="flex flex-row h-[94%] divide-x-1 divide-brdr-main">
+						@components.NavBar()
+						<div id="content-div" class="w-full p-4">
+							{ children... }
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
-	</div>
-</body>
-
-</html>
+		</body>
+	</html>
 }

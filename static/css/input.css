@@ -8,6 +8,8 @@
   --color-varient-warning: rgb(var(--varient-warning));
   --color-varient-info: rgb(var(--varient-info));
   --color-varient-error: rgb(var(--varient-error));
+  --color-bg-main: rgb(var(--bg-main));
+  --color-brdr-main: rgb(var(--brdr-main));
 }
 
 .light {
@@ -18,6 +20,8 @@
   --varient-warning: 255, 95, 21;
   --varient-info: 130, 219, 192;
   --varient-error: 255, 0, 51;
+  --bg-main: 255, 255, 255;
+  --brdr-main: 204, 204, 204;
 }
 
 .dark {
