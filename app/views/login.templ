@@ -1,18 +1,21 @@
 package views
 
+import (
+	"wonk/app/components/inputs"
+	"wonk/app/strutil"
+)
+
 templ LoginSignUpPage() {
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-	<meta charset="UTF-8">
-	<title>Wonk</title>
-	<link rel="stylesheet" href="static/css/output.css">
-	<script src="/static/script/htmx.min.js"></script>
-</head>
-
-<body class="overscroll-none light">
-	<script>
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8"/>
+			<title>Wonk</title>
+			<link rel="stylesheet" href="static/css/output.css"/>
+			<script src="/static/script/htmx.min.js"></script>
+		</head>
+		<body class="overscroll-none light">
+			<script>
 		document.body.addEventListener('htmx:beforeSwap', function (evt) {
 			if (evt.detail.xhr.status === 404) {
 				// alert the user when a 404 occurs (maybe use a nicer mechanism than alert())
@@ -26,95 +29,125 @@ templ LoginSignUpPage() {
 			}
 		});
 	</script>
-	<div class="h-screen bg-stone-100 flex flex-col justify-center items-center">
-		<div id="contain-div" class="flex flex-col bg-stone-300 w-2/3 h-4/5 rounded-lg p-12 justify-between">
-			{ children... }
-		</div>
-	</div>
-</body>
-
-</html>
+			<div class="h-screen bg-stone-100 flex flex-col justify-center items-center">
+				<div id="contain-div" class="flex flex-col bg-stone-300 w-2/3 h-4/5 rounded-lg p-12 justify-between">
+					{ children... }
+				</div>
+			</div>
+		</body>
+	</html>
 }
 
 templ LoginPage(formData LoginFormData) {
-@LoginSignUpPage(){
-@Login(formData)
-}
+	@LoginSignUpPage() {
+		@Login(formData)
+	}
 }
 
 templ SignUpPage(formData LoginFormData) {
-@LoginSignUpPage(){
-@SignUp(formData)
-}
+	@LoginSignUpPage() {
+		@SignUp(formData)
+	}
 }
 
 templ Login(formData LoginFormData) {
-<div>
-	<h1 class="text-xl">Log In</h1>
-	<br>
-	@LoginForm(formData)
-</div>
-<div class="w-full">
-	<p>New to Wonk?</p>
-	<button hx-get="/signup" hx-target="#contain-div" hx-swap="innerHTML" hx-push-url="/signup"
-		class="bg-transparent text-varient-primary border border-varient-primary font-bold py-2 px-4 rounded my-2 w-full">
-		Sign Up
-	</button>
-</div>
+	<div>
+		<h1 class="text-xl">Log In</h1>
+		<br/>
+		@LoginForm(formData)
+	</div>
+	<div class="w-full">
+		<p>New to Wonk?</p>
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "outline",
+			Text:    "Sign Up",
+			Htmx: inputs.HtmxOptions{
+				HxGet:     strutil.StrPtr("/signup"),
+				HxTarget:  strutil.StrPtr("#contain-div"),
+				HxSwap:    strutil.StrPtr("innerHTML"),
+				HxPushUrl: strutil.StrPtr("/signup"),
+			},
+		})
+	</div>
 }
 
 type LoginFormData struct {
-Username string
-FormErr *string
+	Username string
+	FormErr  *string
 }
-templ LoginForm(formData LoginFormData) {
-<form hx-swap="outerHTML" hx-post="/login" class="flex flex-col" autocomplete="off">
-	<label for="username">Username:</label>
-	<input id="username" type="text" name="username" required value={formData.Username}
-		class="border border-varient-primary text-sm rounded-lg block w-full p-2.5">
-	<label for="password">Password:</label>
-	<input id="password" type="password" name="password" required
-		class="border border-varient-primary text-sm rounded-lg block w-full p-2.5">
-	<button class="bg-varient-primary hover:bg-varient-primary-hover text-white font-bold py-2 px-4 rounded my-2">
-		Login
-	</button>
-	if formData.FormErr != nil {
-	<div class="text-red-700">{*formData.FormErr}</div>
-	}
 
-</form>
+templ LoginForm(formData LoginFormData) {
+	<form hx-swap="outerHTML" hx-post="/login" class="flex flex-col" autocomplete="off">
+		<label for="username">Username:</label>
+		<input
+			id="username"
+			type="text"
+			name="username"
+			required
+			value={ formData.Username }
+			class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+		/>
+		<label for="password">Password:</label>
+		<input
+			id="password"
+			type="password"
+			name="password"
+			required
+			class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+		/>
+		@inputs.Button(inputs.ButtonOptions{Varient: "contained", Text: "Login"})
+		if formData.FormErr != nil {
+			<div class="text-red-700">{ *formData.FormErr }</div>
+		}
+	</form>
 }
 
 templ SignUp(formData LoginFormData) {
-<div>
-	<h1 class="text-xl">Sign Up</h1>
-	<br>
-	@SignUpForm(formData)
-</div>
-<div class="w-full">
-	<p>Already have an account?</p>
-	<button hx-get="/login" hx-target="#contain-div" hx-swap="innerHTML" hx-push-url="/login"
-		class="bg-transparent text-varient-primary border border-varient-primary font-bold py-2 px-4 rounded my-2 w-full">
-		Log In
-	</button>
-</div>
+	<div>
+		<h1 class="text-xl">Sign Up</h1>
+		<br/>
+		@SignUpForm(formData)
+	</div>
+	<div class="w-full">
+		<p>Already have an account?</p>
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "outline",
+			Text:    "Log In",
+			Htmx: inputs.HtmxOptions{
+				HxGet:     strutil.StrPtr("/login"),
+				HxTarget:  strutil.StrPtr("#contain-div"),
+				HxSwap:    strutil.StrPtr("innerHTML"),
+				HxPushUrl: strutil.StrPtr("/login"),
+			},
+		})
+	</div>
 }
 
 templ SignUpForm(formData LoginFormData) {
-<form hx-swap="outerHTML" hx-post="/signup" autocomplete="off">
-	<label for="username">Username:</label>
-	<input id="username" type="text" name="username" required value={formData.Username}
-		class="border border-varient-primary text-sm rounded-lg block w-full p-2.5">
-	<label for="password">Password:</label>
-	<input id="password" type="password" name="password" required
-		class="border border-varient-primary text-sm rounded-lg block w-full p-2.5">
-	<button
-		class="bg-varient-primary hover:bg-varient-primary-hover text-white font-bold py-2 px-4 rounded my-2 w-full">
-		Create
-	</button>
-	if formData.FormErr != nil {
-	<div class="text-red-700">{*formData.FormErr}</div>
-	}
-
-</form>
+	<form hx-swap="outerHTML" hx-post="/signup" autocomplete="off">
+		<label for="username">Username:</label>
+		<input
+			id="username"
+			type="text"
+			name="username"
+			required
+			value={ formData.Username }
+			class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+		/>
+		<label for="password">Password:</label>
+		<input
+			id="password"
+			type="password"
+			name="password"
+			required
+			class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+		/>
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "contained",
+			Text:    "Create Account",
+		})
+		if formData.FormErr != nil {
+			<div class="text-red-700">{ *formData.FormErr }</div>
+		}
+	</form>
 }
