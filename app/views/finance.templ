@@ -131,9 +131,15 @@ templ FinanceSubmit(
 			}
 		</div>
 		<br/>
-		<a hx-get="/finance/submit/bucket" hx-target="#finance-content" hx-swap="innerHTML">
-			Create New Bucket
-		</a>
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "text",
+			Text:    "Create New Bucket",
+			Htmx: inputs.HtmxOptions{
+				HxGet:    strutil.StrPtr("/finance/submit/bucket"),
+				HxTarget: strutil.StrPtr("#finance-content"),
+				HxSwap:   strutil.StrPtr("innerHTML"),
+			},
+		})
 	</div>
 }
 
