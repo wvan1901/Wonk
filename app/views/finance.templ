@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 	"fmt"
+	"wonk/app/strutil"
 )
 
 templ Finance(s finance.MonthSummary) {
@@ -24,10 +25,19 @@ templ FinancePage(s finance.MonthSummary) {
 
 templ FinanceNavBar() {
 	<div class="flex flex-row">
-		<a hx-get="/finance/submit" hx-target="#finance-content" hx-swap="outerHTML" class="mx-4">
-			Submit
-		</a>
-		<a class="mx-4">View</a>
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "text",
+			Text:    "Submit",
+			Htmx: inputs.HtmxOptions{
+				HxGet:    strutil.StrPtr("/finance/submit"),
+				HxTarget: strutil.StrPtr("#finance-content"),
+				HxSwap:   strutil.StrPtr("outerHTML"),
+			},
+		})
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "text",
+			Text:    "View",
+		})
 	</div>
 }
 

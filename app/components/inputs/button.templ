@@ -22,12 +22,12 @@ func (b *ButtonOptions) TemplAttributes() templ.Attributes {
 		tmplAttr["disabled"] = b.Disabled
 	}
 
-	btnClasses := " uppercase font-bold py-2 px-4 rounded my-2 w-full disabled:bg-stone-400 disabled:text-white"
+	btnClasses := " uppercase font-bold py-2 px-4 rounded disabled:bg-stone-400 disabled:text-white"
 	switch b.Varient {
 	case "contained":
 		tmplAttr["class"] = "bg-varient-primary hover:bg-varient-primary-hover text-bg-main" + btnClasses
 	case "text":
-		tmplAttr["class"] = "bg-transparent text-varient-primary hover:border hover:border-varient-primary" + btnClasses
+		tmplAttr["class"] = "bg-transparent text-varient-primary hover:bg-varient-primary/10" + btnClasses
 	case "outline":
 		tmplAttr["class"] = "bg-transparent text-varient-primary border border-varient-primary hover:bg-varient-primary/10" + btnClasses
 	default:

@@ -165,7 +165,7 @@ func Login(formData LoginFormData) templ.Component {
 			templ_7745c5c3_Var6 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><h1 class=\"text-xl\">Log In</h1><br>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"flex flex-col\"><h1 class=\"text-xl\">Log In</h1><br>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -173,7 +173,7 @@ func Login(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"w-full\"><p>New to Wonk?</p>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"w-full flex flex-col\"><p>New to Wonk?</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -237,7 +237,7 @@ func LoginForm(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"> <label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"> <label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"><br>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -253,7 +253,7 @@ func LoginForm(formData LoginFormData) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 100, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 101, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -301,7 +301,7 @@ func SignUp(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"w-full\"><p>Already have an account?</p>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div class=\"w-full flex flex-col\"><p>Already have an account?</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -347,20 +347,20 @@ func SignUpForm(formData LoginFormData) templ.Component {
 			templ_7745c5c3_Var11 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-swap=\"outerHTML\" hx-post=\"/signup\" autocomplete=\"off\"><label for=\"username\">Username:</label> <input id=\"username\" type=\"text\" name=\"username\" required value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-swap=\"outerHTML\" hx-post=\"/signup\" autocomplete=\"off\" class=\"flex flex-col\"><label for=\"username\">Username:</label> <input id=\"username\" type=\"text\" name=\"username\" required value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(formData.Username)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 134, Col: 28}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 135, Col: 28}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"> <label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"> <label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"><br>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -379,7 +379,7 @@ func SignUpForm(formData LoginFormData) templ.Component {
 			var templ_7745c5c3_Var13 string
 			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 150, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 152, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 			if templ_7745c5c3_Err != nil {
