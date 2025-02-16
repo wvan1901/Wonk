@@ -1,242 +1,307 @@
 package views
 
 import (
-"wonk/app/database"
-"wonk/app/services/finance"
-"strconv"
-"time"
-"fmt"
+	"wonk/app/database"
+	"wonk/app/services/finance"
+	"wonk/app/components/inputs"
+	"strconv"
+	"time"
+	"fmt"
 )
 
 templ Finance(s finance.MonthSummary) {
-<div class="overflow-scroll">
-	@FinanceNavBar()
-	@MontlySummary(s)
-</div>
+	<div class="overflow-scroll">
+		@FinanceNavBar()
+		@MontlySummary(s)
+	</div>
 }
 
 templ FinancePage(s finance.MonthSummary) {
-@Page(){
-@Finance(s)
-}
+	@Page() {
+		@Finance(s)
+	}
 }
 
 templ FinanceNavBar() {
-<div class="flex flex-row">
-	<a hx-get="/finance/submit" hx-target="#finance-content" hx-swap="outerHTML" class="mx-4">
-		Submit
-	</a>
-	<a class="mx-4">View</a>
-</div>
+	<div class="flex flex-row">
+		<a hx-get="/finance/submit" hx-target="#finance-content" hx-swap="outerHTML" class="mx-4">
+			Submit
+		</a>
+		<a class="mx-4">View</a>
+	</div>
 }
 
-templ MontlySummary(s finance.MonthSummary){
-<div id="finance-content" class="h-full">
-	<h3>Search Monthly Summary</h3>
-	<form class="flex flex-col" autocomplete="off" hx-post="/finance" hx-target="#monthlyTable" hx-swap="outerHTML">
-		<label for="month">Month:</label>
-		<select id="month" name="month" required
-			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-			for _, month := range GetMonths() {
-			<option value={month.Value} if month.IsCurrent { selected="selected" }>{month.Name}</option>
+templ MontlySummary(s finance.MonthSummary) {
+	<div id="finance-content" class="h-full">
+		<h3>Search Monthly Summary</h3>
+		<form class="flex flex-col" autocomplete="off" hx-post="/finance" hx-target="#monthlyTable" hx-swap="outerHTML">
+			<label for="month">Month:</label>
+			<select
+				id="month"
+				name="month"
+				required
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+			>
+				for _, month := range GetMonths() {
+					<option
+						value={ month.Value }
+						if month.IsCurrent {
+							selected="selected"
+						}
+					>{ month.Name }</option>
+				}
+			</select>
+			<label for="year">Year:</label>
+			<select
+				id="year"
+				name="year"
+				required
+				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+			>
+				<option>2024</option>
+				<option selected="selected">2025</option>
+				<option>2026</option>
+				<option>2027</option>
+			</select>
+			@inputs.Button(inputs.ButtonOptions{
+				Varient: "contained",
+				Text:    "Search",
+			})
+		</form>
+		<h3>Monthly Summary</h3>
+		@MonthlyTable(s)
+	</div>
+}
+
+templ MonthlyTable(s finance.MonthSummary) {
+	<table id="monthlyTable" class="w-full text-left rounded">
+		<thead class="uppercase bg-sky-200">
+			<tr>
+				<th class="px-6 py-3">Bucket Name</th>
+				<th class="px-6 py-3">Total Price($)</th>
+			</tr>
+		</thead>
+		<tbody>
+			for _, b:= range s.BucketsSummary {
+				<tr class="border-b bg-sky-100">
+					<td class="px-6 py-1 font-medium">{ b.Reference.Name }</td>
+					<td class="px-6 py-1">{ fmt.Sprintf("%.2f",b.Price) }</td>
+				</tr>
+			}
+		</tbody>
+		<tfoot>
+			<tr class="font-semibold bg-sky-300">
+				<th class="px-6 py-1">Total Income:</th>
+				<th class="px-6 py-1">{ fmt.Sprintf("%.2f", s.TotalIncome) }</th>
+			</tr>
+			<tr class="font-semibold bg-sky-300">
+				<th class="px-6 py-1">Total Expense:</th>
+				<th class="px-6 py-1">{ fmt.Sprintf("%.2f", s.TotalExpense) }</th>
+			</tr>
+			<tr class="font-semibold bg-sky-300">
+				<th class="px-6 py-1">NET:</th>
+				<th class="px-6 py-1">{ fmt.Sprintf("%.2f", s.TotalIncome + s.TotalExpense) }</th>
+			</tr>
+		</tfoot>
+	</table>
+}
+
+templ FinanceSubmit(
+	buckets []database.Bucket,
+	formData TransactionFormData,
+	monthData []Month,
+) {
+	<div id="finance-content">
+		<h3 class="py-4">Create New Transaction:</h3>
+		<div>
+			if len(buckets) == 0 {
+				<p>No buckets found, create a bucket to be able to create a transaction</p>
+			} else {
+				@TransactionForm(buckets, formData, monthData)
+			}
+		</div>
+		<br/>
+		<a hx-get="/finance/submit/bucket" hx-target="#finance-content" hx-swap="innerHTML">
+			Create New Bucket
+		</a>
+	</div>
+}
+
+type Month struct {
+	Name      string
+	Value     string
+	IsCurrent bool
+}
+
+type TransactionFormData struct {
+	NameValue   string
+	NameErr     *string
+	PriceValue  string
+	PriceErr    *string
+	MonthValue  string
+	MonthErr    *string
+	YearValue   string
+	YearErr     *string
+	ExpenseErr  *string
+	BucketValue string
+	BucketErr   *string
+}
+
+templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, monthData []Month) {
+	<form class="flex flex-col" autocomplete="off" hx-post="/finance/submit">
+		<label for="name" required>Purchase Name:</label>
+		<input
+			id="name"
+			name="name"
+			type="text"
+			autocomplete="off"
+			value={ formData.NameValue }
+			required
+			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+		/>
+		if formData.NameErr != nil {
+			<div class="text-red-700">{ *formData.NameErr }</div>
+		}
+		<label for="price">Price</label>
+		<input
+			id="price"
+			name="price"
+			type="number"
+			step="0.01"
+			value={ formData.PriceValue }
+			required
+			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+		/>
+		if formData.PriceErr != nil {
+			<div class="text-red-700">{ *formData.PriceErr }</div>
+		}
+		<label for="isExpense">Is this an Income or Expense?</label>
+		<label class="flex justify-between items-center">
+			<input
+				id="isExpense"
+				name="isExpense"
+				type="checkbox"
+				class="peer appearance-none rounded-md"
+				checked
+			/>
+			<span
+				class="w-full h-10 flex items-center flex-shrink-0 p-1 bg-green-300 rounded-full duration-300 ease-in-out peer-checked:bg-red-400 after:w-1/2 after:h-8 after:bg-white after:rounded-full after:shadow-md after:duration-300 peer-checked:after:translate-x-full"
+			></span>
+		</label>
+		<div class="flex flex-row justify-around items-center text-xs">
+			<p>Income</p>
+			<p>Expense</p>
+		</div>
+		if formData.ExpenseErr != nil {
+			<div class="text-red-700">{ *formData.ExpenseErr }</div>
+		}
+		<label for="month">Purchase Month:</label>
+		<select
+			id="month"
+			name="month"
+			required
+			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+		>
+			for _, month := range monthData {
+				<option
+					value={ month.Value }
+					if month.IsCurrent {
+						selected="selected"
+					}
+				>{ month.Name }</option>
 			}
 		</select>
-		<label for="year">Year:</label>
-		<select id="year" name="year" required
-			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+		if formData.MonthErr != nil {
+			<div class="text-red-700">{ *formData.MonthErr }</div>
+		}
+		<label for="year">Purchase Year:</label>
+		<select
+			id="year"
+			name="year"
+			required
+			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+		>
 			<option>2024</option>
 			<option selected="selected">2025</option>
 			<option>2026</option>
 			<option>2027</option>
 		</select>
-		<input type="submit" value="Search"
-			class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2" />
+		if formData.YearErr != nil {
+			<div class="text-red-700">{ *formData.YearErr }</div>
+		}
+		<label for="bucket">Bucket</label>
+		<select
+			id="bucket"
+			name="bucket"
+			required
+			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+		>
+			for _, bucket:= range buckets {
+				<option value={ strconv.Itoa(bucket.Id) }>{ bucket.Name }</option>
+			}
+		</select>
+		if formData.BucketErr != nil {
+			<div class="text-red-700">{ *formData.BucketErr }</div>
+		}
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "contained",
+			Text:    "Submit",
+		})
 	</form>
-	<h3>Monthly Summary</h3>
-	@MonthlyTable(s)
-</div>
-}
-
-templ MonthlyTable(s finance.MonthSummary) {
-<table id="monthlyTable" class="w-full text-left rounded">
-	<thead class="uppercase bg-sky-200">
-		<tr>
-			<th class="px-6 py-3">Bucket Name</th>
-			<th class="px-6 py-3">Total Price($)</th>
-		</tr>
-	</thead>
-	<tbody>
-		for _, b:= range s.BucketsSummary{
-		<tr class="border-b bg-sky-100">
-			<td class="px-6 py-1 font-medium">{b.Reference.Name}</td>
-			<td class="px-6 py-1">{fmt.Sprintf("%.2f",b.Price)}</td>
-		</tr>
-		}
-	</tbody>
-	<tfoot>
-		<tr class="font-semibold bg-sky-300">
-			<th class="px-6 py-1">Total Income:</th>
-			<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalIncome)}</th>
-		</tr>
-		<tr class="font-semibold bg-sky-300">
-			<th class="px-6 py-1">Total Expense:</th>
-			<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalExpense)}</th>
-		</tr>
-		<tr class="font-semibold bg-sky-300">
-			<th class="px-6 py-1">NET:</th>
-			<th class="px-6 py-1">{fmt.Sprintf("%.2f", s.TotalIncome + s.TotalExpense)}</th>
-		</tr>
-	</tfoot>
-</table>
-}
-
-templ FinanceSubmit(
-buckets []database.Bucket,
-formData TransactionFormData,
-monthData []Month,
-){
-<div id="finance-content">
-	<h3 class="py-4">Create New Transaction:</h3>
-	<div>
-		if len(buckets) == 0 {
-		<p>No buckets found, create a bucket to be able to create a transaction</p>
-		} else {
-		@TransactionForm(buckets, formData, monthData)
-		}
-	</div>
-	<br>
-	<a hx-get="/finance/submit/bucket" hx-target="#finance-content" hx-swap="innerHTML">
-		Create New Bucket
-	</a>
-</div>
-}
-
-type Month struct {
-Name string
-Value string
-IsCurrent bool
-}
-
-type TransactionFormData struct {
-NameValue string
-NameErr *string
-PriceValue string
-PriceErr *string
-MonthValue string
-MonthErr *string
-YearValue string
-YearErr *string
-ExpenseErr *string
-BucketValue string
-BucketErr *string
-}
-
-templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, monthData []Month) {
-<form class="flex flex-col" autocomplete="off" hx-post="/finance/submit">
-	<label for="name" required>Purchase Name:</label>
-	<input id="name" name="name" type="text" autocomplete="off" value={formData.NameValue} required
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-	if formData.NameErr != nil {
-	<div class="text-red-700">{*formData.NameErr}</div>
-	}
-	<label for="price">Price</label>
-	<input id="price" name="price" type="number" step="0.01" value={formData.PriceValue} required
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-	if formData.PriceErr != nil {
-	<div class="text-red-700">{*formData.PriceErr}</div>
-	}
-	<label for="isExpense">Is this an Income or Expense?</label>
-	<label class="flex justify-between items-center">
-		<input id="isExpense" name="isExpense" type="checkbox" class="peer appearance-none rounded-md"
-			checked />
-		<span
-			class="w-full h-10 flex items-center flex-shrink-0 p-1 bg-green-300 rounded-full duration-300 ease-in-out peer-checked:bg-red-400 after:w-1/2 after:h-8 after:bg-white after:rounded-full after:shadow-md after:duration-300 peer-checked:after:translate-x-full"></span>
-	</label>
-	<div class="flex flex-row justify-around items-center text-xs">
-		<p>Income</p>
-		<p>Expense</p>
-	</div>
-	if formData.ExpenseErr != nil {
-	<div class="text-red-700">{*formData.ExpenseErr}</div>
-	}
-	<label for="month">Purchase Month:</label>
-	<select id="month" name="month" required
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-		for _, month := range monthData {
-		<option value={month.Value} if month.IsCurrent { selected="selected" }>{month.Name}</option>
-		}
-	</select>
-	if formData.MonthErr != nil {
-	<div class="text-red-700">{*formData.MonthErr}</div>
-	}
-	<label for="year">Purchase Year:</label>
-	<select id="year" name="year" required
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-		<option>2024</option>
-		<option selected="selected">2025</option>
-		<option>2026</option>
-		<option>2027</option>
-	</select>
-	if formData.YearErr != nil {
-	<div class="text-red-700">{*formData.YearErr}</div>
-	}
-	<label for="bucket">Bucket</label>
-	<select id="bucket" name="bucket" required
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-		for _, bucket:= range buckets{
-		<option value={strconv.Itoa(bucket.Id)}>{bucket.Name}</option>
-		}
-	</select>
-	if formData.BucketErr != nil {
-	<div class="text-red-700">{*formData.BucketErr}</div>
-	}
-	<input type="submit" value="Submit"
-		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2" />
-</form>
 }
 
 templ SuccessfulTransaction() {
-<div>Successfully created transaction item! Use top navbar to navigate.</div>
+	<div>Successfully created transaction item! Use top navbar to navigate.</div>
 }
 
 type BucketFormData struct {
-NameValue string
-NameErr *string
+	NameValue string
+	NameErr   *string
 }
+
 templ BucketForm(formData BucketFormData) {
-<form class="flex flex-col" autocomplete="off" hx-post="/finance/submit/bucket">
-	<label for="name" required>Bucket Name:</label>
-	<input id="name" name="name" type="text" autocomplete="off" value={formData.NameValue} required
-		class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-	if formData.NameErr != nil {
-	<div class="text-red-700">{*formData.NameErr}</div>
-	}
-	<input type="submit" value="Submit"
-		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-2" />
-</form>
+	<form class="flex flex-col" autocomplete="off" hx-post="/finance/submit/bucket">
+		<label for="name" required>Bucket Name:</label>
+		<input
+			id="name"
+			name="name"
+			type="text"
+			autocomplete="off"
+			value={ formData.NameValue }
+			required
+			class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+		/>
+		if formData.NameErr != nil {
+			<div class="text-red-700">{ *formData.NameErr }</div>
+		}
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "contained",
+			Text:    "Submit",
+		})
+	</form>
 }
 
 templ SuccessfulBucket() {
-<div>Successfully created Bucket! Use top navbar to navigate.</div>
+	<div>Successfully created Bucket! Use top navbar to navigate.</div>
 }
 
-func GetMonths() []Month{
-months := []Month{
-{Name: "Jan", Value: "1", IsCurrent: false},
-{Name: "Feb", Value: "2", IsCurrent: false},
-{Name: "Mar", Value: "3", IsCurrent: false},
-{Name: "Apr", Value: "4", IsCurrent: false},
-{Name: "May", Value: "5", IsCurrent: false},
-{Name: "June", Value: "6", IsCurrent: false},
-{Name: "July", Value: "7", IsCurrent: false},
-{Name: "Aug", Value: "8", IsCurrent: false},
-{Name: "Sep", Value: "9", IsCurrent: false},
-{Name: "Oct", Value: "10", IsCurrent: false},
-{Name: "Nov", Value: "11", IsCurrent: false},
-{Name: "Dec", Value: "12", IsCurrent: false},
-}
-curMonth := int(time.Now().Month())
-months[curMonth-1].IsCurrent = true
+func GetMonths() []Month {
+	months := []Month{
+		{Name: "Jan", Value: "1", IsCurrent: false},
+		{Name: "Feb", Value: "2", IsCurrent: false},
+		{Name: "Mar", Value: "3", IsCurrent: false},
+		{Name: "Apr", Value: "4", IsCurrent: false},
+		{Name: "May", Value: "5", IsCurrent: false},
+		{Name: "June", Value: "6", IsCurrent: false},
+		{Name: "July", Value: "7", IsCurrent: false},
+		{Name: "Aug", Value: "8", IsCurrent: false},
+		{Name: "Sep", Value: "9", IsCurrent: false},
+		{Name: "Oct", Value: "10", IsCurrent: false},
+		{Name: "Nov", Value: "11", IsCurrent: false},
+		{Name: "Dec", Value: "12", IsCurrent: false},
+	}
+	curMonth := int(time.Now().Month())
+	months[curMonth-1].IsCurrent = true
 
-return months
+	return months
 }

@@ -657,9 +657,6 @@
   .border-varient-primary {
     border-color: rgb(var(--varient-primary));
   }
-  .bg-blue-500 {
-    background-color: var(--color-blue-500);
-  }
   .bg-gray-200 {
     background-color: var(--color-gray-200);
   }
@@ -865,13 +862,6 @@
     &:hover {
       @media (hover: hover) {
         border-color: rgb(var(--varient-primary));
-      }
-    }
-  }
-  .hover\:bg-blue-700 {
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--color-blue-700);
       }
     }
   }
