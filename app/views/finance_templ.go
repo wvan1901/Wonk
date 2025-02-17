@@ -179,7 +179,7 @@ func MontlySummary(s finance.MonthSummary) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\" class=\"h-full\"><h3>Search Monthly Summary</h3><form class=\"flex flex-col\" autocomplete=\"off\" hx-post=\"/finance\" hx-target=\"#monthlyTable\" hx-swap=\"outerHTML\"><label for=\"month\">Month:</label> <select id=\"month\" name=\"month\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\" class=\"h-full\"><h3 class=\"py-2\">Search Monthly Summary</h3><form class=\"flex flex-col gap-2\" autocomplete=\"off\" hx-post=\"/finance\" hx-target=\"#monthlyTable\" hx-swap=\"outerHTML\"><div><label for=\"month\">Month:</label> <select id=\"month\" name=\"month\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -191,7 +191,7 @@ func MontlySummary(s finance.MonthSummary) templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(month.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 57, Col: 25}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 58, Col: 26}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -214,7 +214,7 @@ func MontlySummary(s finance.MonthSummary) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(month.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 61, Col: 18}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 62, Col: 19}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -225,7 +225,7 @@ func MontlySummary(s finance.MonthSummary) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select> <label for=\"year\">Year:</label> <select id=\"year\" name=\"year\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"><option>2024</option> <option selected=\"selected\">2025</option> <option>2026</option> <option>2027</option></select>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</select></div><div><label for=\"year\">Year:</label> <select id=\"year\" name=\"year\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"><option>2024</option> <option selected=\"selected\">2025</option> <option>2026</option> <option>2027</option></select></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -236,7 +236,7 @@ func MontlySummary(s finance.MonthSummary) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</form><h3>Monthly Summary</h3>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</form><br><h3>Monthly Summary</h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -285,7 +285,7 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 			var templ_7745c5c3_Var9 string
 			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(b.Reference.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 97, Col: 57}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 102, Col: 57}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 			if templ_7745c5c3_Err != nil {
@@ -298,7 +298,7 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 			var templ_7745c5c3_Var10 string
 			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", b.Price))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 98, Col: 56}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 103, Col: 56}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 			if templ_7745c5c3_Err != nil {
@@ -316,7 +316,7 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", s.TotalIncome))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 105, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 110, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -329,7 +329,7 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", s.TotalExpense))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 109, Col: 63}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 114, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 		if templ_7745c5c3_Err != nil {
@@ -342,7 +342,7 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", s.TotalIncome+s.TotalExpense))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 113, Col: 79}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 118, Col: 79}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -381,7 +381,7 @@ func FinanceSubmit(
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-4\">Create New Transaction:</h3><div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-2\">Create New Transaction:</h3><div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -461,14 +461,14 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			templ_7745c5c3_Var15 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"flex flex-col\" autocomplete=\"off\" hx-post=\"/finance/submit\"><label for=\"name\" required>Purchase Name:</label> <input id=\"name\" name=\"name\" type=\"text\" autocomplete=\"off\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"flex flex-col gap-2\" autocomplete=\"off\" hx-post=\"/finance/submit\"><div><label for=\"name\" required>Purchase Name:</label> <input id=\"name\" name=\"name\" type=\"text\" autocomplete=\"off\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(formData.NameValue)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 174, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 180, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 		if templ_7745c5c3_Err != nil {
@@ -486,7 +486,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.NameErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 179, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 185, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -497,14 +497,14 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label for=\"price\">Price</label> <input id=\"price\" name=\"price\" type=\"number\" step=\"0.01\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"price\">Price</label> <input id=\"price\" name=\"price\" type=\"number\" step=\"0.01\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(formData.PriceValue)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 187, Col: 30}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 195, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -522,7 +522,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.PriceErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 192, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 200, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -533,7 +533,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label for=\"isExpense\">Is this an Income or Expense?</label> <label class=\"flex justify-between items-center\"><input id=\"isExpense\" name=\"isExpense\" type=\"checkbox\" class=\"peer appearance-none rounded-md\" checked> <span class=\"w-full h-10 flex items-center flex-shrink-0 p-1 bg-green-300 rounded-full duration-300 ease-in-out peer-checked:bg-red-400 after:w-1/2 after:h-8 after:bg-white after:rounded-full after:shadow-md after:duration-300 peer-checked:after:translate-x-full\"></span></label><div class=\"flex flex-row justify-around items-center text-xs\"><p>Income</p><p>Expense</p></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"isExpense\">Is this an Income or Expense?</label> <label class=\"flex justify-between items-center\"><input id=\"isExpense\" name=\"isExpense\" type=\"checkbox\" class=\"peer appearance-none rounded-md\" checked> <span class=\"w-full h-10 flex items-center flex-shrink-0 p-1 bg-green-300 rounded-full duration-300 ease-in-out peer-checked:bg-red-400 after:w-1/2 after:h-8 after:bg-white after:rounded-full after:shadow-md after:duration-300 peer-checked:after:translate-x-full\"></span></label><div class=\"flex flex-row justify-around items-center text-xs\"><p>Income</p><p>Expense</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -545,7 +545,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.ExpenseErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 212, Col: 51}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 222, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -556,7 +556,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label for=\"month\">Purchase Month:</label> <select id=\"month\" name=\"month\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"month\">Purchase Month:</label> <select id=\"month\" name=\"month\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -568,7 +568,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(month.Value)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 223, Col: 24}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 235, Col: 25}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -591,7 +591,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var22 string
 			templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(month.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 227, Col: 17}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 239, Col: 18}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 			if templ_7745c5c3_Err != nil {
@@ -614,7 +614,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var23 string
 			templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.MonthErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 231, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 243, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 			if templ_7745c5c3_Err != nil {
@@ -625,7 +625,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label for=\"year\">Purchase Year:</label> <select id=\"year\" name=\"year\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"><option>2024</option> <option selected=\"selected\">2025</option> <option>2026</option> <option>2027</option></select> ")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"year\">Purchase Year:</label> <select id=\"year\" name=\"year\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\"><option>2024</option> <option selected=\"selected\">2025</option> <option>2026</option> <option>2027</option></select> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -637,7 +637,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var24 string
 			templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.YearErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 246, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 260, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 			if templ_7745c5c3_Err != nil {
@@ -648,7 +648,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label for=\"bucket\">Bucket</label> <select id=\"bucket\" name=\"bucket\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"bucket\">Bucket</label> <select id=\"bucket\" name=\"bucket\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -660,7 +660,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(bucket.Id))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 256, Col: 43}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 272, Col: 44}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {
@@ -673,7 +673,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var26 string
 			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(bucket.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 256, Col: 59}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 272, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 			if templ_7745c5c3_Err != nil {
@@ -696,7 +696,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var27 string
 			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.BucketErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 260, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 276, Col: 51}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 			if templ_7745c5c3_Err != nil {
@@ -706,6 +706,10 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
 			Varient: "contained",
@@ -777,14 +781,14 @@ func BucketForm(formData BucketFormData) templ.Component {
 			templ_7745c5c3_Var29 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"flex flex-col\" autocomplete=\"off\" hx-post=\"/finance/submit/bucket\"><label for=\"name\" required>Bucket Name:</label> <input id=\"name\" name=\"name\" type=\"text\" autocomplete=\"off\" value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form class=\"flex flex-col\" autocomplete=\"off\" hx-post=\"/finance/submit/bucket\"><div><label for=\"name\" required>Bucket Name:</label> <input id=\"name\" name=\"name\" type=\"text\" autocomplete=\"off\" value=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var30 string
 		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(formData.NameValue)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 286, Col: 29}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 304, Col: 30}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
@@ -802,7 +806,7 @@ func BucketForm(formData BucketFormData) templ.Component {
 			var templ_7745c5c3_Var31 string
 			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.NameErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 291, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 309, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
@@ -812,6 +816,10 @@ func BucketForm(formData BucketFormData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
 			Varient: "contained",

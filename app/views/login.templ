@@ -77,25 +77,28 @@ type LoginFormData struct {
 }
 
 templ LoginForm(formData LoginFormData) {
-	<form hx-swap="outerHTML" hx-post="/login" class="flex flex-col" autocomplete="off">
-		<label for="username">Username:</label>
-		<input
-			id="username"
-			type="text"
-			name="username"
-			required
-			value={ formData.Username }
-			class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
-		/>
-		<label for="password">Password:</label>
-		<input
-			id="password"
-			type="password"
-			name="password"
-			required
-			class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
-		/>
-		<br/>
+	<form hx-swap="outerHTML" hx-post="/login" class="flex flex-col gap-2" autocomplete="off">
+		<div>
+			<label for="username">Username:</label>
+			<input
+				id="username"
+				type="text"
+				name="username"
+				required
+				value={ formData.Username }
+				class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+			/>
+		</div>
+		<div>
+			<label for="password">Password:</label>
+			<input
+				id="password"
+				type="password"
+				name="password"
+				required
+				class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+			/>
+		</div>
 		@inputs.Button(inputs.ButtonOptions{Varient: "contained", Text: "Login"})
 		if formData.FormErr != nil {
 			<div class="text-red-700">{ *formData.FormErr }</div>
@@ -125,25 +128,28 @@ templ SignUp(formData LoginFormData) {
 }
 
 templ SignUpForm(formData LoginFormData) {
-	<form hx-swap="outerHTML" hx-post="/signup" autocomplete="off" class="flex flex-col">
-		<label for="username">Username:</label>
-		<input
-			id="username"
-			type="text"
-			name="username"
-			required
-			value={ formData.Username }
-			class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
-		/>
-		<label for="password">Password:</label>
-		<input
-			id="password"
-			type="password"
-			name="password"
-			required
-			class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
-		/>
-		<br/>
+	<form hx-swap="outerHTML" hx-post="/signup" autocomplete="off" class="flex flex-col gap-2">
+		<div>
+			<label for="username">Username:</label>
+			<input
+				id="username"
+				type="text"
+				name="username"
+				required
+				value={ formData.Username }
+				class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+			/>
+		</div>
+		<div>
+			<label for="password">Password:</label>
+			<input
+				id="password"
+				type="password"
+				name="password"
+				required
+				class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+			/>
+		</div>
 		@inputs.Button(inputs.ButtonOptions{
 			Varient: "contained",
 			Text:    "Create Account",

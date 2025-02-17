@@ -620,6 +620,9 @@
   .justify-start {
     justify-content: flex-start;
   }
+  .gap-2 {
+    gap: calc(var(--spacing) * 2);
+  }
   .divide-x-1 {
     :where(& > :not(:last-child)) {
       --tw-divide-x-reverse: 0;
@@ -724,9 +727,6 @@
   }
   .py-3 {
     padding-block: calc(var(--spacing) * 3);
-  }
-  .py-4 {
-    padding-block: calc(var(--spacing) * 4);
   }
   .text-center {
     text-align: center;
