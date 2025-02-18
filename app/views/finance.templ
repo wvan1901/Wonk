@@ -90,30 +90,30 @@ templ MontlySummary(s finance.MonthSummary) {
 
 templ MonthlyTable(s finance.MonthSummary) {
 	<table id="monthlyTable" class="w-full text-left rounded">
-		<thead class="uppercase bg-sky-200">
+		<thead class="uppercase bg-bg-secondary">
 			<tr>
 				<th class="px-6 py-3">Bucket Name</th>
 				<th class="px-6 py-3">Total Price($)</th>
 			</tr>
 		</thead>
-		<tbody>
+		<tbody class="divide-y-1 divide-brdr-main">
 			for _, b:= range s.BucketsSummary {
-				<tr class="border-b bg-sky-100">
+				<tr>
 					<td class="px-6 py-1 font-medium">{ b.Reference.Name }</td>
 					<td class="px-6 py-1">{ fmt.Sprintf("%.2f",b.Price) }</td>
 				</tr>
 			}
 		</tbody>
-		<tfoot>
-			<tr class="font-semibold bg-sky-300">
+		<tfoot class="bg-bg-secondary">
+			<tr class="font-semibold">
 				<th class="px-6 py-1">Total Income:</th>
 				<th class="px-6 py-1">{ fmt.Sprintf("%.2f", s.TotalIncome) }</th>
 			</tr>
-			<tr class="font-semibold bg-sky-300">
+			<tr class="font-semibold">
 				<th class="px-6 py-1">Total Expense:</th>
 				<th class="px-6 py-1">{ fmt.Sprintf("%.2f", s.TotalExpense) }</th>
 			</tr>
-			<tr class="font-semibold bg-sky-300">
+			<tr class="font-semibold">
 				<th class="px-6 py-1">NET:</th>
 				<th class="px-6 py-1">{ fmt.Sprintf("%.2f", s.TotalIncome + s.TotalExpense) }</th>
 			</tr>

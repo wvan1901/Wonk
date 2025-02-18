@@ -667,10 +667,6 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
-  .border-b {
-    border-bottom-style: var(--tw-border-style);
-    border-bottom-width: 1px;
-  }
   .border-gray-300 {
     border-color: var(--color-gray-300);
   }
@@ -680,17 +676,11 @@
   .bg-bg-main {
     background-color: rgb(var(--bg-main));
   }
+  .bg-bg-secondary {
+    background-color: rgb(var(--bg-secondary));
+  }
   .bg-green-300 {
     background-color: var(--color-green-300);
-  }
-  .bg-sky-100 {
-    background-color: var(--color-sky-100);
-  }
-  .bg-sky-200 {
-    background-color: var(--color-sky-200);
-  }
-  .bg-sky-300 {
-    background-color: var(--color-sky-300);
   }
   .bg-transparent {
     background-color: transparent;
@@ -906,7 +896,7 @@
 .light {
   --varient-primary: 43, 151, 119;
   --varient-primary-hover: 34, 121, 95;
-  --varient-secondary: 151, 43, 75);
+  --varient-secondary: 151, 43, 75;
   --varient-success: 92, 184, 92;
   --varient-warning: 255, 95, 21;
   --varient-info: 130, 219, 192;
@@ -919,14 +909,14 @@
 .dark {
   --varient-primary: 130, 219, 192;
   --varient-primary-hover: 34, 121, 95;
-  --varient-secondary: 151, 43, 75);
+  --varient-secondary: 151, 43, 75;
   --varient-success: 92, 184, 92;
   --varient-warning: 255, 95, 21;
   --varient-info: 130, 219, 192;
   --varient-error: 255, 0, 51;
   --bg-main: 17, 17, 17;
   --bg-secondary: 30, 30, 30;
-  --brdr-main: 204, 204, 204;
+  --brdr-main: 70, 70, 70;
   --txt-primary: 255, 255, 255;
 }
 @keyframes spin {

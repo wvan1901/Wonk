@@ -273,12 +273,12 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table id=\"monthlyTable\" class=\"w-full text-left rounded\"><thead class=\"uppercase bg-sky-200\"><tr><th class=\"px-6 py-3\">Bucket Name</th><th class=\"px-6 py-3\">Total Price($)</th></tr></thead> <tbody>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<table id=\"monthlyTable\" class=\"w-full text-left rounded\"><thead class=\"uppercase bg-bg-secondary\"><tr><th class=\"px-6 py-3\">Bucket Name</th><th class=\"px-6 py-3\">Total Price($)</th></tr></thead> <tbody class=\"divide-y-1 divide-brdr-main\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, b := range s.BucketsSummary {
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr class=\"border-b bg-sky-100\"><td class=\"px-6 py-1 font-medium\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr><td class=\"px-6 py-1 font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -309,7 +309,7 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody><tfoot><tr class=\"font-semibold bg-sky-300\"><th class=\"px-6 py-1\">Total Income:</th><th class=\"px-6 py-1\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</tbody><tfoot class=\"bg-bg-secondary\"><tr class=\"font-semibold\"><th class=\"px-6 py-1\">Total Income:</th><th class=\"px-6 py-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -322,7 +322,7 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</th></tr><tr class=\"font-semibold bg-sky-300\"><th class=\"px-6 py-1\">Total Expense:</th><th class=\"px-6 py-1\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</th></tr><tr class=\"font-semibold\"><th class=\"px-6 py-1\">Total Expense:</th><th class=\"px-6 py-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -335,7 +335,7 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</th></tr><tr class=\"font-semibold bg-sky-300\"><th class=\"px-6 py-1\">NET:</th><th class=\"px-6 py-1\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</th></tr><tr class=\"font-semibold\"><th class=\"px-6 py-1\">NET:</th><th class=\"px-6 py-1\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
