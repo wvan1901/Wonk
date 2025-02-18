@@ -293,7 +293,7 @@ type BucketFormData struct {
 }
 
 templ BucketForm(formData BucketFormData) {
-	<form class="flex flex-col" autocomplete="off" hx-post="/finance/submit/bucket">
+	<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/submit/bucket">
 		<div>
 			<label for="name" required>Bucket Name:</label>
 			<input
