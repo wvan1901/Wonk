@@ -172,15 +172,12 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 	<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/submit">
 		<div>
 			<label for="name" required>Purchase Name:</label>
-			<input
-				id="name"
-				name="name"
-				type="text"
-				autocomplete="off"
-				value={ formData.NameValue }
-				required
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-			/>
+			@inputs.TextField(inputs.TextFieldOptions{
+				Id:       strutil.StrPtr("name"),
+				Name:     strutil.StrPtr("name"),
+				Value:    &formData.NameValue,
+				Required: true,
+			})
 			if formData.NameErr != nil {
 				<div class="text-red-700">{ *formData.NameErr }</div>
 			}
@@ -296,15 +293,12 @@ templ BucketForm(formData BucketFormData) {
 	<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/submit/bucket">
 		<div>
 			<label for="name" required>Bucket Name:</label>
-			<input
-				id="name"
-				name="name"
-				type="text"
-				autocomplete="off"
-				value={ formData.NameValue }
-				required
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-			/>
+			@inputs.TextField(inputs.TextFieldOptions{
+				Id:       strutil.StrPtr("name"),
+				Name:     strutil.StrPtr("name"),
+				Value:    &formData.NameValue,
+				Required: true,
+			})
 			if formData.NameErr != nil {
 				<div class="text-red-700">{ *formData.NameErr }</div>
 			}

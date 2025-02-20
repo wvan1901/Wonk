@@ -80,14 +80,12 @@ templ LoginForm(formData LoginFormData) {
 	<form hx-swap="outerHTML" hx-post="/login" class="flex flex-col gap-2" autocomplete="off">
 		<div>
 			<label for="username">Username:</label>
-			<input
-				id="username"
-				type="text"
-				name="username"
-				required
-				value={ formData.Username }
-				class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
-			/>
+			@inputs.TextField(inputs.TextFieldOptions{
+				Id:       strutil.StrPtr("username"),
+				Name:     strutil.StrPtr("username"),
+				Value:    &formData.Username,
+				Required: true,
+			})
 		</div>
 		<div>
 			<label for="password">Password:</label>
@@ -131,14 +129,12 @@ templ SignUpForm(formData LoginFormData) {
 	<form hx-swap="outerHTML" hx-post="/signup" autocomplete="off" class="flex flex-col gap-2">
 		<div>
 			<label for="username">Username:</label>
-			<input
-				id="username"
-				type="text"
-				name="username"
-				required
-				value={ formData.Username }
-				class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
-			/>
+			@inputs.TextField(inputs.TextFieldOptions{
+				Id:       strutil.StrPtr("username"),
+				Name:     strutil.StrPtr("username"),
+				Value:    &formData.Username,
+				Required: true,
+			})
 		</div>
 		<div>
 			<label for="password">Password:</label>

@@ -224,20 +224,20 @@ func LoginForm(formData LoginFormData) templ.Component {
 			templ_7745c5c3_Var7 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-swap=\"outerHTML\" hx-post=\"/login\" class=\"flex flex-col gap-2\" autocomplete=\"off\"><div><label for=\"username\">Username:</label> <input id=\"username\" type=\"text\" name=\"username\" required value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-swap=\"outerHTML\" hx-post=\"/login\" class=\"flex flex-col gap-2\" autocomplete=\"off\"><div><label for=\"username\">Username:</label>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 string
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(formData.Username)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 88, Col: 29}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		templ_7745c5c3_Err = inputs.TextField(inputs.TextFieldOptions{
+			Id:       strutil.StrPtr("username"),
+			Name:     strutil.StrPtr("username"),
+			Value:    &formData.Username,
+			Required: true,
+		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"></div><div><label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -250,12 +250,12 @@ func LoginForm(formData LoginFormData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var9 string
-			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 104, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 102, Col: 48}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -288,9 +288,9 @@ func SignUp(formData LoginFormData) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var10 == nil {
-			templ_7745c5c3_Var10 = templ.NopComponent
+		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var9 == nil {
+			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><h1 class=\"text-xl\">Sign Up</h1><br>")
@@ -342,25 +342,25 @@ func SignUpForm(formData LoginFormData) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var11 == nil {
-			templ_7745c5c3_Var11 = templ.NopComponent
+		templ_7745c5c3_Var10 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var10 == nil {
+			templ_7745c5c3_Var10 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-swap=\"outerHTML\" hx-post=\"/signup\" autocomplete=\"off\" class=\"flex flex-col gap-2\"><div><label for=\"username\">Username:</label> <input id=\"username\" type=\"text\" name=\"username\" required value=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<form hx-swap=\"outerHTML\" hx-post=\"/signup\" autocomplete=\"off\" class=\"flex flex-col gap-2\"><div><label for=\"username\">Username:</label>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var12 string
-		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(formData.Username)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 139, Col: 29}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+		templ_7745c5c3_Err = inputs.TextField(inputs.TextFieldOptions{
+			Id:       strutil.StrPtr("username"),
+			Name:     strutil.StrPtr("username"),
+			Value:    &formData.Username,
+			Required: true,
+		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\" class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"></div><div><label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -376,12 +376,12 @@ func SignUpForm(formData LoginFormData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var13 string
-			templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
+			var templ_7745c5c3_Var11 string
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 158, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 154, Col: 48}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

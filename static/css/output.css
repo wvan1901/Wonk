@@ -663,6 +663,10 @@
   .rounded-md {
     border-radius: var(--radius-md);
   }
+  .rounded-t-md {
+    border-top-left-radius: var(--radius-md);
+    border-top-right-radius: var(--radius-md);
+  }
   .border {
     border-style: var(--tw-border-style);
     border-width: 1px;
@@ -672,6 +676,15 @@
   }
   .border-varient-primary {
     border-color: rgb(var(--varient-primary));
+  }
+  .border-x-transparent {
+    border-inline-color: transparent;
+  }
+  .border-t-transparent {
+    border-top-color: transparent;
+  }
+  .border-b-txt-primary {
+    border-bottom-color: rgb(var(--txt-primary));
   }
   .bg-bg-main {
     background-color: rgb(var(--bg-main));
@@ -770,10 +783,6 @@
     outline-style: var(--tw-outline-style);
     outline-width: 1px;
   }
-  .blur {
-    --tw-blur: blur(8px);
-    filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
-  }
   .filter {
     filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
   }
@@ -781,11 +790,6 @@
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
-  }
-  .transition\! {
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter !important;
-    transition-timing-function: var(--tw-ease, var(--default-transition-timing-function)) !important;
-    transition-duration: var(--tw-duration, var(--default-transition-duration)) !important;
   }
   .duration-300 {
     --tw-duration: 300ms;
@@ -877,9 +881,30 @@
       border-color: var(--color-blue-500);
     }
   }
+  .focus\:border-varient-primary {
+    &:focus {
+      border-color: rgb(var(--varient-primary));
+    }
+  }
+  .focus\:border-b-varient-primary {
+    &:focus {
+      border-bottom-color: rgb(var(--varient-primary));
+    }
+  }
   .focus\:ring-blue-500 {
     &:focus {
       --tw-ring-color: var(--color-blue-500);
+    }
+  }
+  .focus\:ring-varient-primary {
+    &:focus {
+      --tw-ring-color: rgb(var(--varient-primary));
+    }
+  }
+  .focus\:outline-none {
+    &:focus {
+      --tw-outline-style: none;
+      outline-style: none;
     }
   }
   .disabled\:bg-stone-400 {

@@ -1,0 +1,52 @@
+package inputs
+
+type TextFieldOptions struct {
+	Id       *string
+	Name     *string
+	Value    *string
+	Varient  string
+	Required bool
+	Disabled bool
+}
+
+func (b *TextFieldOptions) TemplAttributes() templ.Attributes {
+	tmplAttr := templ.Attributes{}
+
+	if b.Id != nil {
+		tmplAttr["id"] = b.Id
+	}
+	if b.Name != nil {
+		tmplAttr["name"] = b.Name
+	}
+	if b.Value != nil {
+		tmplAttr["value"] = b.Value
+	}
+	btnClasses := " w-full p-2.5 focus:outline-none"
+	switch b.Varient {
+	case "outlined":
+		tmplAttr["class"] = "rounded-lg border border-gray-300 text-sm focus:ring-varient-primary focus:border-varient-primary block" + btnClasses
+	case "filled":
+		tmplAttr["class"] = "bg-bg-secondary text-sm border border-b-txt-primary border-t-transparent border-x-transparent focus:border-b-varient-primary block rounded-t-md" + btnClasses
+	case "standard":
+		tmplAttr["class"] = "text-sm border border-b-txt-primary border-t-transparent border-x-transparent focus:border-b-varient-primary block rounded-t-md" + btnClasses
+	default:
+		tmplAttr["class"] = "rounded-lg border border-gray-300 text-sm focus:ring-varient-primary focus:border-varient-primary block" + btnClasses
+	}
+
+	if b.Required {
+		tmplAttr["required"] = b.Required
+	}
+	if b.Disabled {
+		tmplAttr["disabled"] = b.Disabled
+	}
+
+	return tmplAttr
+}
+
+templ TextField(opts TextFieldOptions) {
+	<input
+		type="text"
+		autocomplete="off"
+		{ opts.TemplAttributes()... }
+	/>
+}
