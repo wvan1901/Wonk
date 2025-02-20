@@ -229,6 +229,7 @@ func LoginForm(formData LoginFormData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = inputs.TextField(inputs.TextFieldOptions{
+			Varient:  "outlined",
 			Id:       strutil.StrPtr("username"),
 			Name:     strutil.StrPtr("username"),
 			Value:    &formData.Username,
@@ -237,7 +238,7 @@ func LoginForm(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-gray-300 focus:ring-varient-primary focus:border-varient-primary focus:outline-none text-sm rounded-lg block w-full p-2.5\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -253,7 +254,7 @@ func LoginForm(formData LoginFormData) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 102, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 103, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -352,6 +353,7 @@ func SignUpForm(formData LoginFormData) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = inputs.TextField(inputs.TextFieldOptions{
+			Varient:  "outlined",
 			Id:       strutil.StrPtr("username"),
 			Name:     strutil.StrPtr("username"),
 			Value:    &formData.Username,
@@ -379,7 +381,7 @@ func SignUpForm(formData LoginFormData) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.FormErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 154, Col: 48}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/login.templ`, Line: 156, Col: 48}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {

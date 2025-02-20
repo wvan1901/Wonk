@@ -81,6 +81,7 @@ templ LoginForm(formData LoginFormData) {
 		<div>
 			<label for="username">Username:</label>
 			@inputs.TextField(inputs.TextFieldOptions{
+				Varient:  "outlined",
 				Id:       strutil.StrPtr("username"),
 				Name:     strutil.StrPtr("username"),
 				Value:    &formData.Username,
@@ -94,7 +95,7 @@ templ LoginForm(formData LoginFormData) {
 				type="password"
 				name="password"
 				required
-				class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+				class="border border-gray-300 focus:ring-varient-primary focus:border-varient-primary focus:outline-none text-sm rounded-lg block w-full p-2.5"
 			/>
 		</div>
 		@inputs.Button(inputs.ButtonOptions{Varient: "contained", Text: "Login"})
@@ -130,6 +131,7 @@ templ SignUpForm(formData LoginFormData) {
 		<div>
 			<label for="username">Username:</label>
 			@inputs.TextField(inputs.TextFieldOptions{
+				Varient:  "outlined",
 				Id:       strutil.StrPtr("username"),
 				Name:     strutil.StrPtr("username"),
 				Value:    &formData.Username,
@@ -143,7 +145,7 @@ templ SignUpForm(formData LoginFormData) {
 				type="password"
 				name="password"
 				required
-				class="border border-varient-primary text-sm rounded-lg block w-full p-2.5"
+				class="border border-gray-300 focus:ring-varient-primary focus:border-varient-primary focus:outline-none text-sm rounded-lg block w-full p-2.5"
 			/>
 		</div>
 		@inputs.Button(inputs.ButtonOptions{
