@@ -51,6 +51,9 @@ func (f *FinanceLogic) SubmitNewTransaction(inputForm TransactionFormInput) (map
 	if err != nil {
 		conversionProblems["Price"] = "Invalid Price: Not a decimal"
 	}
+	if price < 0 {
+		conversionProblems["Price"] = "Invalid Price: Value should always be positive"
+	}
 	isExpense := false
 	switch inputForm.IsExpense {
 	case "on":
