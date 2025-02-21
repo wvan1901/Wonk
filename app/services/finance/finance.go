@@ -101,8 +101,11 @@ func (f *FinanceLogic) CreateBucket(userId int, newName string) (map[string]stri
 	}
 
 	problems := make(map[string]string)
-	if len(newName) > 20 || len(newName) == 0 {
-		problems["Name"] = "Name value must not be empty or greater than 20 characters"
+	if len(newName) == 0 {
+		problems["Name"] = "Name value must not be empty"
+	}
+	if len(newName) > 20 {
+		problems["Name"] = "Name value must not be greater than 20 characters"
 	}
 	if len(problems) > 0 {
 		return problems, nil

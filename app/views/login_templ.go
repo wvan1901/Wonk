@@ -362,7 +362,7 @@ func SignUpForm(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-varient-primary text-sm rounded-lg block w-full p-2.5\"></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div><label for=\"password\">Password:</label> <input id=\"password\" type=\"password\" name=\"password\" required class=\"border border-gray-300 focus:ring-varient-primary focus:border-varient-primary focus:outline-none text-sm rounded-lg block w-full p-2.5\"></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -379,6 +379,8 @@
     --color-bg-secondary: rgb(var(--bg-secondary));
     --color-brdr-main: rgb(var(--brdr-main));
     --color-txt-primary: rgb(var(--txt-primary));
+    --color-varient-error-focus: rgb(var(--varient-error-focus));
+    --color-varient-error-unfocus: rgb(var(--varient-error-unfocus));
   }
 }
 @layer base {
@@ -671,8 +673,15 @@
     border-style: var(--tw-border-style);
     border-width: 1px;
   }
+  .border-2 {
+    border-style: var(--tw-border-style);
+    border-width: 2px;
+  }
   .border-gray-300 {
     border-color: var(--color-gray-300);
+  }
+  .border-varient-error {
+    border-color: rgb(var(--varient-error));
   }
   .border-varient-primary {
     border-color: rgb(var(--varient-primary));
@@ -685,6 +694,9 @@
   }
   .border-b-txt-primary {
     border-bottom-color: rgb(var(--txt-primary));
+  }
+  .border-b-varient-error {
+    border-bottom-color: rgb(var(--varient-error));
   }
   .bg-bg-main {
     background-color: rgb(var(--bg-main));
@@ -731,6 +743,9 @@
   .py-3 {
     padding-block: calc(var(--spacing) * 3);
   }
+  .pl-2 {
+    padding-left: calc(var(--spacing) * 2);
+  }
   .text-center {
     text-align: center;
   }
@@ -769,6 +784,9 @@
   }
   .text-txt-primary {
     color: rgb(var(--txt-primary));
+  }
+  .text-varient-error {
+    color: rgb(var(--varient-error));
   }
   .text-varient-primary {
     color: rgb(var(--varient-primary));
@@ -881,9 +899,19 @@
       border-color: var(--color-blue-500);
     }
   }
+  .focus\:border-varient-error-focus {
+    &:focus {
+      border-color: rgb(var(--varient-error-focus));
+    }
+  }
   .focus\:border-varient-primary {
     &:focus {
       border-color: rgb(var(--varient-primary));
+    }
+  }
+  .focus\:border-b-varient-error-focus {
+    &:focus {
+      border-bottom-color: rgb(var(--varient-error-focus));
     }
   }
   .focus\:border-b-varient-primary {
@@ -894,6 +922,11 @@
   .focus\:ring-blue-500 {
     &:focus {
       --tw-ring-color: var(--color-blue-500);
+    }
+  }
+  .focus\:ring-varient-error-focus {
+    &:focus {
+      --tw-ring-color: rgb(var(--varient-error-focus));
     }
   }
   .focus\:ring-varient-primary {
@@ -930,6 +963,8 @@
   --bg-secondary: 240, 240, 240;
   --brdr-main: 204, 204, 204;
   --txt-primary: 0, 0, 0;
+  --varient-error-focus: 198, 40, 40;
+  --varient-error-unfocus: 239, 83, 80;
 }
 .dark {
   --varient-primary: 130, 219, 192;
@@ -943,6 +978,8 @@
   --bg-secondary: 30, 30, 30;
   --brdr-main: 70, 70, 70;
   --txt-primary: 255, 255, 255;
+  --varient-error-focus: 239, 83, 80;
+  --varient-error-unfocus: 198, 40, 40;
 }
 @keyframes spin {
   to {

@@ -173,14 +173,13 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 		<div>
 			<label for="name" required>Purchase Name:</label>
 			@inputs.TextField(inputs.TextFieldOptions{
+				Varient:  "outlined",
 				Id:       strutil.StrPtr("name"),
 				Name:     strutil.StrPtr("name"),
 				Value:    &formData.NameValue,
 				Required: true,
+				ErrorMsg: formData.NameErr,
 			})
-			if formData.NameErr != nil {
-				<div class="text-red-700">{ *formData.NameErr }</div>
-			}
 		</div>
 		<div>
 			<label for="price">Price</label>
@@ -294,14 +293,13 @@ templ BucketForm(formData BucketFormData) {
 		<div>
 			<label for="name" required>Bucket Name:</label>
 			@inputs.TextField(inputs.TextFieldOptions{
+				Varient:  "outlined",
 				Id:       strutil.StrPtr("name"),
 				Name:     strutil.StrPtr("name"),
 				Value:    &formData.NameValue,
 				Required: true,
+				ErrorMsg: formData.NameErr,
 			})
-			if formData.NameErr != nil {
-				<div class="text-red-700">{ *formData.NameErr }</div>
-			}
 		</div>
 		@inputs.Button(inputs.ButtonOptions{
 			Varient: "contained",
