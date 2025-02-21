@@ -680,6 +680,9 @@
   .border-gray-300 {
     border-color: var(--color-gray-300);
   }
+  .border-transparent {
+    border-color: transparent;
+  }
   .border-varient-error {
     border-color: rgb(var(--varient-error));
   }
@@ -899,6 +902,11 @@
       border-color: var(--color-blue-500);
     }
   }
+  .focus\:border-txt-primary {
+    &:focus {
+      border-color: rgb(var(--txt-primary));
+    }
+  }
   .focus\:border-varient-error-focus {
     &:focus {
       border-color: rgb(var(--varient-error-focus));
@@ -922,6 +930,11 @@
   .focus\:ring-blue-500 {
     &:focus {
       --tw-ring-color: var(--color-blue-500);
+    }
+  }
+  .focus\:ring-txt-primary {
+    &:focus {
+      --tw-ring-color: rgb(var(--txt-primary));
     }
   }
   .focus\:ring-varient-error-focus {

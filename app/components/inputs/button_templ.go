@@ -30,16 +30,24 @@ func (b *ButtonOptions) TemplAttributes() templ.Attributes {
 		tmplAttr["disabled"] = b.Disabled
 	}
 
-	btnClasses := " uppercase font-bold py-2 px-4 rounded disabled:bg-stone-400 disabled:text-white"
+	btnClasses := " uppercase font-bold py-2 px-4 rounded disabled:bg-stone-400 disabled:text-white focus:outline-none"
 	switch b.Varient {
 	case "contained":
-		tmplAttr["class"] = "bg-varient-primary hover:bg-varient-primary-hover text-bg-main" + btnClasses
+		hoverTailwind := " hover:bg-varient-primary-hover"
+		focusTailwind := " focus:ring-txt-primary focus:border-txt-primary"
+		tmplAttr["class"] = "bg-varient-primary text-bg-main border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses
 	case "text":
-		tmplAttr["class"] = "bg-transparent text-varient-primary hover:bg-varient-primary/10" + btnClasses
+		hoverTailwind := " hover:bg-varient-primary/10"
+		focusTailwind := " focus:ring-varient-primary focus:border-varient-primary"
+		tmplAttr["class"] = "bg-transparent text-varient-primary border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses
 	case "outline":
-		tmplAttr["class"] = "bg-transparent text-varient-primary border border-varient-primary hover:bg-varient-primary/10" + btnClasses
+		hoverTailwind := " hover:bg-varient-primary/10"
+		focusTailwind := " focus:ring-txt-primary focus:border-txt-primary"
+		tmplAttr["class"] = "bg-transparent text-varient-primary border-2 border-varient-primary" + hoverTailwind + focusTailwind + btnClasses
 	default:
-		tmplAttr["class"] = "bg-varient-primary hover:bg-varient-primary-hover text-bg-main" + btnClasses
+		hoverTailwind := " hover:bg-varient-primary-hover"
+		focusTailwind := " focus:ring-txt-primary focus:border-txt-primary"
+		tmplAttr["class"] = "bg-varient-primary text-bg-main border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses
 	}
 
 	htmxAttr := b.Htmx.TemplAttributes()
@@ -102,7 +110,7 @@ func Button(opts ButtonOptions) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(opts.Text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/components/inputs/button.templ`, Line: 63, Col: 13}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/components/inputs/button.templ`, Line: 71, Col: 13}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {

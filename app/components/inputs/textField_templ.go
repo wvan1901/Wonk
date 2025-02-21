@@ -30,28 +30,36 @@ func (b *TextFieldOptions) TemplAttributes() templ.Attributes {
 	if b.Value != nil {
 		tmplAttr["value"] = b.Value
 	}
-	btnClasses := " w-full p-2.5 focus:outline-none text-sm "
+	btnClasses := " w-full p-2.5 focus:outline-none text-sm border-2 "
 	if b.ErrorMsg != nil {
 		switch b.Varient {
 		case "outlined":
-			tmplAttr["class"] = "rounded-lg border-2 border-varient-error focus:ring-varient-error-focus focus:border-varient-error-focus block" + btnClasses
+			focusTailwind := " focus:ring-varient-error-focus focus:border-varient-error-focus"
+			tmplAttr["class"] = "rounded-lg border-varient-error block" + focusTailwind + btnClasses
 		case "filled":
-			tmplAttr["class"] = "bg-bg-secondary border-2 border-b-varient-error border-t-transparent border-x-transparent focus:border-b-varient-error-focus block rounded-t-md" + btnClasses
+			focusTailwind := " focus:border-b-varient-error-focus"
+			tmplAttr["class"] = "bg-bg-secondary border-b-varient-error border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
 		case "standard":
-			tmplAttr["class"] = "border-2 border-b-varient-error border-t-transparent border-x-transparent focus:border-b-varient-error-focus block rounded-t-md" + btnClasses
+			focusTailwind := " focus:border-b-varient-error-focus"
+			tmplAttr["class"] = "border-b-varient-error border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
 		default:
-			tmplAttr["class"] = "rounded-lg border-2 border-varient-error focus:ring-varient-error-focus focus:border-varient-error-focus block" + btnClasses
+			focusTailwind := " focus:ring-varient-error-focus focus:border-varient-error-focus"
+			tmplAttr["class"] = "rounded-lg border-varient-error block" + focusTailwind + btnClasses
 		}
 	} else {
 		switch b.Varient {
 		case "outlined":
-			tmplAttr["class"] = "rounded-lg border border-gray-300 focus:ring-varient-primary focus:border-varient-primary block" + btnClasses
+			focusTailwind := " focus:ring-varient-primary focus:border-varient-primary"
+			tmplAttr["class"] = "rounded-lg border-gray-300 block" + focusTailwind + btnClasses
 		case "filled":
-			tmplAttr["class"] = "bg-bg-secondary  border border-b-txt-primary border-t-transparent border-x-transparent focus:border-b-varient-primary block rounded-t-md" + btnClasses
+			focusTailwind := " focus:border-b-varient-primary"
+			tmplAttr["class"] = "bg-bg-secondary border-b-txt-primary border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
 		case "standard":
-			tmplAttr["class"] = "border border-b-txt-primary border-t-transparent border-x-transparent focus:border-b-varient-primary block rounded-t-md" + btnClasses
+			focusTailwind := " focus:border-b-varient-primary"
+			tmplAttr["class"] = "border-b-txt-primary border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
 		default:
-			tmplAttr["class"] = "rounded-lg border border-gray-300 focus:ring-varient-primary focus:border-varient-primary block" + btnClasses
+			focusTailwind := " focus:ring-varient-primary focus:border-varient-primary"
+			tmplAttr["class"] = "rounded-lg border-gray-300 block" + focusTailwind + btnClasses
 		}
 	}
 
@@ -106,7 +114,7 @@ func TextField(opts TextFieldOptions) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(*opts.ErrorMsg)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/components/inputs/textField.templ`, Line: 67, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/components/inputs/textField.templ`, Line: 75, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
