@@ -537,12 +537,6 @@
   .static {
     position: static;
   }
-  .m-2 {
-    margin: calc(var(--spacing) * 2);
-  }
-  .my-6 {
-    margin-block: calc(var(--spacing) * 6);
-  }
   .block {
     display: block;
   }
@@ -557,6 +551,10 @@
   }
   .table {
     display: table;
+  }
+  .size-8 {
+    width: calc(var(--spacing) * 8);
+    height: calc(var(--spacing) * 8);
   }
   .size-10 {
     width: calc(var(--spacing) * 10);
@@ -579,9 +577,6 @@
   }
   .h-screen {
     height: 100vh;
-  }
-  .w-1\/6 {
-    width: calc(1/6 * 100%);
   }
   .w-2\/3 {
     width: calc(2/3 * 100%);
