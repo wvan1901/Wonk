@@ -39,7 +39,7 @@ func Finance(s finance.MonthSummary) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"overflow-scroll\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div class=\"overflow-scroll h-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -179,7 +179,7 @@ func MontlySummary(s finance.MonthSummary) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\" class=\"h-full\"><h3 class=\"py-2\">Search Monthly Summary</h3><form class=\"flex flex-col gap-2\" autocomplete=\"off\" hx-post=\"/finance\" hx-target=\"#monthlyTable\" hx-swap=\"outerHTML\"><div><label for=\"month\">Month:</label> <select id=\"month\" name=\"month\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-2\">Search Monthly Summary</h3><form class=\"flex flex-col gap-2\" autocomplete=\"off\" hx-post=\"/finance\" hx-target=\"#monthlyTable\" hx-swap=\"outerHTML\"><div><label for=\"month\">Month:</label> <select id=\"month\" name=\"month\" required class=\"border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

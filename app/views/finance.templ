@@ -11,7 +11,7 @@ import (
 )
 
 templ Finance(s finance.MonthSummary) {
-	<div class="overflow-scroll">
+	<div class="overflow-scroll h-full">
 		@FinanceNavBar()
 		@MontlySummary(s)
 	</div>
@@ -42,7 +42,7 @@ templ FinanceNavBar() {
 }
 
 templ MontlySummary(s finance.MonthSummary) {
-	<div id="finance-content" class="h-full">
+	<div id="finance-content">
 		<h3 class="py-2">Search Monthly Summary</h3>
 		<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance" hx-target="#monthlyTable" hx-swap="outerHTML">
 			<div>
