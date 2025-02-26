@@ -47,35 +47,28 @@ templ MontlySummary(s finance.MonthSummary) {
 		<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance" hx-target="#monthlyTable" hx-swap="outerHTML">
 			<div>
 				<label for="month">Month:</label>
-				<select
-					id="month"
-					name="month"
-					required
-					class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-				>
-					for _, month := range GetMonths() {
-						<option
-							value={ month.Value }
-							if month.IsCurrent {
-								selected="selected"
-							}
-						>{ month.Name }</option>
-					}
-				</select>
+				@inputs.Dropdown(inputs.DropdownOptions{
+					Varient:  "base",
+					Id:       strutil.StrPtr("month"),
+					Name:     strutil.StrPtr("month"),
+					Required: true,
+					Options:  GetMonthChildren(),
+				})
 			</div>
 			<div>
 				<label for="year">Year:</label>
-				<select
-					id="year"
-					name="year"
-					required
-					class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-				>
-					<option>2024</option>
-					<option selected="selected">2025</option>
-					<option>2026</option>
-					<option>2027</option>
-				</select>
+				@inputs.Dropdown(inputs.DropdownOptions{
+					Varient:  "base",
+					Id:       strutil.StrPtr("year"),
+					Name:     strutil.StrPtr("year"),
+					Required: true,
+					Options: []inputs.DropdownChildren{
+						{Value: "2024", Text: "2024"},
+						{Value: "2025", Text: "2025", IsCurrent: true},
+						{Value: "2026", Text: "2026"},
+						{Value: "2027", Text: "2027"},
+					},
+				})
 			</div>
 			@inputs.Button(inputs.ButtonOptions{
 				Varient: "contained",
@@ -220,57 +213,44 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 		</div>
 		<div>
 			<label for="month">Purchase Month:</label>
-			<select
-				id="month"
-				name="month"
-				required
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-			>
-				for _, month := range monthData {
-					<option
-						value={ month.Value }
-						if month.IsCurrent {
-							selected="selected"
-						}
-					>{ month.Name }</option>
-				}
-			</select>
-			if formData.MonthErr != nil {
-				<div class="text-red-700">{ *formData.MonthErr }</div>
-			}
+			@inputs.Dropdown(inputs.DropdownOptions{
+				Varient:  "base",
+				Id:       strutil.StrPtr("month"),
+				Name:     strutil.StrPtr("month"),
+				Required: true,
+				Options:  GetMonthChildren(),
+				ErrorMsg: formData.MonthErr,
+			})
 		</div>
 		<div>
 			<label for="year">Purchase Year:</label>
-			<select
-				id="year"
-				name="year"
-				required
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-			>
-				<option>2024</option>
-				<option selected="selected">2025</option>
-				<option>2026</option>
-				<option>2027</option>
-			</select>
 			if formData.YearErr != nil {
 				<div class="text-red-700">{ *formData.YearErr }</div>
 			}
+			@inputs.Dropdown(inputs.DropdownOptions{
+				Varient:  "base",
+				Id:       strutil.StrPtr("year"),
+				Name:     strutil.StrPtr("year"),
+				Required: true,
+				Options: []inputs.DropdownChildren{
+					{Value: "2024", Text: "2024"},
+					{Value: "2025", Text: "2025", IsCurrent: true},
+					{Value: "2026", Text: "2026"},
+					{Value: "2027", Text: "2027"},
+				},
+				ErrorMsg: formData.YearErr,
+			})
 		</div>
 		<div>
 			<label for="bucket">Bucket</label>
-			<select
-				id="bucket"
-				name="bucket"
-				required
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-			>
-				for _, bucket:= range buckets {
-					<option value={ strconv.Itoa(bucket.Id) }>{ bucket.Name }</option>
-				}
-			</select>
-			if formData.BucketErr != nil {
-				<div class="text-red-700">{ *formData.BucketErr }</div>
-			}
+			@inputs.Dropdown(inputs.DropdownOptions{
+				Varient:  "base",
+				Id:       strutil.StrPtr("bucket"),
+				Name:     strutil.StrPtr("bucket"),
+				Required: true,
+				Options:  bucketToDropdownOpts(buckets),
+				ErrorMsg: formData.BucketErr,
+			})
 		</div>
 		@inputs.Button(inputs.ButtonOptions{
 			Varient: "contained",
@@ -331,4 +311,37 @@ func GetMonths() []Month {
 	months[curMonth-1].IsCurrent = true
 
 	return months
+}
+
+func GetMonthChildren() []inputs.DropdownChildren {
+	c := []inputs.DropdownChildren{
+		{Value: "1", Text: "Jan", IsCurrent: false},
+		{Value: "2", Text: "Feb", IsCurrent: false},
+		{Value: "3", Text: "Mar", IsCurrent: false},
+		{Value: "4", Text: "Apr", IsCurrent: false},
+		{Value: "5", Text: "May", IsCurrent: false},
+		{Value: "6", Text: "June", IsCurrent: false},
+		{Value: "7", Text: "July", IsCurrent: false},
+		{Value: "8", Text: "Aug", IsCurrent: false},
+		{Value: "9", Text: "Sep", IsCurrent: false},
+		{Value: "10", Text: "Oct", IsCurrent: false},
+		{Value: "11", Text: "Nov", IsCurrent: false},
+		{Value: "12", Text: "Dec", IsCurrent: false},
+	}
+	curMonth := int(time.Now().Month())
+	c[curMonth-1].IsCurrent = true
+	return c
+
+}
+
+func bucketToDropdownOpts(buckets []database.Bucket) []inputs.DropdownChildren {
+	opts := []inputs.DropdownChildren{}
+	for _, b := range buckets {
+		opts = append(opts, inputs.DropdownChildren{
+			Value: strconv.Itoa(b.Id),
+			Text:  b.Name,
+		})
+	}
+
+	return opts
 }

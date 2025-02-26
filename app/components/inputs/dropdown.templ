@@ -1,0 +1,99 @@
+package inputs
+
+type DropdownOptions struct {
+	Id       *string
+	Name     *string
+	Varient  string
+	Required bool
+	Disabled bool
+	Options  []DropdownChildren
+	ErrorMsg *string
+}
+
+type DropdownChildren struct {
+	Value     string
+	Text      string
+	IsCurrent bool
+}
+
+func (d *DropdownOptions) TemplAttributes() templ.Attributes {
+	tmplAttr := templ.Attributes{}
+
+	if d.Id != nil {
+		tmplAttr["id"] = d.Id
+	}
+
+	if d.Name != nil {
+		tmplAttr["name"] = d.Name
+	}
+
+	btnClasses := " w-full p-2.5 focus:outline-none text-sm border-2 "
+	if d.ErrorMsg != nil {
+		switch d.Varient {
+		case "base":
+			focusTailwind := " focus:ring-varient-error-focus focus:border-varient-error-focus"
+			tmplAttr["class"] = "rounded-lg border-varient-error block" + focusTailwind + btnClasses
+		case "standard":
+			focusTailwind := " focus:border-b-varient-error-focus"
+			tmplAttr["class"] = "border-b-varient-error border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+		case "filled":
+			focusTailwind := " focus:border-b-varient-error-focus"
+			tmplAttr["class"] = "bg-bg-secondary border-b-varient-error border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+		default:
+			focusTailwind := " focus:ring-varient-error-focus focus:border-varient-error-focus"
+			tmplAttr["class"] = "rounded-lg border-varient-error block" + focusTailwind + btnClasses
+		}
+	} else {
+		switch d.Varient {
+		case "base":
+			focusTailwind := " focus:border-varient-primary"
+			tmplAttr["class"] = "rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" + focusTailwind + btnClasses
+		case "standard":
+			focusTailwind := " focus:border-b-varient-primary"
+			tmplAttr["class"] = "border-b-txt-primary border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+		case "filled":
+			focusTailwind := " focus:border-b-varient-primary"
+			tmplAttr["class"] = "bg-bg-secondary border-b-txt-primary border-t-transparent border-x-transparent rounded-t-md" + focusTailwind + btnClasses
+		default:
+			focusTailwind := " focus:border-varient-primary"
+			tmplAttr["class"] = "rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500" + focusTailwind + btnClasses
+		}
+	}
+
+	if d.Required {
+		tmplAttr["required"] = d.Required
+	}
+
+	if d.Disabled {
+		tmplAttr["disabled"] = d.Disabled
+	}
+
+	return tmplAttr
+}
+
+/*
+	case "filled":
+		focusTailwind := " focus:border-b-varient-primary"
+		tmplAttr["class"] = "bg-bg-secondary border-b-txt-primary border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+	case "standard":
+		focusTailwind := " focus:border-b-varient-primary"
+		tmplAttr["class"] = "border-b-txt-primary border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+*/
+
+templ Dropdown(opts DropdownOptions) {
+	<select
+		{ opts.TemplAttributes()... }
+	>
+		for _, option := range opts.Options {
+			<option
+				value={ option.Value }
+				if option.IsCurrent {
+					selected="selected"
+				}
+			>{ option.Text }</option>
+		}
+	</select>
+	if opts.ErrorMsg != nil {
+		<div class="text-varient-error text-xs pl-2">{ *opts.ErrorMsg }</div>
+	}
+}
