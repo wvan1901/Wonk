@@ -1,0 +1,81 @@
+package inputs
+
+type NumberFieldOptions struct {
+	Id       *string
+	Name     *string
+	Value    *string
+	Step     *string
+	Varient  string
+	Required bool
+	Disabled bool
+	ErrorMsg *string
+}
+
+func (b *NumberFieldOptions) TemplAttributes() templ.Attributes {
+	tmplAttr := templ.Attributes{}
+
+	if b.Id != nil {
+		tmplAttr["id"] = b.Id
+	}
+	if b.Name != nil {
+		tmplAttr["name"] = b.Name
+	}
+	if b.Value != nil {
+		tmplAttr["value"] = b.Value
+	}
+	if b.Step != nil {
+		tmplAttr["step"] = b.Step
+	}
+	btnClasses := " w-full p-2.5 focus:outline-none text-sm border-2 "
+	if b.ErrorMsg != nil {
+		switch b.Varient {
+		case "outlined":
+			focusTailwind := " focus:ring-varient-error-focus focus:border-varient-error-focus"
+			tmplAttr["class"] = "rounded-lg border-varient-error block" + focusTailwind + btnClasses
+		case "filled":
+			focusTailwind := " focus:border-b-varient-error-focus"
+			tmplAttr["class"] = "bg-bg-secondary border-b-varient-error border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+		case "standard":
+			focusTailwind := " focus:border-b-varient-error-focus"
+			tmplAttr["class"] = "border-b-varient-error border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+		default:
+			focusTailwind := " focus:ring-varient-error-focus focus:border-varient-error-focus"
+			tmplAttr["class"] = "rounded-lg border-varient-error block" + focusTailwind + btnClasses
+		}
+	} else {
+		switch b.Varient {
+		case "outlined":
+			focusTailwind := " focus:ring-varient-primary focus:border-varient-primary"
+			tmplAttr["class"] = "rounded-lg border-gray-300 block" + focusTailwind + btnClasses
+		case "filled":
+			focusTailwind := " focus:border-b-varient-primary"
+			tmplAttr["class"] = "bg-bg-secondary border-b-txt-primary border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+		case "standard":
+			focusTailwind := " focus:border-b-varient-primary"
+			tmplAttr["class"] = "border-b-txt-primary border-t-transparent border-x-transparent block rounded-t-md" + focusTailwind + btnClasses
+		default:
+			focusTailwind := " focus:ring-varient-primary focus:border-varient-primary"
+			tmplAttr["class"] = "rounded-lg border-gray-300 block" + focusTailwind + btnClasses
+		}
+	}
+
+	if b.Required {
+		tmplAttr["required"] = b.Required
+	}
+	if b.Disabled {
+		tmplAttr["disabled"] = b.Disabled
+	}
+
+	return tmplAttr
+}
+
+templ NumberField(opts NumberFieldOptions) {
+	<input
+		type="number"
+		autocomplete="off"
+		{ opts.TemplAttributes()... }
+	/>
+	if opts.ErrorMsg != nil {
+		<div class="text-varient-error text-xs pl-2">{ *opts.ErrorMsg }</div>
+	}
+}

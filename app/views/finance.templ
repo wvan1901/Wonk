@@ -176,18 +176,15 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 		</div>
 		<div>
 			<label for="price">Price</label>
-			<input
-				id="price"
-				name="price"
-				type="number"
-				step="0.01"
-				value={ formData.PriceValue }
-				required
-				class="border border-gray-300 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-			/>
-			if formData.PriceErr != nil {
-				<div class="text-red-700">{ *formData.PriceErr }</div>
-			}
+			@inputs.NumberField(inputs.NumberFieldOptions{
+				Varient:  "outlined",
+				Id:       strutil.StrPtr("price"),
+				Name:     strutil.StrPtr("price"),
+				Value:    &formData.PriceValue,
+				Step:     strutil.StrPtr("0.01"),
+				Required: true,
+				ErrorMsg: formData.NameErr,
+			})
 		</div>
 		<div>
 			<label for="isExpense">Is this an Income or Expense?</label>
