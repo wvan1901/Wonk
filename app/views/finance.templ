@@ -83,6 +83,16 @@ templ MonthlySummary(s finance.MonthSummary) {
 		<br/>
 		<h3>Monthly Summary</h3>
 		@MonthlyTable(s)
+		<br/>
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "text",
+			Text:    "Create New Bucket",
+			Htmx: inputs.HtmxOptions{
+				HxGet:    strutil.StrPtr("/finance/bucket/form"),
+				HxTarget: strutil.StrPtr("#finance-content"),
+				HxSwap:   strutil.StrPtr("innerHTML"),
+			},
+		})
 	</div>
 }
 
@@ -133,16 +143,6 @@ templ FinanceSubmit(
 				@TransactionForm(buckets, formData, monthData)
 			}
 		</div>
-		<br/>
-		@inputs.Button(inputs.ButtonOptions{
-			Varient: "text",
-			Text:    "Create New Bucket",
-			Htmx: inputs.HtmxOptions{
-				HxGet:    strutil.StrPtr("/finance/bucket/form"),
-				HxTarget: strutil.StrPtr("#finance-content"),
-				HxSwap:   strutil.StrPtr("innerHTML"),
-			},
-		})
 	</div>
 }
 
