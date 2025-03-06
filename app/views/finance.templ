@@ -10,16 +10,16 @@ import (
 	"wonk/app/strutil"
 )
 
-templ Finance(s finance.MonthSummary) {
+templ Finance() {
 	<div class="overflow-scroll h-full">
 		@FinanceNavBar()
-		@MontlySummary(s)
+		<div id="finance-content"></div>
 	</div>
 }
 
-templ FinancePage(s finance.MonthSummary) {
+templ FinancePage() {
 	@Page() {
-		@Finance(s)
+		@Finance()
 	}
 }
 
@@ -27,21 +27,26 @@ templ FinanceNavBar() {
 	<div class="flex flex-row">
 		@inputs.Button(inputs.ButtonOptions{
 			Varient: "text",
-			Text:    "Submit",
+			Text:    "Transactions",
 			Htmx: inputs.HtmxOptions{
-				HxGet:    strutil.StrPtr("/finance/submit"),
+				HxGet:    strutil.StrPtr("/finance/transaction"),
 				HxTarget: strutil.StrPtr("#finance-content"),
 				HxSwap:   strutil.StrPtr("outerHTML"),
 			},
 		})
 		@inputs.Button(inputs.ButtonOptions{
 			Varient: "text",
-			Text:    "View",
+			Text:    "Buckets",
+			Htmx: inputs.HtmxOptions{
+				HxGet:    strutil.StrPtr("/finance/bucket/search"),
+				HxTarget: strutil.StrPtr("#finance-content"),
+				HxSwap:   strutil.StrPtr("outerHTML"),
+			},
 		})
 	</div>
 }
 
-templ MontlySummary(s finance.MonthSummary) {
+templ MonthlySummary(s finance.MonthSummary) {
 	<div id="finance-content">
 		<h3 class="py-2">Search Monthly Summary</h3>
 		<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance" hx-target="#monthlyTable" hx-swap="outerHTML">
@@ -133,7 +138,7 @@ templ FinanceSubmit(
 			Varient: "text",
 			Text:    "Create New Bucket",
 			Htmx: inputs.HtmxOptions{
-				HxGet:    strutil.StrPtr("/finance/submit/bucket"),
+				HxGet:    strutil.StrPtr("/finance/bucket/form"),
 				HxTarget: strutil.StrPtr("#finance-content"),
 				HxSwap:   strutil.StrPtr("innerHTML"),
 			},
@@ -162,7 +167,7 @@ type TransactionFormData struct {
 }
 
 templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, monthData []Month) {
-	<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/submit">
+	<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/transaction">
 		<div>
 			<label for="name" required>Purchase Name:</label>
 			@inputs.TextField(inputs.TextFieldOptions{
@@ -266,7 +271,7 @@ type BucketFormData struct {
 }
 
 templ BucketForm(formData BucketFormData) {
-	<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/submit/bucket">
+	<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/bucket/form">
 		<div>
 			<label for="name" required>Bucket Name:</label>
 			@inputs.TextField(inputs.TextFieldOptions{
