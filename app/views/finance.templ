@@ -49,7 +49,7 @@ templ FinanceNavBar() {
 templ MonthlySummary(s finance.MonthSummary) {
 	<div id="finance-content">
 		<h3 class="py-2">Search Monthly Summary</h3>
-		<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance" hx-target="#monthlyTable" hx-swap="outerHTML">
+		<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/bucket/search" hx-target="#monthlyTable" hx-swap="outerHTML">
 			<div>
 				<label for="month">Month:</label>
 				@inputs.Dropdown(inputs.DropdownOptions{

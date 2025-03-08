@@ -27,7 +27,7 @@ func AddRoutes(
 	mux.Handle("/signup", s.Auth.HandleSignUp())
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
 	mux.Handle("/home", s.Auth.AuthMiddleware(handleHome(l)))
-	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l, s.Finance)))
+	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l)))
 	mux.Handle("/finance/transaction", s.Auth.AuthMiddleware(handleFinanceTransactions(l, s.Finance)))
 	mux.Handle("/finance/bucket/form", s.Auth.AuthMiddleware(handleFinanceSubmitBucket(l, s.Finance)))
 	mux.Handle("/finance/bucket/search", s.Auth.AuthMiddleware(handleFinanceBucket(l, s.Finance)))
@@ -59,16 +59,9 @@ func handleHome(l *slog.Logger) http.Handler {
 	)
 }
 
-func handleFinance(l *slog.Logger, f finance.Finance) http.Handler {
-	funcName := "handleFinance"
+func handleFinance(l *slog.Logger) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
-			curUser, err := auth.UserCtx(r.Context())
-			if err != nil {
-				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
-				http.Error(w, "Internal Error, try logging in again", 500)
-				return
-			}
 			switch r.Method {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
@@ -88,37 +81,6 @@ func handleFinance(l *slog.Logger, f finance.Finance) http.Handler {
 					}
 					return
 				}
-			case "POST":
-				err := r.ParseForm()
-				if err != nil {
-					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()))
-					http.Error(w, "Internal Error: Parsing Form", 500)
-					return
-				}
-				month := r.FormValue("month")
-				year := r.FormValue("year")
-				monthInt, err := strconv.Atoi(month)
-				if err != nil {
-					http.Error(w, "Bad Request: Month Isn't a int", 400)
-					return
-				}
-				yearInt, err := strconv.Atoi(year)
-				if err != nil {
-					http.Error(w, "Bad Request: Year Isn't a int", 400)
-					return
-				}
-				summary, err := f.MonthlySummary(curUser.UserId, monthInt, yearInt)
-				if err != nil {
-					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()))
-					http.Error(w, "Internal Error", 500)
-					return
-				}
-				tmplFinanceDiv := views.MonthlyTable(*summary)
-				err = tmplFinanceDiv.Render(context.TODO(), w)
-				if err != nil {
-					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "templ"))
-				}
-				return
 			default:
 				http.Error(w, "Not valid method", 404)
 			}
@@ -316,6 +278,13 @@ func handleFinanceBucket(l *slog.Logger, f finance.Finance) http.Handler {
 					http.Error(w, "Internal Error, try logging in again", 500)
 					return
 				}
+				filteredBuckets := []finance.BucketSummary{}
+				for _, bucket := range summary.BucketsSummary {
+					if bucket.Price != 0 {
+						filteredBuckets = append(filteredBuckets, bucket)
+					}
+				}
+				summary.BucketsSummary = filteredBuckets
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
@@ -355,6 +324,13 @@ func handleFinanceBucket(l *slog.Logger, f finance.Finance) http.Handler {
 					http.Error(w, "Internal Error", 500)
 					return
 				}
+				filteredBuckets := []finance.BucketSummary{}
+				for _, bucket := range summary.BucketsSummary {
+					if bucket.Price != 0 {
+						filteredBuckets = append(filteredBuckets, bucket)
+					}
+				}
+				summary.BucketsSummary = filteredBuckets
 				tmplFinanceDiv := views.MonthlyTable(*summary)
 				err = tmplFinanceDiv.Render(context.TODO(), w)
 				if err != nil {

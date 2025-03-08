@@ -180,7 +180,7 @@ func MonthlySummary(s finance.MonthSummary) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-2\">Search Monthly Summary</h3><form class=\"flex flex-col gap-2\" autocomplete=\"off\" hx-post=\"/finance\" hx-target=\"#monthlyTable\" hx-swap=\"outerHTML\"><div><label for=\"month\">Month:</label>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-2\">Search Monthly Summary</h3><form class=\"flex flex-col gap-2\" autocomplete=\"off\" hx-post=\"/finance/bucket/search\" hx-target=\"#monthlyTable\" hx-swap=\"outerHTML\"><div><label for=\"month\">Month:</label>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -237,7 +237,7 @@ func MonthlySummary(s finance.MonthSummary) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
-			Varient: "outline",
+			Varient: "text",
 			Text:    "Create New Bucket",
 			Htmx: inputs.HtmxOptions{
 				HxGet:    strutil.StrPtr("/finance/bucket/form"),
