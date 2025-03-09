@@ -58,7 +58,7 @@ func handleHome(l *slog.Logger) http.Handler {
 			tmplHomePage := views.Page()
 			err := tmplHomePage.Render(ctx, w)
 			if err != nil {
-				l.Error("/home: error", slog.String("Error", err.Error()))
+				l.Error("handleHome", slog.String("path", "/home"), slog.String("Error", err.Error()))
 				return
 			}
 		},
@@ -66,6 +66,8 @@ func handleHome(l *slog.Logger) http.Handler {
 }
 
 func handleFinance(l *slog.Logger) http.Handler {
+	funcName := "handleFinance"
+	path := "/finace"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			switch r.Method {
@@ -78,14 +80,14 @@ func handleFinance(l *slog.Logger) http.Handler {
 					tmplFinanceDiv := views.Finance()
 					err := tmplFinanceDiv.Render(ctx, w)
 					if err != nil {
-						l.Error("/finance: error", slog.String("Error", err.Error()))
+						l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
 					}
 					return
 				} else {
 					tmplFinanceDiv := views.FinancePage()
 					err := tmplFinanceDiv.Render(ctx, w)
 					if err != nil {
-						l.Error("/finance: error", slog.String("Error", err.Error()))
+						l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
 					}
 					return
 				}
@@ -98,6 +100,7 @@ func handleFinance(l *slog.Logger) http.Handler {
 
 func handleFinanceSubmitBucket(l *slog.Logger, f finance.Finance) http.Handler {
 	funcName := "handleFinanceSubmitBucket"
+	path := "/finance/bucket/form"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			reqCtx := r.Context()
@@ -105,7 +108,7 @@ func handleFinanceSubmitBucket(l *slog.Logger, f finance.Finance) http.Handler {
 			defer cancel()
 			curUser, err := auth.UserCtx(reqCtx)
 			if err != nil {
-				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				l.Error(funcName, slog.String("Error", err.Error()), slog.String("path", path), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
@@ -113,30 +116,28 @@ func handleFinanceSubmitBucket(l *slog.Logger, f finance.Finance) http.Handler {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
-				if isHtmxRequest {
-					formData := views.BucketFormData{}
-					tmplFinanceDiv := views.BucketForm(formData)
-					err := tmplFinanceDiv.Render(ctx, w)
-					if err != nil {
-						l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "GET"), slog.String("Error", err.Error()))
-					}
-					return
-				} else {
-					// Build entire page or redirect to finance
+				if !isHtmxRequest { // Build entire page or redirect to finance
 					w.WriteHeader(404)
 					return
 				}
+				formData := views.BucketFormData{}
+				tmplFinanceDiv := views.BucketForm(formData)
+				err := tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("HttpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
 			case "POST":
 				err := r.ParseForm()
 				if err != nil {
-					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("error", err.Error()), slog.String("DevNote", "Parse form err"))
+					l.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("error", err.Error()), slog.String("DevNote", "Parse form err"))
 					http.Error(w, "Internal Error: Parsing Form", 500)
 					return
 				}
 				newName := r.FormValue("name")
 				problems, err := f.CreateBucket(curUser.UserId, newName)
 				if err != nil {
-					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("error", err.Error()))
+					l.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("error", err.Error()))
 					http.Error(w, "Internal Error", 500)
 					return
 				}
@@ -153,14 +154,14 @@ func handleFinanceSubmitBucket(l *slog.Logger, f finance.Finance) http.Handler {
 					bucketForm := views.BucketForm(formData)
 					err = bucketForm.Render(ctx, w)
 					if err != nil {
-						l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "Invalid: Templ err"))
+						l.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Invalid: Templ err"))
 					}
 					return
 				}
 				successMessage := views.SuccessfulBucket()
 				err = successMessage.Render(ctx, w)
 				if err != nil {
-					l.Error("handleFinanceSubmitBucket", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "Success: Templ err"))
+					l.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Success: Templ err"))
 				}
 			default:
 				http.Error(w, "Not valid method", 404)
@@ -171,6 +172,7 @@ func handleFinanceSubmitBucket(l *slog.Logger, f finance.Finance) http.Handler {
 
 func handleFinanceTransactions(l *slog.Logger, f finance.Finance) http.Handler {
 	funcName := "handleFinanceTransactions"
+	path := "/finance/transaction"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			reqCtx := r.Context()
@@ -178,7 +180,7 @@ func handleFinanceTransactions(l *slog.Logger, f finance.Finance) http.Handler {
 			defer cancel()
 			curUser, err := auth.UserCtx(reqCtx)
 			if err != nil {
-				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
@@ -192,23 +194,21 @@ func handleFinanceTransactions(l *slog.Logger, f finance.Finance) http.Handler {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
-				if isHtmxRequest {
-					formData := views.TransactionFormData{}
-					tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months)
-					err = tmplFinanceDiv.Render(ctx, w)
-					if err != nil {
-						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
-					}
-					return
-				} else {
-					// Build entire page or redirect to finance
+				if !isHtmxRequest { // Build entire page or redirect to finance
 					w.WriteHeader(404)
 					return
 				}
+				formData := views.TransactionFormData{}
+				tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
 			case "POST":
 				err := r.ParseForm()
 				if err != nil {
-					l.Error("handleFinanceSubmit: /finance/submit: POST: parseForm:", slog.String("error", err.Error()))
+					l.Error(funcName, slog.String("httpMethod", "POST"), slog.String("path", path), slog.String("error", err.Error()))
 					http.Error(w, "Internal Error: Parsing Form", 500)
 					return
 				}
@@ -223,7 +223,7 @@ func handleFinanceTransactions(l *slog.Logger, f finance.Finance) http.Handler {
 				}
 				problems, err := f.SubmitNewTransaction(formData)
 				if err != nil {
-					l.Error("handleFinanceSubmit", slog.String("Route", "/finance/submit"), slog.String("HttpMethod", "POST"), slog.String("error", err.Error()))
+					l.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("error", err.Error()))
 					http.Error(w, "Internal Error", 500)
 					return
 				}
@@ -256,7 +256,7 @@ func handleFinanceTransactions(l *slog.Logger, f finance.Finance) http.Handler {
 					tmplFinanceDiv := views.TransactionForm(buckets, formData, months)
 					err = tmplFinanceDiv.Render(ctx, w)
 					if err != nil {
-						l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
+						l.Error(funcName, slog.String("httpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()))
 					}
 					return
 				}
@@ -264,7 +264,7 @@ func handleFinanceTransactions(l *slog.Logger, f finance.Finance) http.Handler {
 				successMessage := views.SuccessfulTransaction()
 				err = successMessage.Render(ctx, w)
 				if err != nil {
-					l.Error("handleFinanceSubmit: GET:", slog.String("Error", err.Error()))
+					l.Error(funcName, slog.String("httpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()))
 				}
 			default:
 				http.Error(w, "Not valid method", 404)
@@ -275,6 +275,7 @@ func handleFinanceTransactions(l *slog.Logger, f finance.Finance) http.Handler {
 
 func handleFinanceBucket(l *slog.Logger, f finance.Finance) http.Handler {
 	funcName := "handleFinanceBucket"
+	path := "/finance/transactions/month/form"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			reqCtx := r.Context()
@@ -282,7 +283,7 @@ func handleFinanceBucket(l *slog.Logger, f finance.Finance) http.Handler {
 			defer cancel()
 			curUser, err := auth.UserCtx(reqCtx)
 			if err != nil {
-				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				l.Error(funcName, slog.String("Error", err.Error()), slog.String("path", path), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
@@ -291,7 +292,7 @@ func handleFinanceBucket(l *slog.Logger, f finance.Finance) http.Handler {
 				curTime := time.Now()
 				summary, err := f.MonthlySummary(curUser.UserId, int(curTime.Month()), curTime.Year())
 				if err != nil {
-					l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue with user buckets"))
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue with user buckets"))
 					http.Error(w, "Internal Error, try logging in again", 500)
 					return
 				}
@@ -304,18 +305,16 @@ func handleFinanceBucket(l *slog.Logger, f finance.Finance) http.Handler {
 				summary.BucketsSummary = filteredBuckets
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
-				if isHtmxRequest {
-					tmplFinanceDiv := views.MonthlySummary(*summary)
-					err := tmplFinanceDiv.Render(ctx, w)
-					if err != nil {
-						l.Error("/finance: error", slog.String("Error", err.Error()))
-					}
-					return
-				} else {
-					// Build entire page or redirect to finance
+				if !isHtmxRequest { // Build entire page or redirect to finance
 					w.WriteHeader(404)
 					return
 				}
+				tmplFinanceDiv := views.MonthlySummary(*summary)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
 			default:
 				http.Error(w, "Not valid method", 404)
 			}
@@ -324,7 +323,8 @@ func handleFinanceBucket(l *slog.Logger, f finance.Finance) http.Handler {
 }
 
 func handleFinanceMontlySummary(l *slog.Logger, f finance.Finance) http.Handler {
-	funcName := "handleFinanceBucket"
+	funcName := "handleFinanceMontlySummary"
+	path := "/finance/transactions/month"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			reqCtx := r.Context()
@@ -332,7 +332,7 @@ func handleFinanceMontlySummary(l *slog.Logger, f finance.Finance) http.Handler 
 			defer cancel()
 			curUser, err := auth.UserCtx(reqCtx)
 			if err != nil {
-				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
@@ -340,7 +340,7 @@ func handleFinanceMontlySummary(l *slog.Logger, f finance.Finance) http.Handler 
 			case "GET":
 				err := r.ParseForm()
 				if err != nil {
-					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()))
+					l.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()))
 					http.Error(w, "Internal Error: Parsing Form", 500)
 					return
 				}
@@ -358,7 +358,7 @@ func handleFinanceMontlySummary(l *slog.Logger, f finance.Finance) http.Handler 
 				}
 				summary, err := f.MonthlySummary(curUser.UserId, monthInt, yearInt)
 				if err != nil {
-					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()))
+					l.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()))
 					http.Error(w, "Internal Error", 500)
 					return
 				}
@@ -372,7 +372,7 @@ func handleFinanceMontlySummary(l *slog.Logger, f finance.Finance) http.Handler 
 				tmplFinanceDiv := views.MonthlyTable(*summary)
 				err = tmplFinanceDiv.Render(ctx, w)
 				if err != nil {
-					l.Error("handleFinance", slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "templ"))
+					l.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "templ"))
 				}
 				return
 			default:
@@ -384,6 +384,7 @@ func handleFinanceMontlySummary(l *slog.Logger, f finance.Finance) http.Handler 
 
 func handleFinanceBucketList(l *slog.Logger, f finance.Finance) http.Handler {
 	funcName := "handleFinanceBucketList"
+	path := "/finance/buckets"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			reqCtx := r.Context()
@@ -391,7 +392,7 @@ func handleFinanceBucketList(l *slog.Logger, f finance.Finance) http.Handler {
 			defer cancel()
 			curUser, err := auth.UserCtx(reqCtx)
 			if err != nil {
-				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
@@ -399,28 +400,27 @@ func handleFinanceBucketList(l *slog.Logger, f finance.Finance) http.Handler {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
-				if isHtmxRequest {
-					buckets, err := f.UserBuckets(curUser.UserId)
-					if err != nil {
-						http.Error(w, "Internal error", 500)
-						return
-					}
-					bucketRows := []views.BucketRow{}
-					for _, bucket := range buckets {
-						newRow := views.BucketRow{BucketId: strconv.Itoa(bucket.Id), BucketName: bucket.Name}
-						bucketRows = append(bucketRows, newRow)
-					}
-					tmplFinanceDiv := views.ViewBuckets(bucketRows)
-					err = tmplFinanceDiv.Render(ctx, w)
-					if err != nil {
-						l.Error(funcName, slog.String("Error", err.Error()))
-					}
-					return
-				} else {
-					// Build entire page or redirect to finance
+				if !isHtmxRequest { // Build entire page or redirect to finance
 					w.WriteHeader(404)
 					return
 				}
+				buckets, err := f.UserBuckets(curUser.UserId)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+					http.Error(w, "Internal error", 500)
+					return
+				}
+				bucketRows := []views.BucketRow{}
+				for _, bucket := range buckets {
+					newRow := views.BucketRow{BucketId: strconv.Itoa(bucket.Id), BucketName: bucket.Name}
+					bucketRows = append(bucketRows, newRow)
+				}
+				tmplFinanceDiv := views.ViewBuckets(bucketRows)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
 			default:
 				http.Error(w, "Not valid method", 404)
 			}
@@ -430,6 +430,7 @@ func handleFinanceBucketList(l *slog.Logger, f finance.Finance) http.Handler {
 
 func handleFinanceBucketListEdit(l *slog.Logger, f finance.Finance) http.Handler {
 	funcName := "handleFinanceBucketListEdit"
+	path := "/finance/buckets/{bucketId}/edit"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			reqCtx := r.Context()
@@ -437,7 +438,7 @@ func handleFinanceBucketListEdit(l *slog.Logger, f finance.Finance) http.Handler
 			defer cancel()
 			curUser, err := auth.UserCtx(reqCtx)
 			if err != nil {
-				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
@@ -446,28 +447,27 @@ func handleFinanceBucketListEdit(l *slog.Logger, f finance.Finance) http.Handler
 				bucketId := r.PathValue("id")
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
-				if isHtmxRequest {
-					bucket, err := f.GetBucket(bucketId)
-					if err != nil {
-						w.WriteHeader(500)
-						return
-					}
-					if curUser.UserId != bucket.UserId {
-						w.WriteHeader(403)
-						return
-					}
-					row := views.BucketRow{BucketId: bucketId, BucketName: bucket.Name}
-					tmplFinanceDiv := views.EditBucketRow(row)
-					err = tmplFinanceDiv.Render(ctx, w)
-					if err != nil {
-						l.Error(funcName, slog.String("Error", err.Error()))
-					}
-					return
-				} else {
-					// Build entire page or redirect to finance
+				if !isHtmxRequest { // Build entire page or redirect to finance
 					w.WriteHeader(404)
 					return
 				}
+				bucket, err := f.GetBucket(bucketId)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+					w.WriteHeader(500)
+					return
+				}
+				if curUser.UserId != bucket.UserId {
+					w.WriteHeader(403)
+					return
+				}
+				row := views.BucketRow{BucketId: bucketId, BucketName: bucket.Name}
+				tmplFinanceDiv := views.EditBucketRow(row)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
 			default:
 				http.Error(w, "Not valid method", 404)
 			}
@@ -477,6 +477,7 @@ func handleFinanceBucketListEdit(l *slog.Logger, f finance.Finance) http.Handler
 
 func handleFinanceBucketListRow(l *slog.Logger, f finance.Finance) http.Handler {
 	funcName := "handleFinanceBucketListRow"
+	path := "/finance/buckets/{bucketId}"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			reqCtx := r.Context()
@@ -484,13 +485,14 @@ func handleFinanceBucketListRow(l *slog.Logger, f finance.Finance) http.Handler 
 			defer cancel()
 			curUser, err := auth.UserCtx(reqCtx)
 			if err != nil {
-				l.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
 			bucketId := r.PathValue("id")
 			bucket, err := f.GetBucket(bucketId)
 			if err != nil {
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
 				w.WriteHeader(500)
 				return
 			}
@@ -502,48 +504,44 @@ func handleFinanceBucketListRow(l *slog.Logger, f finance.Finance) http.Handler 
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
-				if isHtmxRequest {
-					row := views.BucketRow{BucketId: bucketId, BucketName: bucket.Name}
-					tmplFinanceDiv := views.GetBucketRow(row)
-					err = tmplFinanceDiv.Render(ctx, w)
-					if err != nil {
-						l.Error(funcName, slog.String("Error", err.Error()))
-					}
-					return
-				} else {
-					// Build entire page or redirect to finance
+				if !isHtmxRequest { // Build entire page or redirect to finance
 					w.WriteHeader(404)
 					return
 				}
+				row := views.BucketRow{BucketId: bucketId, BucketName: bucket.Name}
+				tmplFinanceDiv := views.GetBucketRow(row)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
 			case "PUT":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
-				if isHtmxRequest {
-					err := r.ParseForm()
-					if err != nil {
-						l.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("Error", err.Error()))
-						http.Error(w, "Internal Error", 500)
-						return
-					}
-					newName := r.FormValue("name")
-					err = f.UpdateBucket(bucket.Id, newName)
-					if err != nil {
-						l.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("Error", err.Error()))
-						http.Error(w, "Internal Error", 500)
-						return
-					}
-					mockRow := views.BucketRow{BucketId: bucketId, BucketName: newName}
-					tmplFinanceDiv := views.GetBucketRow(mockRow)
-					err = tmplFinanceDiv.Render(ctx, w)
-					if err != nil {
-						l.Error(funcName, slog.String("Error", err.Error()))
-					}
-					return
-				} else {
-					// Build entire page or redirect to finance
+				if !isHtmxRequest { // Build entire page or redirect to finance
 					w.WriteHeader(404)
 					return
 				}
+				err := r.ParseForm()
+				if err != nil {
+					l.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("path", path), slog.String("Error", err.Error()))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
+				newName := r.FormValue("name")
+				err = f.UpdateBucket(bucket.Id, newName)
+				if err != nil {
+					l.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("path", path), slog.String("Error", err.Error()))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
+				mockRow := views.BucketRow{BucketId: bucketId, BucketName: newName}
+				tmplFinanceDiv := views.GetBucketRow(mockRow)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
 			default:
 				http.Error(w, "Not valid method", 404)
 			}
