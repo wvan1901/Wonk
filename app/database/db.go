@@ -23,6 +23,8 @@ type Database interface {
 	UserByUserName(string) (*User, error)
 	NumBuckets(int) (int, error)
 	TransactionsInBucket(int, int, int) ([]TransactionItem, error)
+	BucketById(int) (*Bucket, error)
+	BucketUpdateName(int, string) (int64, error)
 }
 
 type SqliteDb struct {
@@ -145,4 +147,28 @@ func (s *SqliteDb) TransactionsInBucket(bucketId, month, year int) ([]Transactio
 	}
 
 	return data, nil
+}
+func (s *SqliteDb) BucketById(bucketId int) (*Bucket, error) {
+	query := "SELECT * FROM " + BUCKETS_TABLE_NAME + " WHERE id=?"
+	row := s.Db.QueryRow(query, bucketId)
+	curBucket := Bucket{}
+	err := row.Scan(&curBucket.Id, &curBucket.Name, &curBucket.UserId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("UserByUserName: %w", &cuserr.NotFound{})
+		}
+		return nil, fmt.Errorf("UserByUserName: %w", err)
+	}
+
+	return &curBucket, nil
+}
+
+func (s *SqliteDb) BucketUpdateName(bucketId int, newName string) (int64, error) {
+	query := "UPDATE " + BUCKETS_TABLE_NAME + " SET name=? WHERE id=?"
+	result, err := s.Db.Exec(query, newName, bucketId)
+	if err != nil {
+		return 0, fmt.Errorf("BucketUpdateName: %w", err)
+	}
+
+	return result.RowsAffected()
 }

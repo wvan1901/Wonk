@@ -16,6 +16,8 @@ type Finance interface {
 	SubmitNewTransaction(TransactionFormInput) (map[string]string, error)
 	CreateBucket(int, string) (map[string]string, error)
 	MonthlySummary(int, int, int) (*MonthSummary, error)
+	GetBucket(string) (*database.Bucket, error)
+	UpdateBucket(int, string) error
 }
 
 type FinanceLogic struct {
@@ -194,4 +196,27 @@ func (f *FinanceLogic) bucketMonthPrice(bucketId int, month int, year int) (floa
 	}
 
 	return totalPrice, nil
+}
+
+func (f *FinanceLogic) GetBucket(bucketId string) (*database.Bucket, error) {
+	id, err := strconv.Atoi(bucketId)
+	if err != nil {
+		return nil, fmt.Errorf("GetBucket: invalid id: %w", err)
+	}
+	bucket, err := f.DB.BucketById(id)
+	if err != nil {
+		return nil, fmt.Errorf("GetBucket: %w", err)
+	}
+	return bucket, nil
+}
+
+func (f *FinanceLogic) UpdateBucket(bucketId int, newName string) error {
+	rowsChanged, err := f.DB.BucketUpdateName(bucketId, newName)
+	if err != nil {
+		return fmt.Errorf("UpdateBucket: %w", err)
+	}
+	if rowsChanged == 0 {
+		return errors.New("UpdateBucket: no data changed")
+	}
+	return nil
 }

@@ -93,6 +93,15 @@ templ MonthlySummary(s finance.MonthSummary) {
 				HxSwap:   strutil.StrPtr("innerHTML"),
 			},
 		})
+		@inputs.Button(inputs.ButtonOptions{
+			Varient: "text",
+			Text:    "View Buckets",
+			Htmx: inputs.HtmxOptions{
+				HxGet:    strutil.StrPtr("/finance/bucket/list"),
+				HxTarget: strutil.StrPtr("#finance-content"),
+				HxSwap:   strutil.StrPtr("innerHTML"),
+			},
+		})
 	</div>
 }
 
@@ -346,4 +355,78 @@ func bucketToDropdownOpts(buckets []database.Bucket) []inputs.DropdownChildren {
 	}
 
 	return opts
+}
+
+type BucketRow struct {
+	BucketId   string
+	BucketName string
+}
+
+templ ViewBuckets(rows []BucketRow) {
+	<div id="finance-content">
+		<h3 class="py-2">Here all the buckets you have:</h3>
+		<table id="bucketTable" class="w-full text-left rounded">
+			<thead class="uppercase bg-bg-secondary">
+				<tr>
+					<th class="px-6 py-3">Bucket Name</th>
+					<th class="px-6 py-3">Action</th>
+				</tr>
+			</thead>
+			<tbody hx-target="closest tr" hx-swap="outerHTML" class="divide-y-1 divide-brdr-main">
+				for _, row := range rows {
+					@GetBucketRow(row)
+				}
+			</tbody>
+		</table>
+	</div>
+}
+
+templ GetBucketRow(row BucketRow) {
+	<tr>
+		<td class="px-6 py-1 font-medium">{ row.BucketName }</td>
+		<td class="px-6 py-1">
+			@inputs.Button(inputs.ButtonOptions{
+				Htmx: inputs.HtmxOptions{
+					HxGet:     strutil.StrPtr("/finance/bucket/list/" + row.BucketId + "/edit"),
+					HxTrigger: strutil.StrPtr("edit"),
+				},
+				OnClick: strutil.StrPtr(`let editing = document.querySelector('.editing')
+                         if(editing) {
+			    console.log('Already editing another row!')
+                         } else {
+                            htmx.trigger(this, 'edit')
+                         }`),
+				Text: "Edit",
+			})
+		</td>
+	</tr>
+}
+
+templ EditBucketRow(row BucketRow) {
+	<tr hx-trigger="cancel" class="editing" hx-get="/contact/3">
+		<td class="px-6 py-1 font-medium">
+			@inputs.TextField(inputs.TextFieldOptions{
+				Varient: "outlined",
+				Name:    strutil.StrPtr("name"),
+				Value:   &row.BucketName,
+			})
+		</td>
+		<td class="px-6 py-1">
+			@inputs.Button(inputs.ButtonOptions{
+				Htmx: inputs.HtmxOptions{
+					HxGet: strutil.StrPtr("/finance/bucket/list/" + row.BucketId),
+				},
+				Text:    "Cancel",
+				Varient: "outline",
+			})
+			@inputs.Button(inputs.ButtonOptions{
+				Htmx: inputs.HtmxOptions{
+					HxPut:     strutil.StrPtr("/finance/bucket/list/" + row.BucketId),
+					HxInclude: strutil.StrPtr("closest tr"),
+				},
+				Text:    "Save",
+				Varient: "contained",
+			})
+		</td>
+	</tr>
 }

@@ -7,13 +7,17 @@ type ButtonOptions struct {
 	Varient  string
 	Disabled bool
 	Htmx     HtmxOptions
+	OnClick  *string
 }
 
 type HtmxOptions struct {
 	HxGet     *string
+	HxPut     *string
 	HxTarget  *string
 	HxSwap    *string
 	HxPushUrl *string
+	HxTrigger *string
+	HxInclude *string
 }
 
 func (b *ButtonOptions) TemplAttributes() templ.Attributes {
@@ -42,6 +46,10 @@ func (b *ButtonOptions) TemplAttributes() templ.Attributes {
 		tmplAttr["class"] = "bg-varient-primary text-bg-main border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses
 	}
 
+	if b.OnClick != nil {
+		tmplAttr["onClick"] = b.OnClick
+	}
+
 	htmxAttr := b.Htmx.TemplAttributes()
 
 	maps.Copy(tmplAttr, htmxAttr)
@@ -54,6 +62,9 @@ func (h *HtmxOptions) TemplAttributes() templ.Attributes {
 	if h.HxGet != nil {
 		tmplAttr["hx-get"] = h.HxGet
 	}
+	if h.HxPut != nil {
+		tmplAttr["hx-put"] = h.HxPut
+	}
 	if h.HxTarget != nil {
 		tmplAttr["hx-target"] = h.HxTarget
 	}
@@ -62,6 +73,12 @@ func (h *HtmxOptions) TemplAttributes() templ.Attributes {
 	}
 	if h.HxPushUrl != nil {
 		tmplAttr["hx-push-url"] = h.HxPushUrl
+	}
+	if h.HxTrigger != nil {
+		tmplAttr["hx-trigger"] = h.HxTrigger
+	}
+	if h.HxInclude != nil {
+		tmplAttr["hx-include"] = h.HxInclude
 	}
 	return tmplAttr
 }
