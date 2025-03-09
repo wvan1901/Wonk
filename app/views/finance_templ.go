@@ -143,7 +143,7 @@ func FinanceNavBar() templ.Component {
 			Varient: "text",
 			Text:    "Buckets",
 			Htmx: inputs.HtmxOptions{
-				HxGet:    strutil.StrPtr("/finance/bucket/search"),
+				HxGet:    strutil.StrPtr("/finance/transactions/month/form"),
 				HxTarget: strutil.StrPtr("#finance-content"),
 				HxSwap:   strutil.StrPtr("outerHTML"),
 			},
@@ -180,7 +180,7 @@ func MonthlySummary(s finance.MonthSummary) templ.Component {
 			templ_7745c5c3_Var5 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-2\">Search Monthly Summary</h3><form class=\"flex flex-col gap-2\" autocomplete=\"off\" hx-post=\"/finance/bucket/search\" hx-target=\"#monthlyTable\" hx-swap=\"outerHTML\"><div><label for=\"month\">Month:</label>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-2\">Search Monthly Summary</h3><form class=\"flex flex-col gap-2\" autocomplete=\"off\" hx-get=\"/finance/transactions/month\" hx-target=\"#monthlyTable\" hx-swap=\"outerHTML\"><div><label for=\"month\">Month:</label>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -252,7 +252,7 @@ func MonthlySummary(s finance.MonthSummary) templ.Component {
 			Varient: "text",
 			Text:    "View Buckets",
 			Htmx: inputs.HtmxOptions{
-				HxGet:    strutil.StrPtr("/finance/bucket/list"),
+				HxGet:    strutil.StrPtr("/finance/buckets"),
 				HxTarget: strutil.StrPtr("#finance-content"),
 				HxSwap:   strutil.StrPtr("innerHTML"),
 			},
@@ -859,7 +859,7 @@ func GetBucketRow(row BucketRow) templ.Component {
 		}
 		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
 			Htmx: inputs.HtmxOptions{
-				HxGet:     strutil.StrPtr("/finance/bucket/list/" + row.BucketId + "/edit"),
+				HxGet:     strutil.StrPtr("/finance/buckets/" + row.BucketId + "/edit"),
 				HxTrigger: strutil.StrPtr("edit"),
 			},
 			OnClick: strutil.StrPtr(`let editing = document.querySelector('.editing')
@@ -920,7 +920,7 @@ func EditBucketRow(row BucketRow) templ.Component {
 		}
 		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
 			Htmx: inputs.HtmxOptions{
-				HxGet: strutil.StrPtr("/finance/bucket/list/" + row.BucketId),
+				HxGet: strutil.StrPtr("/finance/buckets/" + row.BucketId),
 			},
 			Text:    "Cancel",
 			Varient: "outline",
@@ -930,7 +930,7 @@ func EditBucketRow(row BucketRow) templ.Component {
 		}
 		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
 			Htmx: inputs.HtmxOptions{
-				HxPut:     strutil.StrPtr("/finance/bucket/list/" + row.BucketId),
+				HxPut:     strutil.StrPtr("/finance/buckets/" + row.BucketId),
 				HxInclude: strutil.StrPtr("closest tr"),
 			},
 			Text:    "Save",
