@@ -150,6 +150,16 @@ templ FinanceSubmit(
 				<p>No buckets found, create a bucket to be able to create a transaction</p>
 			} else {
 				@TransactionForm(buckets, formData, monthData)
+				<br/>
+				@inputs.Button(inputs.ButtonOptions{
+					Varient: "text",
+					Text:    "View Transactions",
+					Htmx: inputs.HtmxOptions{
+						HxGet:    strutil.StrPtr("/finance/transactions"),
+						HxTarget: strutil.StrPtr("#finance-content"),
+						HxSwap:   strutil.StrPtr("outerHTML"),
+					},
+				})
 			}
 		</div>
 	</div>
@@ -429,4 +439,73 @@ templ EditBucketRow(row BucketRow) {
 			})
 		</td>
 	</tr>
+}
+
+type Pagination struct {
+	Page     int
+	PageSize int
+}
+
+func pageStr(t TransactionTableInfo) string {
+	dataLen := len(t.Transactions)
+	l := (t.Pagination.Page-1)*t.Pagination.PageSize + 1
+	r := l + dataLen - 1
+	return strconv.Itoa(l) + "-" + strconv.Itoa(r)
+}
+
+type TransactionTableInfo struct {
+	Pagination   Pagination
+	Transactions []database.TransactionItem
+}
+
+templ TransactionTable(t TransactionTableInfo) {
+	<div id="finance-content">
+		<h3 class="py-2">Your Transactions:</h3>
+		<table id="bucketTable" class="w-full text-left rounded">
+			<thead class="uppercase bg-bg-secondary">
+				<tr>
+					<th class="px-6 py-3">Name</th>
+					<th class="px-6 py-3">Price</th>
+					<th class="px-6 py-3">+/-</th>
+					<th class="px-6 py-3">Month</th>
+					<th class="px-6 py-3">Year</th>
+					<th class="px-6 py-3">Bucket Id</th>
+					<th class="px-6 py-3">Action</th>
+				</tr>
+			</thead>
+			<tbody hx-target="closest tr" hx-swap="outerHTML" class="divide-y-1 divide-brdr-main">
+				for _, transaction := range t.Transactions {
+					@GetTransactionRow(transaction)
+				}
+			</tbody>
+		</table>
+		<div id="table-foot" class="flex flex-row-reverse bg-bg-secondary">
+			<button hx-target="#finance-content" disabled?={ len(t.Transactions) < t.Pagination.PageSize } hx-swap="outerHTML" hx-get={ "/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) }>-&gt;</button>
+			<button hx-target="#finance-content" disabled?={ t.Pagination.Page <= 1 } hx-swap="outerHTML" hx-get={ "/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) }>&lt;-</button>
+			<p>{ pageStr(t) }</p>
+		</div>
+	</div>
+}
+
+templ GetTransactionRow(t database.TransactionItem) {
+	<tr>
+		<td class="px-6 py-1 font-medium">{ t.Name }</td>
+		<td class="px-6 py-1 font-medium">{ fmt.Sprintf("%.2f", t.Price) }</td>
+		<td class="px-6 py-1 font-medium">{ renderExpense(t.IsExpense) }</td>
+		<td class="px-6 py-1 font-medium">{ strutil.ConvertMonth(t.Month) }</td>
+		<td class="px-6 py-1 font-medium">{ strconv.Itoa(t.Year) }</td>
+		<td class="px-6 py-1 font-medium">{ strconv.Itoa(t.BucketId) }</td>
+		<td class="px-6 py-1 font-medium">
+			@inputs.Button(inputs.ButtonOptions{
+				Text: "Edit",
+			})
+		</td>
+	</tr>
+}
+
+func renderExpense(isExpense bool) string {
+	if isExpense {
+		return "-"
+	}
+	return "+"
 }

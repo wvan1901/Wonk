@@ -35,6 +35,7 @@ func AddRoutes(
 	mux.Handle("/finance/buckets", s.Auth.AuthMiddleware(handleFinanceBucketList(l, s.Finance)))
 	mux.Handle("/finance/buckets/{id}/edit", s.Auth.AuthMiddleware(handleFinanceBucketListEdit(l, s.Finance)))
 	mux.Handle("/finance/buckets/{id}", s.Auth.AuthMiddleware(handleFinanceBucketListRow(l, s.Finance)))
+	mux.Handle("/finance/transactions", s.Auth.AuthMiddleware(handleTransactionTable(l, s.Finance)))
 }
 
 func handleHealth(l *slog.Logger) http.Handler {
@@ -540,6 +541,70 @@ func handleFinanceBucketListRow(l *slog.Logger, f finance.Finance) http.Handler 
 				err = tmplFinanceDiv.Render(ctx, w)
 				if err != nil {
 					l.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
+			default:
+				http.Error(w, "Not valid method", 404)
+			}
+		},
+	)
+}
+
+func handleTransactionTable(l *slog.Logger, f finance.Finance) http.Handler {
+	funcName := "handleTransactionTable"
+	path := "/finance/transactions"
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			reqCtx := r.Context()
+			ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
+			defer cancel()
+			curUser, err := auth.UserCtx(reqCtx)
+			if err != nil {
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				http.Error(w, "Internal Error, try logging in again", 500)
+				return
+			}
+			page := 1
+			pageSize := 10
+			pageParam := r.URL.Query().Get("page")
+			if pageParam != "" {
+				pageConv, err := strconv.Atoi(pageParam)
+				if err == nil {
+					page = pageConv
+				}
+			}
+			pageSizeParam := r.URL.Query().Get("pagesize")
+			if pageSizeParam != "" {
+				sizeConv, err := strconv.Atoi(pageSizeParam)
+				if err == nil {
+					pageSize = sizeConv
+				}
+			}
+			switch r.Method {
+			case "GET":
+				htmxReqHeader := r.Header.Get("hx-request")
+				isHtmxRequest := htmxReqHeader == "true"
+				if !isHtmxRequest { // Build entire page or redirect to finance
+					w.WriteHeader(404)
+					return
+				}
+				transactions, err := f.GetTransactions(page, pageSize, curUser.UserId)
+				if err != nil {
+					w.WriteHeader(500)
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+					return
+				}
+				pageData := views.TransactionTableInfo{
+					Pagination: views.Pagination{
+						Page:     page,
+						PageSize: pageSize,
+					},
+					Transactions: transactions,
+				}
+				tmplFinanceDiv := views.TransactionTable(pageData)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
 				}
 				return
 			default:

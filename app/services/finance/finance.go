@@ -18,6 +18,7 @@ type Finance interface {
 	MonthlySummary(int, int, int) (*MonthSummary, error)
 	GetBucket(string) (*database.Bucket, error)
 	UpdateBucket(int, string) error
+	GetTransactions(page, pagesize, userId int) ([]database.TransactionItem, error)
 }
 
 type FinanceLogic struct {
@@ -219,4 +220,11 @@ func (f *FinanceLogic) UpdateBucket(bucketId int, newName string) error {
 		return errors.New("UpdateBucket: no data changed")
 	}
 	return nil
+}
+func (f *FinanceLogic) GetTransactions(page, pagesize, userId int) ([]database.TransactionItem, error) {
+	transactions, err := f.DB.TransactionsPagination(page, pagesize, userId)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransactions: %w", err)
+	}
+	return transactions, nil
 }

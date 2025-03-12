@@ -25,6 +25,7 @@ type Database interface {
 	TransactionsInBucket(int, int, int) ([]TransactionItem, error)
 	BucketById(int) (*Bucket, error)
 	BucketUpdateName(int, string) (int64, error)
+	TransactionsPagination(page, pagesize, userId int) ([]TransactionItem, error)
 }
 
 type SqliteDb struct {
@@ -171,4 +172,32 @@ func (s *SqliteDb) BucketUpdateName(bucketId int, newName string) (int64, error)
 	}
 
 	return result.RowsAffected()
+}
+
+func (s *SqliteDb) TransactionsPagination(page, pagesize, userId int) ([]TransactionItem, error) {
+	if page < 1 {
+		page = 1
+	}
+	offset := pagesize * (page - 1)
+	if offset < 0 {
+		offset = 0
+	}
+	query := "SELECT * FROM " + TRANSACTION_ITEMS_TABLE_NAME + " WHERE user_id=? ORDER BY id LIMIT ? OFFSET ?"
+	rows, err := s.Db.Query(query, userId, pagesize, offset)
+	if err != nil {
+		return nil, fmt.Errorf("TransactionsPagination: Exec: %w", err)
+	}
+	defer rows.Close()
+
+	var data []TransactionItem
+	for rows.Next() {
+		b := TransactionItem{}
+		err := rows.Scan(&b.Id, &b.Name, &b.Month, &b.Year, &b.Price, &b.IsExpense, &b.UserId, &b.BucketId)
+		if err != nil {
+			return nil, fmt.Errorf("TransactionsPagination: rows next: %w", err)
+		}
+		data = append(data, b)
+	}
+
+	return data, nil
 }
