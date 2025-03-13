@@ -1,0 +1,40 @@
+package inputs
+
+type IconOptions struct {
+	Size string
+}
+
+func (i *IconOptions) TemplAttributes() templ.Attributes {
+	tmplAttr := templ.Attributes{}
+
+	switch i.Size {
+	case "2":
+		tmplAttr["class"] = "size-2"
+	case "4":
+		tmplAttr["class"] = "size-4"
+	case "6":
+		tmplAttr["class"] = "size-6"
+	case "8":
+		tmplAttr["class"] = "size-8"
+	case "10":
+		tmplAttr["class"] = "size-10"
+	case "16":
+		tmplAttr["class"] = "size-16"
+	default:
+		tmplAttr["class"] = "size-8"
+	}
+
+	return tmplAttr
+}
+
+templ ChevronLeftIcon(opts IconOptions) {
+	<svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" { opts.TemplAttributes()... }>
+		<path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"></path>
+	</svg>
+}
+
+templ ChevronRightIcon(opts IconOptions) {
+	<svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" { opts.TemplAttributes()... }>
+		<path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"></path>
+	</svg>
+}

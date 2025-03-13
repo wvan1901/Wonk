@@ -177,7 +177,7 @@ func Login(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
+		templ_7745c5c3_Err = inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "outline",
 			Text:    "Sign Up",
 			Htmx: inputs.HtmxOptions{
@@ -242,7 +242,7 @@ func LoginForm(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{Varient: "contained", Text: "Login"}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = inputs.ButtonText(inputs.ButtonOptions{Varient: "contained", Text: "Login"}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -306,7 +306,7 @@ func SignUp(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
+		templ_7745c5c3_Err = inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "outline",
 			Text:    "Log In",
 			Htmx: inputs.HtmxOptions{
@@ -366,7 +366,7 @@ func SignUpForm(formData LoginFormData) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = inputs.Button(inputs.ButtonOptions{
+		templ_7745c5c3_Err = inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "contained",
 			Text:    "Create Account",
 		}).Render(ctx, templ_7745c5c3_Buffer)

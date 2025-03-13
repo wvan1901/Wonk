@@ -58,7 +58,7 @@ templ Login(formData LoginFormData) {
 	</div>
 	<div class="w-full flex flex-col">
 		<p>New to Wonk?</p>
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "outline",
 			Text:    "Sign Up",
 			Htmx: inputs.HtmxOptions{
@@ -98,7 +98,7 @@ templ LoginForm(formData LoginFormData) {
 				class="border border-gray-300 focus:ring-varient-primary focus:border-varient-primary focus:outline-none text-sm rounded-lg block w-full p-2.5"
 			/>
 		</div>
-		@inputs.Button(inputs.ButtonOptions{Varient: "contained", Text: "Login"})
+		@inputs.ButtonText(inputs.ButtonOptions{Varient: "contained", Text: "Login"})
 		if formData.FormErr != nil {
 			<div class="text-red-700">{ *formData.FormErr }</div>
 		}
@@ -113,7 +113,7 @@ templ SignUp(formData LoginFormData) {
 	</div>
 	<div class="w-full flex flex-col">
 		<p>Already have an account?</p>
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "outline",
 			Text:    "Log In",
 			Htmx: inputs.HtmxOptions{
@@ -148,7 +148,7 @@ templ SignUpForm(formData LoginFormData) {
 				class="border border-gray-300 focus:ring-varient-primary focus:border-varient-primary focus:outline-none text-sm rounded-lg block w-full p-2.5"
 			/>
 		</div>
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "contained",
 			Text:    "Create Account",
 		})

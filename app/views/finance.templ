@@ -25,7 +25,7 @@ templ FinancePage() {
 
 templ FinanceNavBar() {
 	<div class="flex flex-row">
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "text",
 			Text:    "Transactions",
 			Htmx: inputs.HtmxOptions{
@@ -34,7 +34,7 @@ templ FinanceNavBar() {
 				HxSwap:   strutil.StrPtr("outerHTML"),
 			},
 		})
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "text",
 			Text:    "Buckets",
 			Htmx: inputs.HtmxOptions{
@@ -75,7 +75,7 @@ templ MonthlySummary(s finance.MonthSummary) {
 					},
 				})
 			</div>
-			@inputs.Button(inputs.ButtonOptions{
+			@inputs.ButtonText(inputs.ButtonOptions{
 				Varient: "contained",
 				Text:    "Search",
 			})
@@ -84,7 +84,7 @@ templ MonthlySummary(s finance.MonthSummary) {
 		<h3>Monthly Summary</h3>
 		@MonthlyTable(s)
 		<br/>
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "text",
 			Text:    "Create New Bucket",
 			Htmx: inputs.HtmxOptions{
@@ -93,7 +93,7 @@ templ MonthlySummary(s finance.MonthSummary) {
 				HxSwap:   strutil.StrPtr("innerHTML"),
 			},
 		})
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "text",
 			Text:    "View Buckets",
 			Htmx: inputs.HtmxOptions{
@@ -151,7 +151,7 @@ templ FinanceSubmit(
 			} else {
 				@TransactionForm(buckets, formData, monthData)
 				<br/>
-				@inputs.Button(inputs.ButtonOptions{
+				@inputs.ButtonText(inputs.ButtonOptions{
 					Varient: "text",
 					Text:    "View Transactions",
 					Htmx: inputs.HtmxOptions{
@@ -273,7 +273,7 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 				ErrorMsg: formData.BucketErr,
 			})
 		</div>
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "contained",
 			Text:    "Submit",
 		})
@@ -302,7 +302,7 @@ templ BucketForm(formData BucketFormData) {
 				ErrorMsg: formData.NameErr,
 			})
 		</div>
-		@inputs.Button(inputs.ButtonOptions{
+		@inputs.ButtonText(inputs.ButtonOptions{
 			Varient: "contained",
 			Text:    "Submit",
 		})
@@ -395,7 +395,7 @@ templ GetBucketRow(row BucketRow) {
 	<tr>
 		<td class="px-6 py-1 font-medium">{ row.BucketName }</td>
 		<td class="px-6 py-1">
-			@inputs.Button(inputs.ButtonOptions{
+			@inputs.ButtonText(inputs.ButtonOptions{
 				Htmx: inputs.HtmxOptions{
 					HxGet:     strutil.StrPtr("/finance/buckets/" + row.BucketId + "/edit"),
 					HxTrigger: strutil.StrPtr("edit"),
@@ -422,14 +422,14 @@ templ EditBucketRow(row BucketRow) {
 			})
 		</td>
 		<td class="px-6 py-1">
-			@inputs.Button(inputs.ButtonOptions{
+			@inputs.ButtonText(inputs.ButtonOptions{
 				Htmx: inputs.HtmxOptions{
 					HxGet: strutil.StrPtr("/finance/buckets/" + row.BucketId),
 				},
 				Text:    "Cancel",
 				Varient: "outline",
 			})
-			@inputs.Button(inputs.ButtonOptions{
+			@inputs.ButtonText(inputs.ButtonOptions{
 				Htmx: inputs.HtmxOptions{
 					HxPut:     strutil.StrPtr("/finance/buckets/" + row.BucketId),
 					HxInclude: strutil.StrPtr("closest tr"),
@@ -464,13 +464,13 @@ templ TransactionTable(t TransactionTableInfo) {
 		<table id="bucketTable" class="w-full text-left rounded">
 			<thead class="uppercase bg-bg-secondary">
 				<tr>
-					<th class="px-6 py-3">Name</th>
-					<th class="px-6 py-3">Price</th>
-					<th class="px-6 py-3">+/-</th>
-					<th class="px-6 py-3">Month</th>
-					<th class="px-6 py-3">Year</th>
-					<th class="px-6 py-3">Bucket Id</th>
-					<th class="px-6 py-3">Action</th>
+					<th class="px-2 py-3">Name</th>
+					<th class="px-2 py-3">+/-</th>
+					<th class="px-2 py-3">Price</th>
+					<th class="px-2 py-3">Month</th>
+					<th class="px-2 py-3">Year</th>
+					<th class="px-2 py-3">Bucket Id</th>
+					<th class="px-2 py-3">Action</th>
 				</tr>
 			</thead>
 			<tbody hx-target="closest tr" hx-swap="outerHTML" class="divide-y-1 divide-brdr-main">
@@ -479,9 +479,32 @@ templ TransactionTable(t TransactionTableInfo) {
 				}
 			</tbody>
 		</table>
-		<div id="table-foot" class="flex flex-row-reverse bg-bg-secondary">
-			<button hx-target="#finance-content" disabled?={ len(t.Transactions) < t.Pagination.PageSize } hx-swap="outerHTML" hx-get={ "/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) }>-&gt;</button>
-			<button hx-target="#finance-content" disabled?={ t.Pagination.Page <= 1 } hx-swap="outerHTML" hx-get={ "/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) }>&lt;-</button>
+		<div id="table-foot" class="flex flex-row-reverse items-center bg-bg-secondary p-1">
+			@inputs.Button(inputs.ButtonOptions{
+				Padding: "s1",
+				Varient: "text",
+				Htmx: inputs.HtmxOptions{
+					HxTarget: strutil.StrPtr("#finance-content"),
+					HxSwap:   strutil.StrPtr("outerHTML"),
+					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize)),
+				},
+				Disabled: len(t.Transactions) < t.Pagination.PageSize,
+			}) {
+				@inputs.ChevronRightIcon(inputs.IconOptions{Size: "6"})
+			}
+			@inputs.Button(inputs.ButtonOptions{
+				Padding: "s1",
+				Varient: "text",
+				Htmx: inputs.HtmxOptions{
+					HxTarget: strutil.StrPtr("#finance-content"),
+					HxSwap:   strutil.StrPtr("outerHTML"),
+					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize)),
+				},
+				Disabled: t.Pagination.Page <= 1,
+			}) {
+				@inputs.ChevronLeftIcon(inputs.IconOptions{Size: "6"})
+			}
+			<div class="px-1"></div>
 			<p>{ pageStr(t) }</p>
 		</div>
 	</div>
@@ -489,14 +512,14 @@ templ TransactionTable(t TransactionTableInfo) {
 
 templ GetTransactionRow(t database.TransactionItem) {
 	<tr>
-		<td class="px-6 py-1 font-medium">{ t.Name }</td>
-		<td class="px-6 py-1 font-medium">{ fmt.Sprintf("%.2f", t.Price) }</td>
-		<td class="px-6 py-1 font-medium">{ renderExpense(t.IsExpense) }</td>
-		<td class="px-6 py-1 font-medium">{ strutil.ConvertMonth(t.Month) }</td>
-		<td class="px-6 py-1 font-medium">{ strconv.Itoa(t.Year) }</td>
-		<td class="px-6 py-1 font-medium">{ strconv.Itoa(t.BucketId) }</td>
-		<td class="px-6 py-1 font-medium">
-			@inputs.Button(inputs.ButtonOptions{
+		<td class="px-2 py-1 font-medium">{ t.Name }</td>
+		<td class="px-2 py-1 font-medium">{ renderExpense(t.IsExpense) }</td>
+		<td class="px-2 py-1 font-medium">{ fmt.Sprintf("%.2f", t.Price) }</td>
+		<td class="px-2 py-1 font-medium">{ strutil.ConvertMonth(t.Month) }</td>
+		<td class="px-2 py-1 font-medium">{ strconv.Itoa(t.Year) }</td>
+		<td class="px-2 py-1 font-medium">{ strconv.Itoa(t.BucketId) }</td>
+		<td class="px-2 py-1 font-medium">
+			@inputs.ButtonText(inputs.ButtonOptions{
 				Text: "Edit",
 			})
 		</td>

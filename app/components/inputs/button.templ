@@ -5,6 +5,7 @@ import "maps"
 type ButtonOptions struct {
 	Text     string
 	Varient  string
+	Padding  string
 	Disabled bool
 	Htmx     HtmxOptions
 	OnClick  *string
@@ -26,24 +27,37 @@ func (b *ButtonOptions) TemplAttributes() templ.Attributes {
 		tmplAttr["disabled"] = b.Disabled
 	}
 
-	btnClasses := " uppercase font-bold py-2 px-4 rounded disabled:bg-stone-400 disabled:text-white focus:outline-none"
+	btnClasses := " uppercase font-bold rounded disabled:bg-stone-400 disabled:text-white focus:outline-none"
+	paddingClasses := ""
+	switch b.Padding {
+	case "r1":
+		paddingClasses = " py-1 px-2"
+	case "r2":
+		paddingClasses = " py-2 px-4"
+	case "s1":
+		paddingClasses = " py-1 px-1"
+	case "s2":
+		paddingClasses = " py-2 px-2"
+	default:
+		paddingClasses = " py-2 px-4"
+	}
 	switch b.Varient {
 	case "contained":
 		hoverTailwind := " hover:bg-varient-primary-hover"
 		focusTailwind := " focus:ring-txt-primary focus:border-txt-primary"
-		tmplAttr["class"] = "bg-varient-primary text-bg-main border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses
+		tmplAttr["class"] = "bg-varient-primary text-bg-main border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses + paddingClasses
 	case "text":
 		hoverTailwind := " hover:bg-varient-primary/10"
 		focusTailwind := " focus:ring-varient-primary focus:border-varient-primary"
-		tmplAttr["class"] = "bg-transparent text-varient-primary border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses
+		tmplAttr["class"] = "bg-transparent text-varient-primary border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses + paddingClasses
 	case "outline":
 		hoverTailwind := " hover:bg-varient-primary/10"
 		focusTailwind := " focus:ring-txt-primary focus:border-txt-primary"
-		tmplAttr["class"] = "bg-transparent text-varient-primary border-2 border-varient-primary" + hoverTailwind + focusTailwind + btnClasses
+		tmplAttr["class"] = "bg-transparent text-varient-primary border-2 border-varient-primary" + hoverTailwind + focusTailwind + btnClasses + paddingClasses
 	default:
 		hoverTailwind := " hover:bg-varient-primary-hover"
 		focusTailwind := " focus:ring-txt-primary focus:border-txt-primary"
-		tmplAttr["class"] = "bg-varient-primary text-bg-main border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses
+		tmplAttr["class"] = "bg-varient-primary text-bg-main border-2 border-transparent" + hoverTailwind + focusTailwind + btnClasses + paddingClasses
 	}
 
 	if b.OnClick != nil {
@@ -85,6 +99,12 @@ func (h *HtmxOptions) TemplAttributes() templ.Attributes {
 
 templ Button(opts ButtonOptions) {
 	<button { opts.TemplAttributes()... }>
-		{ opts.Text }
+		{ children... }
 	</button>
+}
+
+templ ButtonText(opts ButtonOptions) {
+	@Button(opts) {
+		{ opts.Text }
+	}
 }
