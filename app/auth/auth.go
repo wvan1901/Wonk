@@ -237,20 +237,22 @@ func (a *Auth) AuthMiddleware(h http.Handler) http.Handler {
 func (a *Auth) HandleLogin() http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			ctx, cancel := context.WithTimeout(r.Context(), time.Second*20)
+			defer cancel()
 			switch r.Method {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
 					signUpDiv := views.Login(views.LoginFormData{})
-					err := signUpDiv.Render(context.TODO(), w)
+					err := signUpDiv.Render(ctx, w)
 					if err != nil {
 						a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
 					}
 					return
 				}
 				loginPage := views.LoginPage(views.LoginFormData{})
-				err := loginPage.Render(context.TODO(), w)
+				err := loginPage.Render(ctx, w)
 				if err != nil {
 					a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err))
 				}
@@ -274,7 +276,7 @@ func (a *Auth) HandleLogin() http.Handler {
 							FormErr: &clientErr,
 						}
 						loginForm := views.LoginForm(formData)
-						err := loginForm.Render(context.TODO(), w)
+						err := loginForm.Render(ctx, w)
 						if err != nil {
 							a.Logger.Error("HandleLogin", slog.String("Method", "POST"), slog.Any("error", err))
 						}
@@ -309,20 +311,22 @@ func (a *Auth) HandleLogin() http.Handler {
 func (a *Auth) HandleSignUp() http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			ctx, cancel := context.WithTimeout(r.Context(), time.Second*20)
+			defer cancel()
 			switch r.Method {
 			case "GET":
 				htmxReqHeader := r.Header.Get("hx-request")
 				isHtmxRequest := htmxReqHeader == "true"
 				if isHtmxRequest {
 					signUpDiv := views.SignUp(views.LoginFormData{})
-					err := signUpDiv.Render(context.TODO(), w)
+					err := signUpDiv.Render(ctx, w)
 					if err != nil {
 						a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
 					}
 					return
 				}
 				loginPage := views.SignUpPage(views.LoginFormData{})
-				err := loginPage.Render(context.TODO(), w)
+				err := loginPage.Render(ctx, w)
 				if err != nil {
 					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "full page render"))
 				}
@@ -348,7 +352,7 @@ func (a *Auth) HandleSignUp() http.Handler {
 						FormErr: &errMsg,
 					}
 					signUpDiv := views.SignUpForm(formData)
-					err := signUpDiv.Render(context.TODO(), w)
+					err := signUpDiv.Render(ctx, w)
 					if err != nil {
 						a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
 					}
