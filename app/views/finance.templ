@@ -8,6 +8,7 @@ import (
 	"time"
 	"fmt"
 	"wonk/app/strutil"
+	"wonk/app/components/icons"
 )
 
 templ Finance() {
@@ -490,7 +491,7 @@ templ TransactionTable(t TransactionTableInfo) {
 				},
 				Disabled: len(t.Transactions) < t.Pagination.PageSize,
 			}) {
-				@inputs.ChevronRightIcon(inputs.IconOptions{Size: "6"})
+				@icons.ChevronRightIcon(icons.IconOptions{Size: "6"})
 			}
 			@inputs.Button(inputs.ButtonOptions{
 				Padding: "s1",
@@ -502,7 +503,7 @@ templ TransactionTable(t TransactionTableInfo) {
 				},
 				Disabled: t.Pagination.Page <= 1,
 			}) {
-				@inputs.ChevronLeftIcon(inputs.IconOptions{Size: "6"})
+				@icons.ChevronLeftIcon(icons.IconOptions{Size: "6"})
 			}
 			<div class="px-1"></div>
 			<p>{ pageStr(t) }</p>
