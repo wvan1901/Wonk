@@ -875,6 +875,7 @@ func GetBucketRow(row BucketRow) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = inputs.ButtonText(inputs.ButtonOptions{
+			Varient: "text",
 			Htmx: inputs.HtmxOptions{
 				HxGet:     strutil.StrPtr("/finance/buckets/" + row.BucketId + "/edit"),
 				HxTrigger: strutil.StrPtr("edit"),
@@ -1002,7 +1003,7 @@ func TransactionTable(t TransactionTableInfo) templ.Component {
 			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-2\">Your Transactions:</h3><table id=\"bucketTable\" class=\"w-full text-left rounded\"><thead class=\"uppercase bg-bg-secondary\"><tr><th class=\"px-2 py-3\">Name</th><th class=\"px-2 py-3\">+/-</th><th class=\"px-2 py-3\">Price</th><th class=\"px-2 py-3\">Month</th><th class=\"px-2 py-3\">Year</th><th class=\"px-2 py-3\">Bucket Id</th><th class=\"px-2 py-3\">Action</th></tr></thead> <tbody hx-target=\"closest tr\" hx-swap=\"outerHTML\" class=\"divide-y-1 divide-brdr-main\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div id=\"finance-content\"><h3 class=\"py-2\">Your Transactions:</h3><table id=\"bucketTable\" class=\"w-full text-left rounded\"><thead class=\"uppercase bg-bg-secondary\"><tr><th class=\"px-2 py-3\">Name</th><th class=\"px-2 py-3\">Price</th><th class=\"px-2 py-3\">Month</th><th class=\"px-2 py-3\">Year</th><th class=\"px-2 py-3\">Bucket Id</th><th class=\"px-2 py-3\">Action</th></tr></thead> <tbody hx-target=\"closest tr\" hx-swap=\"outerHTML\" class=\"divide-y-1 divide-brdr-main\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1133,40 +1134,36 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-2 py-1 font-medium\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var29 string
-		templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(renderExpense(t.IsExpense))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 517, Col: 64}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+		var templ_7745c5c3_Var29 = []any{addExpenseColorClass("px-2 py-1 font-medium", t.IsExpense)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var29...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-2 py-1 font-medium\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<td class=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var30 string
-		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", t.Price))
+		templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var29).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 518, Col: 66}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-2 py-1 font-medium\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var31 string
-		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(strutil.ConvertMonth(t.Month))
+		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", t.Price))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 519, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 518, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 		if templ_7745c5c3_Err != nil {
@@ -1177,9 +1174,9 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var32 string
-		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.Year))
+		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(strutil.ConvertMonth(t.Month))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 520, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 520, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
@@ -1190,9 +1187,9 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var33 string
-		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.BucketId))
+		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.Year))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 521, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 521, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
@@ -1202,8 +1199,22 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		var templ_7745c5c3_Var34 string
+		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.BucketId))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/finance.templ`, Line: 522, Col: 62}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-2 py-1 font-medium\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		templ_7745c5c3_Err = inputs.ButtonText(inputs.ButtonOptions{
-			Text: "Edit",
+			Varient: "text",
+			Text:    "Edit",
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1216,11 +1227,11 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 	})
 }
 
-func renderExpense(isExpense bool) string {
+func addExpenseColorClass(class string, isExpense bool) string {
 	if isExpense {
-		return "-"
+		return class + " text-varient-success"
 	}
-	return "+"
+	return class + " text-varient-error"
 }
 
 var _ = templruntime.GeneratedTemplate

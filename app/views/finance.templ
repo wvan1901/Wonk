@@ -397,6 +397,7 @@ templ GetBucketRow(row BucketRow) {
 		<td class="px-6 py-1 font-medium">{ row.BucketName }</td>
 		<td class="px-6 py-1">
 			@inputs.ButtonText(inputs.ButtonOptions{
+				Varient: "text",
 				Htmx: inputs.HtmxOptions{
 					HxGet:     strutil.StrPtr("/finance/buckets/" + row.BucketId + "/edit"),
 					HxTrigger: strutil.StrPtr("edit"),
@@ -466,7 +467,6 @@ templ TransactionTable(t TransactionTableInfo) {
 			<thead class="uppercase bg-bg-secondary">
 				<tr>
 					<th class="px-2 py-3">Name</th>
-					<th class="px-2 py-3">+/-</th>
 					<th class="px-2 py-3">Price</th>
 					<th class="px-2 py-3">Month</th>
 					<th class="px-2 py-3">Year</th>
@@ -514,22 +514,24 @@ templ TransactionTable(t TransactionTableInfo) {
 templ GetTransactionRow(t database.TransactionItem) {
 	<tr>
 		<td class="px-2 py-1 font-medium">{ t.Name }</td>
-		<td class="px-2 py-1 font-medium">{ renderExpense(t.IsExpense) }</td>
-		<td class="px-2 py-1 font-medium">{ fmt.Sprintf("%.2f", t.Price) }</td>
+		<td class={ addExpenseColorClass("px-2 py-1 font-medium", t.IsExpense) }>
+			{ fmt.Sprintf("%.2f", t.Price) }
+		</td>
 		<td class="px-2 py-1 font-medium">{ strutil.ConvertMonth(t.Month) }</td>
 		<td class="px-2 py-1 font-medium">{ strconv.Itoa(t.Year) }</td>
 		<td class="px-2 py-1 font-medium">{ strconv.Itoa(t.BucketId) }</td>
 		<td class="px-2 py-1 font-medium">
 			@inputs.ButtonText(inputs.ButtonOptions{
-				Text: "Edit",
+				Varient: "text",
+				Text:    "Edit",
 			})
 		</td>
 	</tr>
 }
 
-func renderExpense(isExpense bool) string {
+func addExpenseColorClass(class string, isExpense bool) string {
 	if isExpense {
-		return "-"
+		return class + " text-varient-success"
 	}
-	return "+"
+	return class + " text-varient-error"
 }

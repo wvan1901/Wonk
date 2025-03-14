@@ -814,6 +814,9 @@
   .text-varient-primary {
     color: rgb(var(--varient-primary));
   }
+  .text-varient-success {
+    color: rgb(var(--varient-success));
+  }
   .uppercase {
     text-transform: uppercase;
   }
