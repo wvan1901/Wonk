@@ -36,6 +36,8 @@ func AddRoutes(
 	mux.Handle("/finance/buckets/{id}/edit", s.Auth.AuthMiddleware(handleFinanceBucketListEdit(l, s.Finance)))
 	mux.Handle("/finance/buckets/{id}", s.Auth.AuthMiddleware(handleFinanceBucketListRow(l, s.Finance)))
 	mux.Handle("/finance/transactions", s.Auth.AuthMiddleware(handleTransactionTable(l, s.Finance)))
+	mux.Handle("/finance/transactions/{id}/edit", s.Auth.AuthMiddleware(handleTransactionEdit(l, s.Finance)))
+	mux.Handle("/finance/transactions/{id}", s.Auth.AuthMiddleware(handleFinanceTransactionListRow(l, s.Finance)))
 }
 
 func handleHealth(l *slog.Logger) http.Handler {
@@ -605,6 +607,104 @@ func handleTransactionTable(l *slog.Logger, f finance.Finance) http.Handler {
 				err = tmplFinanceDiv.Render(ctx, w)
 				if err != nil {
 					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
+			default:
+				http.Error(w, "Not valid method", 404)
+			}
+		},
+	)
+}
+
+func handleTransactionEdit(l *slog.Logger, f finance.Finance) http.Handler {
+	funcName := "handleTransactionEdit"
+	path := "/finance/transactions/{id}/edit"
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			reqCtx := r.Context()
+			ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
+			defer cancel()
+			curUser, err := auth.UserCtx(reqCtx)
+			if err != nil {
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				http.Error(w, "Internal Error, try logging in again", 500)
+				return
+			}
+			switch r.Method {
+			case "GET":
+				transactionId := r.PathValue("id")
+				htmxReqHeader := r.Header.Get("hx-request")
+				isHtmxRequest := htmxReqHeader == "true"
+				if !isHtmxRequest { // Build entire page or redirect to finance
+					w.WriteHeader(404)
+					return
+				}
+				transaction, err := f.GetTransaction(transactionId)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+					w.WriteHeader(500)
+					return
+				}
+				if curUser.UserId != transaction.UserId {
+					w.WriteHeader(403)
+					return
+				}
+				userBuckets, err := f.UserBuckets(curUser.UserId)
+				if err != nil {
+					w.WriteHeader(500)
+					return
+				}
+				tmplFinanceDiv := views.EditTransactionRow(*transaction, userBuckets)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
+			default:
+				http.Error(w, "Not valid method", 404)
+			}
+		},
+	)
+}
+
+func handleFinanceTransactionListRow(l *slog.Logger, f finance.Finance) http.Handler {
+	funcName := "handleFinanceTransactionListRow"
+	path := "/finance/transactions/{id}"
+	return http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			reqCtx := r.Context()
+			ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
+			defer cancel()
+			curUser, err := auth.UserCtx(reqCtx)
+			if err != nil {
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+				http.Error(w, "Internal Error, try logging in again", 500)
+				return
+			}
+			transactionId := r.PathValue("id")
+			transaction, err := f.GetTransaction(transactionId)
+			if err != nil {
+				l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+				w.WriteHeader(500)
+				return
+			}
+			if curUser.UserId != transaction.UserId {
+				w.WriteHeader(403)
+				return
+			}
+			htmxReqHeader := r.Header.Get("hx-request")
+			isHtmxRequest := htmxReqHeader == "true"
+			if !isHtmxRequest { // Build entire page or redirect to finance
+				w.WriteHeader(404)
+				return
+			}
+			// TODO: Implement the method to submit the edit
+			switch r.Method {
+			case "GET":
+				tmplFinanceDiv := views.GetTransactionRow(*transaction)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
 				}
 				return
 			default:

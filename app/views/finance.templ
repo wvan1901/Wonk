@@ -58,7 +58,7 @@ templ MonthlySummary(s finance.MonthSummary) {
 					Id:       strutil.StrPtr("month"),
 					Name:     strutil.StrPtr("month"),
 					Required: true,
-					Options:  GetMonthChildren(),
+					Options:  GetMonthChildren(nil),
 				})
 			</div>
 			<div>
@@ -240,7 +240,7 @@ templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, m
 				Id:       strutil.StrPtr("month"),
 				Name:     strutil.StrPtr("month"),
 				Required: true,
-				Options:  GetMonthChildren(),
+				Options:  GetMonthChildren(nil),
 				ErrorMsg: formData.MonthErr,
 			})
 		</div>
@@ -335,7 +335,10 @@ func GetMonths() []Month {
 	return months
 }
 
-func GetMonthChildren() []inputs.DropdownChildren {
+// Returns an array of Dropdown Options with all the years months.
+// If selectMonth input is given then we will select that month as current,
+// else it will default to current month
+func GetMonthChildren(selectMonth *int) []inputs.DropdownChildren {
 	c := []inputs.DropdownChildren{
 		{Value: "1", Text: "Jan", IsCurrent: false},
 		{Value: "2", Text: "Feb", IsCurrent: false},
@@ -350,10 +353,36 @@ func GetMonthChildren() []inputs.DropdownChildren {
 		{Value: "11", Text: "Nov", IsCurrent: false},
 		{Value: "12", Text: "Dec", IsCurrent: false},
 	}
+	if selectMonth != nil && *selectMonth > 0 && *selectMonth < 13 {
+		c[*selectMonth].IsCurrent = true
+		return c
+	}
 	curMonth := int(time.Now().Month())
 	c[curMonth-1].IsCurrent = true
 	return c
 
+}
+
+func GetYearChildren(selectedYear *string) []inputs.DropdownChildren {
+	y := []inputs.DropdownChildren{
+		{Value: "2024", Text: "2024"},
+		{Value: "2025", Text: "2025"},
+		{Value: "2026", Text: "2026"},
+		{Value: "2027", Text: "2027"},
+	}
+
+	if selectedYear == nil {
+		y[1].IsCurrent = true
+		return y
+	}
+	for i, year := range y {
+		if year.Value == *selectedYear {
+			y[i].IsCurrent = true
+			return y
+		}
+	}
+	y[1].IsCurrent = true
+	return y
 }
 
 func bucketToDropdownOpts(buckets []database.Bucket) []inputs.DropdownChildren {
@@ -404,7 +433,7 @@ templ GetBucketRow(row BucketRow) {
 				},
 				OnClick: strutil.StrPtr(`let editing = document.querySelector('.editing')
                          if(editing) {
-			    console.log('Already editing another row!')
+                           console.log('Already editing another row!')
                          } else {
                             htmx.trigger(this, 'edit')
                          }`),
@@ -415,7 +444,7 @@ templ GetBucketRow(row BucketRow) {
 }
 
 templ EditBucketRow(row BucketRow) {
-	<tr hx-trigger="cancel" class="editing" hx-get="/contact/3">
+	<tr hx-trigger="cancel" class="editing">
 		<td class="px-6 py-1 font-medium">
 			@inputs.TextField(inputs.TextFieldOptions{
 				Varient: "outlined",
@@ -524,6 +553,16 @@ templ GetTransactionRow(t database.TransactionItem) {
 			@inputs.ButtonText(inputs.ButtonOptions{
 				Varient: "text",
 				Text:    "Edit",
+				Htmx: inputs.HtmxOptions{
+					HxGet:     strutil.StrPtr("/finance/transactions/" + strconv.Itoa(t.Id) + "/edit"),
+					HxTrigger: strutil.StrPtr("edit"),
+				},
+				OnClick: strutil.StrPtr(`let editing = document.querySelector('.editing')
+                         if(editing) {
+                           console.log('Already editing another row!')
+                         } else {
+                            htmx.trigger(this, 'edit')
+                         }`),
 			})
 		</td>
 	</tr>
@@ -534,4 +573,73 @@ func addExpenseColorClass(class string, isExpense bool) string {
 		return class + " text-varient-success"
 	}
 	return class + " text-varient-error"
+}
+
+templ EditTransactionRow(t database.TransactionItem, userBuckets []database.Bucket) {
+	<tr hx-trigger="cancel" class="editing">
+		<td class="px-2 py-1 font-medium">
+			@inputs.TextField(inputs.TextFieldOptions{
+				Varient: "outlined",
+				Name:    strutil.StrPtr("name"),
+				Value:   &t.Name,
+			})
+		</td>
+		<td class={ addExpenseColorClass("px-2 py-1 font-medium", t.IsExpense) }>
+			@inputs.NumberField(inputs.NumberFieldOptions{
+				Varient: "outlined",
+				Name:    strutil.StrPtr("price"),
+				Value:   strutil.StrPtr(fmt.Sprintf("%.2f", t.Price)),
+				Step:    strutil.StrPtr("0.01"),
+			})
+		</td>
+		<td class="px-2 py-1 font-medium">
+			@inputs.Dropdown(inputs.DropdownOptions{
+				Varient: "base",
+				Name:    strutil.StrPtr("month"),
+				Options: GetMonthChildren(&t.Month),
+			})
+		</td>
+		<td class="px-2 py-1 font-medium">
+			@inputs.Dropdown(inputs.DropdownOptions{
+				Varient: "base",
+				Name:    strutil.StrPtr("year"),
+				Options: GetYearChildren(strutil.StrPtr(strconv.Itoa(t.Year))),
+			})
+		</td>
+		<td class="px-2 py-1 font-medium">
+			@inputs.Dropdown(inputs.DropdownOptions{
+				Varient: "base",
+				Name:    strutil.StrPtr("year"),
+				Options: convertBucketToOptions(userBuckets, t.BucketId),
+			})
+		</td>
+		<td class="px-2 py-1 font-medium">
+			@inputs.ButtonText(inputs.ButtonOptions{
+				Htmx: inputs.HtmxOptions{
+					HxGet: strutil.StrPtr("/finance/transactions/" + strconv.Itoa(t.Id)),
+				},
+				Text:    "Cancel",
+				Varient: "outline",
+			})
+			@inputs.ButtonText(inputs.ButtonOptions{
+				Text:    "Save",
+				Varient: "contained",
+			})
+		</td>
+	</tr>
+}
+
+func convertBucketToOptions(buckets []database.Bucket, currentBucketId int) []inputs.DropdownChildren {
+	children := []inputs.DropdownChildren{}
+	for _, b := range buckets {
+		newRow := inputs.DropdownChildren{
+			Value: strconv.Itoa(b.Id),
+			Text:  b.Name,
+		}
+		if currentBucketId == b.Id {
+			newRow.IsCurrent = true
+		}
+		children = append(children, newRow)
+	}
+	return children
 }

@@ -19,6 +19,7 @@ type Finance interface {
 	GetBucket(string) (*database.Bucket, error)
 	UpdateBucket(int, string) error
 	GetTransactions(page, pagesize, userId int) ([]database.TransactionItem, error)
+	GetTransaction(string) (*database.TransactionItem, error)
 }
 
 type FinanceLogic struct {
@@ -227,4 +228,15 @@ func (f *FinanceLogic) GetTransactions(page, pagesize, userId int) ([]database.T
 		return nil, fmt.Errorf("GetTransactions: %w", err)
 	}
 	return transactions, nil
+}
+func (f *FinanceLogic) GetTransaction(transactionId string) (*database.TransactionItem, error) {
+	id, err := strconv.Atoi(transactionId)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction: invalid id: %w", err)
+	}
+	transaction, err := f.DB.TransactionById(id)
+	if err != nil {
+		return nil, fmt.Errorf("GetTransaction: %w", err)
+	}
+	return transaction, nil
 }

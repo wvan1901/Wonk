@@ -26,6 +26,7 @@ type Database interface {
 	BucketById(int) (*Bucket, error)
 	BucketUpdateName(int, string) (int64, error)
 	TransactionsPagination(page, pagesize, userId int) ([]TransactionItem, error)
+	TransactionById(int) (*TransactionItem, error)
 }
 
 type SqliteDb struct {
@@ -200,4 +201,19 @@ func (s *SqliteDb) TransactionsPagination(page, pagesize, userId int) ([]Transac
 	}
 
 	return data, nil
+}
+
+func (s *SqliteDb) TransactionById(transactionId int) (*TransactionItem, error) {
+	query := "SELECT * FROM " + TRANSACTION_ITEMS_TABLE_NAME + " WHERE id=?"
+	row := s.Db.QueryRow(query, transactionId)
+	t := TransactionItem{}
+	err := row.Scan(&t.Id, &t.Name, &t.Month, &t.Year, &t.Price, &t.IsExpense, &t.UserId, &t.BucketId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("TransactionById: %w", &cuserr.NotFound{})
+		}
+		return nil, fmt.Errorf("TransactionById: %w", err)
+	}
+
+	return &t, nil
 }
