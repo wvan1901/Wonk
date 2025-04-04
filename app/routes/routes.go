@@ -707,6 +707,39 @@ func handleFinanceTransactionListRow(l *slog.Logger, f finance.Finance) http.Han
 					l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
 				}
 				return
+			case "PUT":
+				err := r.ParseForm()
+				if err != nil {
+					l.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("path", path), slog.String("Error", err.Error()))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
+				formData := finance.TransactionRowFormInput{
+					TransactionId: transaction.Id,
+					Name:          r.FormValue("name"),
+					Month:         r.FormValue("month"),
+					Year:          r.FormValue("year"),
+					Price:         r.FormValue("price"),
+					BucketId:      r.FormValue("bucketId"),
+				}
+				err = f.UpdateTransaction(formData)
+				if err != nil {
+					l.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("path", path), slog.String("Error", err.Error()))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
+				transaction, err := f.GetTransaction(transactionId)
+				if err != nil {
+					l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+					w.WriteHeader(500)
+					return
+				}
+				tmplFinanceDiv := views.GetTransactionRow(*transaction)
+				err = tmplFinanceDiv.Render(ctx, w)
+				if err != nil {
+					l.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+				}
+				return
 			default:
 				http.Error(w, "Not valid method", 404)
 			}

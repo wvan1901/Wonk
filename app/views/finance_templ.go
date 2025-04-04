@@ -777,8 +777,8 @@ func GetMonthChildren(selectMonth *int) []inputs.DropdownChildren {
 		{Value: "11", Text: "Nov", IsCurrent: false},
 		{Value: "12", Text: "Dec", IsCurrent: false},
 	}
-	if selectMonth != nil && *selectMonth > 0 && *selectMonth < 13 {
-		c[*selectMonth].IsCurrent = true
+	if selectMonth != nil && *selectMonth-1 > 0 && *selectMonth-1 < 12 {
+		c[*selectMonth-1].IsCurrent = true
 		return c
 	}
 	curMonth := int(time.Now().Month())
@@ -1371,7 +1371,7 @@ func EditTransactionRow(t database.TransactionItem, userBuckets []database.Bucke
 		}
 		templ_7745c5c3_Err = inputs.Dropdown(inputs.DropdownOptions{
 			Varient: "base",
-			Name:    strutil.StrPtr("year"),
+			Name:    strutil.StrPtr("bucketId"),
 			Options: convertBucketToOptions(userBuckets, t.BucketId),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -1392,6 +1392,10 @@ func EditTransactionRow(t database.TransactionItem, userBuckets []database.Bucke
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = inputs.ButtonText(inputs.ButtonOptions{
+			Htmx: inputs.HtmxOptions{
+				HxPut:     strutil.StrPtr("/finance/transactions/" + strconv.Itoa(t.Id)),
+				HxInclude: strutil.StrPtr("closest tr"),
+			},
 			Text:    "Save",
 			Varient: "contained",
 		}).Render(ctx, templ_7745c5c3_Buffer)

@@ -353,8 +353,8 @@ func GetMonthChildren(selectMonth *int) []inputs.DropdownChildren {
 		{Value: "11", Text: "Nov", IsCurrent: false},
 		{Value: "12", Text: "Dec", IsCurrent: false},
 	}
-	if selectMonth != nil && *selectMonth > 0 && *selectMonth < 13 {
-		c[*selectMonth].IsCurrent = true
+	if selectMonth != nil && *selectMonth-1 > 0 && *selectMonth-1 < 12 {
+		c[*selectMonth-1].IsCurrent = true
 		return c
 	}
 	curMonth := int(time.Now().Month())
@@ -609,7 +609,7 @@ templ EditTransactionRow(t database.TransactionItem, userBuckets []database.Buck
 		<td class="px-2 py-1 font-medium">
 			@inputs.Dropdown(inputs.DropdownOptions{
 				Varient: "base",
-				Name:    strutil.StrPtr("year"),
+				Name:    strutil.StrPtr("bucketId"),
 				Options: convertBucketToOptions(userBuckets, t.BucketId),
 			})
 		</td>
@@ -622,6 +622,10 @@ templ EditTransactionRow(t database.TransactionItem, userBuckets []database.Buck
 				Varient: "outline",
 			})
 			@inputs.ButtonText(inputs.ButtonOptions{
+				Htmx: inputs.HtmxOptions{
+					HxPut:     strutil.StrPtr("/finance/transactions/" + strconv.Itoa(t.Id)),
+					HxInclude: strutil.StrPtr("closest tr"),
+				},
 				Text:    "Save",
 				Varient: "contained",
 			})

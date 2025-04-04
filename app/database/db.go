@@ -27,6 +27,7 @@ type Database interface {
 	BucketUpdateName(int, string) (int64, error)
 	TransactionsPagination(page, pagesize, userId int) ([]TransactionItem, error)
 	TransactionById(int) (*TransactionItem, error)
+	TransactionUpdate(string, int, int, int, int, float64) (int64, error)
 }
 
 type SqliteDb struct {
@@ -216,4 +217,14 @@ func (s *SqliteDb) TransactionById(transactionId int) (*TransactionItem, error) 
 	}
 
 	return &t, nil
+}
+
+func (s *SqliteDb) TransactionUpdate(name string, transactionId int, bucketId int, month int, year int, price float64) (int64, error) {
+	query := "UPDATE " + TRANSACTION_ITEMS_TABLE_NAME + " SET name=?, month=?, year=?, price=?, bucket_id=? WHERE id=?"
+	result, err := s.Db.Exec(query, name, month, year, price, bucketId, transactionId)
+	if err != nil {
+		return 0, fmt.Errorf("TransactionUpdate: %w", err)
+	}
+
+	return result.RowsAffected()
 }

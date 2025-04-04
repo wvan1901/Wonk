@@ -20,6 +20,7 @@ type Finance interface {
 	UpdateBucket(int, string) error
 	GetTransactions(page, pagesize, userId int) ([]database.TransactionItem, error)
 	GetTransaction(string) (*database.TransactionItem, error)
+	UpdateTransaction(TransactionRowFormInput) error
 }
 
 type FinanceLogic struct {
@@ -145,6 +146,15 @@ type MonthSummary struct {
 	TotalExpense   float64
 }
 
+type TransactionRowFormInput struct {
+	TransactionId int
+	Name          string
+	Month         string
+	Year          string
+	Price         string
+	BucketId      string
+}
+
 func (f *FinanceLogic) MonthlySummary(userId, month, year int) (*MonthSummary, error) {
 	buckets, err := f.DB.UserBuckets(userId)
 	if err != nil {
@@ -239,4 +249,32 @@ func (f *FinanceLogic) GetTransaction(transactionId string) (*database.Transacti
 		return nil, fmt.Errorf("GetTransaction: %w", err)
 	}
 	return transaction, nil
+}
+func (f *FinanceLogic) UpdateTransaction(input TransactionRowFormInput) error {
+	// TODO: Make sure these values follow new transaction validation
+	month, err := strconv.Atoi(input.Month)
+	if err != nil {
+		return fmt.Errorf("UpdateTransaction: month: %w", err)
+	}
+	year, err := strconv.Atoi(input.Year)
+	if err != nil {
+		return fmt.Errorf("UpdateTransaction: year: %w", err)
+	}
+	price, err := strconv.ParseFloat(input.Price, 64)
+	if err != nil {
+		return fmt.Errorf("UpdateTransaction: price: %w", err)
+	}
+	bucketId, err := strconv.Atoi(input.BucketId)
+	if err != nil {
+		return fmt.Errorf("UpdateTransaction: bucket id: %w", err)
+	}
+
+	rowsChanged, err := f.DB.TransactionUpdate(input.Name, input.TransactionId, bucketId, month, year, price)
+	if err != nil {
+		return fmt.Errorf("UpdateTransaction: db: %w", err)
+	}
+	if rowsChanged == 0 {
+		return errors.New("UpdateTransaction: db: no data changed")
+	}
+	return nil
 }
