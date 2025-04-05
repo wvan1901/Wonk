@@ -8,9 +8,9 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "wonk/app/components/icons"
+import "wonk/app/templates/components/icons"
 
-func Header() templ.Component {
+func NavBar() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -31,15 +31,15 @@ func Header() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"flex flex-row justify-between h-[6%] p-3\"><div class=\"flex items-center\"><a href=\"/home\" class=\"flex flex-col no-underline w-full\">Wonk</a></div><div class=\"flex flex-row items-center\"><a>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<nav class=\"flex flex-col w-20 justify-start items-center text-center py-2\"><a hx-get=\"/finance\" hx-target=\"#content-div\" hx-swap=\"innerHTML\" hx-push-url=\"/finance\" class=\"flex flex-col items-center p-1 hover:bg-bg-secondary w-full\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = icons.UserIcon(icons.IconOptions{Size: "8"}).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = icons.FinanceIcon(icons.IconOptions{Size: "10"}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a></div></header>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<p class=\"text-xs\">Finance</p></a></nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

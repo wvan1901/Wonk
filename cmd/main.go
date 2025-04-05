@@ -12,11 +12,12 @@ import (
 	"sync"
 	"time"
 	"wonk/app/config"
-	"wonk/app/database"
 	"wonk/app/routes"
 	"wonk/app/secret"
-	"wonk/app/services"
+	"wonk/app/service"
+	"wonk/business"
 	"wonk/logger"
+	"wonk/storage"
 
 	"github.com/joho/godotenv"
 )
@@ -59,18 +60,21 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 		return err
 	}
 
-	// Init Services
-	service, err := services.InitServices(secrets, l, db)
+	// Init Business Services
+	businessService, err := business.InitServices(secrets, l, db)
 	if err != nil {
 		return err
 	}
+
+	// Init App Services
+	appServices, err := application.InitServices(secrets, l, businessService)
 
 	// Create Main Context
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
 	// Create Http Server
-	srv := NewServer(l, db, service)
+	srv := NewServer(l, db, businessService, appServices)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(DEFAULT_HOST, DEFAULT_PORT),
 		Handler: srv,
@@ -102,9 +106,9 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 	return nil
 }
 
-func NewServer(l *slog.Logger, db database.Database, s *services.Services) http.Handler {
+func NewServer(l *slog.Logger, db database.Database, s *business.Services, a *application.Service) http.Handler {
 	mux := http.NewServeMux()
-	routes.AddRoutes(mux, l, db, s)
+	routes.AddRoutes(mux, l, db, s, a)
 	var handler http.Handler = mux
 	return handler
 }

@@ -8,37 +8,42 @@ import (
 	"strconv"
 	"time"
 	"wonk/app/auth"
-	"wonk/app/database"
-	"wonk/app/services"
-	"wonk/app/services/finance"
-	"wonk/app/views"
+	"wonk/app/service"
+	"wonk/app/templates/views"
+	"wonk/business"
+	"wonk/business/finance"
+	"wonk/storage"
 )
 
 func AddRoutes(
 	mux *http.ServeMux,
 	l *slog.Logger,
 	db database.Database,
-	s *services.Services,
+	s *business.Services,
+	a *application.Service,
 ) {
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/", http.NotFoundHandler())
 	mux.Handle("/health", handleHealth(l))
-	mux.Handle("/login", s.Auth.HandleLogin())
-	mux.Handle("/signup", s.Auth.HandleSignUp())
+	mux.Handle("/login", a.Auth.HandleLogin())
+	mux.Handle("/signup", a.Auth.HandleSignUp())
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
-	mux.Handle("/home", s.Auth.AuthMiddleware(handleHome(l)))
-	mux.Handle("/finance", s.Auth.AuthMiddleware(handleFinance(l)))
-	mux.Handle("/finance/transaction", s.Auth.AuthMiddleware(handleFinanceTransactions(l, s.Finance)))
-	mux.Handle("/finance/bucket/form", s.Auth.AuthMiddleware(handleFinanceSubmitBucket(l, s.Finance)))
-	mux.Handle("/finance/transactions/month", s.Auth.AuthMiddleware(handleFinanceMontlySummary(l, s.Finance)))
-	mux.Handle("/finance/transactions/month/form", s.Auth.AuthMiddleware(handleFinanceBucket(l, s.Finance)))
-	mux.Handle("/finance/buckets", s.Auth.AuthMiddleware(handleFinanceBucketList(l, s.Finance)))
-	mux.Handle("/finance/buckets/{id}/edit", s.Auth.AuthMiddleware(handleFinanceBucketListEdit(l, s.Finance)))
-	mux.Handle("/finance/buckets/{id}", s.Auth.AuthMiddleware(handleFinanceBucketListRow(l, s.Finance)))
-	mux.Handle("/finance/transactions", s.Auth.AuthMiddleware(handleTransactionTable(l, s.Finance)))
-	mux.Handle("/finance/transactions/{id}/edit", s.Auth.AuthMiddleware(handleTransactionEdit(l, s.Finance)))
-	mux.Handle("/finance/transactions/{id}", s.Auth.AuthMiddleware(handleFinanceTransactionListRow(l, s.Finance)))
+	mux.Handle("/home", a.Auth.AuthMiddleware(handleHome(l)))
+	mux.Handle("/finance", a.Auth.AuthMiddleware(handleFinance(l)))
+	mux.Handle("/finance/transaction", a.Auth.AuthMiddleware(handleFinanceTransactions(l, s.Finance)))
+	mux.Handle("/finance/bucket/form", a.Auth.AuthMiddleware(handleFinanceSubmitBucket(l, s.Finance)))
+	mux.Handle("/finance/transactions/month", a.Auth.AuthMiddleware(handleFinanceMontlySummary(l, s.Finance)))
+	mux.Handle("/finance/transactions/month/form", a.Auth.AuthMiddleware(handleFinanceBucket(l, s.Finance)))
+	mux.Handle("/finance/buckets", a.Auth.AuthMiddleware(handleFinanceBucketList(l, s.Finance)))
+	mux.Handle("/finance/buckets/{id}/edit", a.Auth.AuthMiddleware(handleFinanceBucketListEdit(l, s.Finance)))
+	mux.Handle("/finance/buckets/{id}", a.Auth.AuthMiddleware(handleFinanceBucketListRow(l, s.Finance)))
+	mux.Handle("/finance/transactions", a.Auth.AuthMiddleware(handleTransactionTable(l, s.Finance)))
+	mux.Handle("/finance/transactions/{id}/edit", a.Auth.AuthMiddleware(handleTransactionEdit(l, s.Finance)))
+	mux.Handle("/finance/transactions/{id}", a.Auth.AuthMiddleware(handleFinanceTransactionListRow(l, s.Finance)))
 }
+
+// TODO: Move handlers and their logic to their respective application handler
+// TODO: This file shouldn't be using the business service
 
 func handleHealth(l *slog.Logger) http.Handler {
 	return http.HandlerFunc(

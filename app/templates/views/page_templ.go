@@ -9,7 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import (
-	"wonk/app/components"
+	"wonk/app/templates/components"
 )
 
 func Page() templ.Component {

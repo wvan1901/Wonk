@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"wonk/app/cuserr"
-	"wonk/app/database"
+	"wonk/storage"
 
 	"golang.org/x/crypto/bcrypt"
 )

@@ -14,8 +14,8 @@ import (
 	"time"
 	"wonk/app/cuserr"
 	"wonk/app/secret"
-	"wonk/app/services/user"
-	"wonk/app/views"
+	"wonk/app/templates/views"
+	"wonk/business/user"
 
 	"github.com/golang-jwt/jwt/v5"
 )
