@@ -68,13 +68,16 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 
 	// Init App Services
 	appServices, err := application.InitServices(secrets, l, businessService)
+	if err != nil {
+		return err
+	}
 
 	// Create Main Context
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
 	// Create Http Server
-	srv := NewServer(l, db, businessService, appServices)
+	srv := NewServer(l, db, appServices)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(DEFAULT_HOST, DEFAULT_PORT),
 		Handler: srv,
@@ -106,9 +109,9 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 	return nil
 }
 
-func NewServer(l *slog.Logger, db database.Database, s *business.Services, a *application.Service) http.Handler {
+func NewServer(l *slog.Logger, db database.Database, a *application.Service) http.Handler {
 	mux := http.NewServeMux()
-	routes.AddRoutes(mux, l, db, s, a)
+	routes.AddRoutes(mux, l, db, a)
 	var handler http.Handler = mux
 	return handler
 }
