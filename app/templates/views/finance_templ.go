@@ -1268,9 +1268,9 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 
 func addExpenseColorClass(class string, isExpense bool) string {
 	if isExpense {
-		return class + " text-varient-success"
+		return class + " text-varient-error"
 	}
-	return class + " text-varient-error"
+	return class + " text-varient-success"
 }
 
 func EditTransactionRow(t database.TransactionItem, userBuckets []database.Bucket) templ.Component {

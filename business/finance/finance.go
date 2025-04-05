@@ -13,7 +13,7 @@ const (
 
 type Finance interface {
 	UserBuckets(int) ([]database.Bucket, error)
-	SubmitNewTransaction(TransactionFormInput) (map[string]string, error)
+	SubmitNewTransaction(database.TransactionItemInput) (map[string]string, error)
 	CreateBucket(int, string) (map[string]string, error)
 	MonthlySummary(int, int, int) (*MonthSummary, error)
 	GetBucket(string) (*database.Bucket, error)
@@ -41,57 +41,15 @@ func (f *FinanceLogic) UserBuckets(userId int) ([]database.Bucket, error) {
 	return buckets, nil
 }
 
-func (f *FinanceLogic) SubmitNewTransaction(inputForm TransactionFormInput) (map[string]string, error) {
-	// Convert form (multiple strings) to valid db type
-	conversionProblems := make(map[string]string)
-	month, err := strconv.Atoi(inputForm.Month)
-	if err != nil {
-		conversionProblems["Month"] = "Invalid Month: Not a number"
-	}
-	year, err := strconv.Atoi(inputForm.Year)
-	if err != nil {
-		conversionProblems["Year"] = "Invalid Year: Not a number"
-	}
-	price, err := strconv.ParseFloat(inputForm.Price, 64)
-	if err != nil {
-		conversionProblems["Price"] = "Invalid Price: Not a decimal"
-	}
-	if price < 0 {
-		conversionProblems["Price"] = "Invalid Price: Value should always be positive"
-	}
-	isExpense := false
-	switch inputForm.IsExpense {
-	case "on":
-		isExpense = true
-	case "":
-		isExpense = false
-	default:
-		conversionProblems["IsExpense"] = "Invalid Expense: Not valid"
-	}
-	bucketId, err := strconv.Atoi(inputForm.BucketId)
-	if err != nil {
-		conversionProblems["BucketId"] = "Invalid BucketId: Not a number"
-	}
-	if len(conversionProblems) > 0 {
-		return conversionProblems, nil
-	}
-	// Validate DB input
-	transactionInput := database.TransactionItemInput{
-		Name:      inputForm.Name,
-		Month:     month,
-		Year:      year,
-		Price:     price,
-		IsExpense: isExpense,
-		UserId:    inputForm.UserId,
-		BucketId:  bucketId,
-	}
-	problems := transactionInput.Valid()
+func (f *FinanceLogic) SubmitNewTransaction(inputForm database.TransactionItemInput) (map[string]string, error) {
+	// Validate input values
+	problems := inputForm.Valid()
 	if len(problems) > 0 {
 		return problems, nil
 	}
 
 	// Save to DB
-	_, err = f.DB.CreateItemTransaction(transactionInput)
+	_, err := f.DB.CreateItemTransaction(inputForm)
 	if err != nil {
 		return nil, fmt.Errorf("SubmitNewTransaction: db: %w", err)
 	}
@@ -123,16 +81,6 @@ func (f *FinanceLogic) CreateBucket(userId int, newName string) (map[string]stri
 		return nil, fmt.Errorf("CreateBucket: db: %w", err)
 	}
 	return nil, nil
-}
-
-type TransactionFormInput struct {
-	Name      string
-	Month     string
-	Year      string
-	Price     string
-	IsExpense string
-	UserId    int
-	BucketId  string
 }
 
 type BucketSummary struct {

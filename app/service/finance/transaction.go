@@ -32,16 +32,24 @@ func initTransactionHandler(l *slog.Logger, f finance.Finance) Transaction {
 	}
 }
 
+// TODO: Refactor so this pkg has its own models and they validate
+// to the next layer (aka business layer)
+
 func (t *TransactionHandler) Transaction() http.HandlerFunc {
-	funcName := "handleFinanceTransactions"
-	path := "/finance/transaction"
+	funcName := "Transaction"
 	return func(w http.ResponseWriter, r *http.Request) {
+		htmxReqHeader := r.Header.Get("hx-request")
+		isHtmxRequest := htmxReqHeader == "true"
+		if !isHtmxRequest {
+			http.Error(w, "misssing header 'hx-request'", 400)
+			return
+		}
 		reqCtx := r.Context()
 		ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
 		defer cancel()
 		curUser, err := auth.UserCtx(reqCtx)
 		if err != nil {
-			t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+			t.Logger.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 			http.Error(w, "Internal Error, try logging in again", 500)
 			return
 		}
@@ -53,27 +61,21 @@ func (t *TransactionHandler) Transaction() http.HandlerFunc {
 		months := views.GetMonths()
 		switch r.Method {
 		case "GET":
-			htmxReqHeader := r.Header.Get("hx-request")
-			isHtmxRequest := htmxReqHeader == "true"
-			if !isHtmxRequest { // Build entire page or redirect to finance
-				w.WriteHeader(404)
-				return
-			}
 			formData := views.TransactionFormData{}
 			tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months)
 			err = tmplFinanceDiv.Render(ctx, w)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
 			}
 			return
 		case "POST":
 			err := r.ParseForm()
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("httpMethod", "POST"), slog.String("path", path), slog.String("error", err.Error()))
+				t.Logger.Error(funcName, slog.String("httpMethod", "POST"), slog.String("error", err.Error()))
 				http.Error(w, "Internal Error: Parsing Form", 500)
 				return
 			}
-			formData := finance.TransactionFormInput{
+			formData := TransactionFormInput{
 				Name:      r.FormValue("name"),
 				Month:     r.FormValue("month"),
 				Year:      r.FormValue("year"),
@@ -82,13 +84,15 @@ func (t *TransactionHandler) Transaction() http.HandlerFunc {
 				UserId:    curUser.UserId,
 				BucketId:  r.FormValue("bucket"),
 			}
-			problems, err := t.FinanceLogic.SubmitNewTransaction(formData)
-			if err != nil {
-				t.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("error", err.Error()))
-				http.Error(w, "Internal Error", 500)
-				return
+			dbTranaction, problems := parseNewTransaction(formData)
+			if len(problems) == 0 {
+				problems, err = t.FinanceLogic.SubmitNewTransaction(dbTranaction)
+				if err != nil {
+					t.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("error", err.Error()))
+					http.Error(w, "Internal Error", 500)
+					return
+				}
 			}
-
 			if len(problems) > 0 {
 				// If there is a problem return form with errs
 				w.WriteHeader(422)
@@ -117,7 +121,7 @@ func (t *TransactionHandler) Transaction() http.HandlerFunc {
 				tmplFinanceDiv := views.TransactionForm(buckets, formData, months)
 				err = tmplFinanceDiv.Render(ctx, w)
 				if err != nil {
-					t.Logger.Error(funcName, slog.String("httpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()))
+					t.Logger.Error(funcName, slog.String("httpMethod", "POST"), slog.String("Error", err.Error()))
 				}
 				return
 			}
@@ -125,7 +129,7 @@ func (t *TransactionHandler) Transaction() http.HandlerFunc {
 			successMessage := views.SuccessfulTransaction()
 			err = successMessage.Render(ctx, w)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("httpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("httpMethod", "POST"), slog.String("Error", err.Error()))
 			}
 		default:
 			http.Error(w, "Not valid method", 404)
@@ -134,15 +138,20 @@ func (t *TransactionHandler) Transaction() http.HandlerFunc {
 }
 
 func (t *TransactionHandler) TransactionMonth() http.HandlerFunc {
-	funcName := "handleFinanceMontlySummary"
-	path := "/finance/transactions/month"
+	funcName := "TransactionMonth"
 	return func(w http.ResponseWriter, r *http.Request) {
+		htmxReqHeader := r.Header.Get("hx-request")
+		isHtmxRequest := htmxReqHeader == "true"
+		if !isHtmxRequest {
+			http.Error(w, "misssing header 'hx-request'", 400)
+			return
+		}
 		reqCtx := r.Context()
 		ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
 		defer cancel()
 		curUser, err := auth.UserCtx(reqCtx)
 		if err != nil {
-			t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+			t.Logger.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 			http.Error(w, "Internal Error, try logging in again", 500)
 			return
 		}
@@ -150,7 +159,7 @@ func (t *TransactionHandler) TransactionMonth() http.HandlerFunc {
 		case "GET":
 			err := r.ParseForm()
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()))
 				http.Error(w, "Internal Error: Parsing Form", 500)
 				return
 			}
@@ -168,7 +177,7 @@ func (t *TransactionHandler) TransactionMonth() http.HandlerFunc {
 			}
 			summary, err := t.FinanceLogic.MonthlySummary(curUser.UserId, monthInt, yearInt)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()))
 				http.Error(w, "Internal Error", 500)
 				return
 			}
@@ -182,7 +191,7 @@ func (t *TransactionHandler) TransactionMonth() http.HandlerFunc {
 			tmplFinanceDiv := views.MonthlyTable(*summary)
 			err = tmplFinanceDiv.Render(ctx, w)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "templ"))
+				t.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.String("Error", err.Error()), slog.String("DevNote", "templ"))
 			}
 			return
 		default:
@@ -192,15 +201,20 @@ func (t *TransactionHandler) TransactionMonth() http.HandlerFunc {
 }
 
 func (t *TransactionHandler) TransactionMonthForm() http.HandlerFunc {
-	funcName := "handleFinanceBucket"
-	path := "/finance/transactions/month/form"
+	funcName := "TransactionMonthForm"
 	return func(w http.ResponseWriter, r *http.Request) {
+		htmxReqHeader := r.Header.Get("hx-request")
+		isHtmxRequest := htmxReqHeader == "true"
+		if !isHtmxRequest {
+			http.Error(w, "misssing header 'hx-request'", 400)
+			return
+		}
 		reqCtx := r.Context()
 		ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
 		defer cancel()
 		curUser, err := auth.UserCtx(reqCtx)
 		if err != nil {
-			t.Logger.Error(funcName, slog.String("Error", err.Error()), slog.String("path", path), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+			t.Logger.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 			http.Error(w, "Internal Error, try logging in again", 500)
 			return
 		}
@@ -209,7 +223,7 @@ func (t *TransactionHandler) TransactionMonthForm() http.HandlerFunc {
 			curTime := time.Now()
 			summary, err := t.FinanceLogic.MonthlySummary(curUser.UserId, int(curTime.Month()), curTime.Year())
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue with user buckets"))
+				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()), slog.String("DevNote", "Issue with user buckets"))
 				http.Error(w, "Internal Error, try logging in again", 500)
 				return
 			}
@@ -220,16 +234,10 @@ func (t *TransactionHandler) TransactionMonthForm() http.HandlerFunc {
 				}
 			}
 			summary.BucketsSummary = filteredBuckets
-			htmxReqHeader := r.Header.Get("hx-request")
-			isHtmxRequest := htmxReqHeader == "true"
-			if !isHtmxRequest { // Build entire page or redirect to finance
-				w.WriteHeader(404)
-				return
-			}
 			tmplFinanceDiv := views.MonthlySummary(*summary)
 			err = tmplFinanceDiv.Render(ctx, w)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
 			}
 			return
 		default:
@@ -239,15 +247,20 @@ func (t *TransactionHandler) TransactionMonthForm() http.HandlerFunc {
 }
 
 func (t *TransactionHandler) Transactions() http.HandlerFunc {
-	funcName := "handleTransactionTable"
-	path := "/finance/transactions"
+	funcName := "Transactions"
 	return func(w http.ResponseWriter, r *http.Request) {
+		htmxReqHeader := r.Header.Get("hx-request")
+		isHtmxRequest := htmxReqHeader == "true"
+		if !isHtmxRequest {
+			http.Error(w, "misssing header 'hx-request'", 400)
+			return
+		}
 		reqCtx := r.Context()
 		ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
 		defer cancel()
 		curUser, err := auth.UserCtx(reqCtx)
 		if err != nil {
-			t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+			t.Logger.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 			http.Error(w, "Internal Error, try logging in again", 500)
 			return
 		}
@@ -269,16 +282,10 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 		}
 		switch r.Method {
 		case "GET":
-			htmxReqHeader := r.Header.Get("hx-request")
-			isHtmxRequest := htmxReqHeader == "true"
-			if !isHtmxRequest { // Build entire page or redirect to finance
-				w.WriteHeader(404)
-				return
-			}
 			transactions, err := t.FinanceLogic.GetTransactions(page, pageSize, curUser.UserId)
 			if err != nil {
 				w.WriteHeader(500)
-				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
 				return
 			}
 			pageData := views.TransactionTableInfo{
@@ -291,7 +298,7 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 			tmplFinanceDiv := views.TransactionTable(pageData)
 			err = tmplFinanceDiv.Render(ctx, w)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
 			}
 			return
 		default:
@@ -301,30 +308,29 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 }
 
 func (t *TransactionHandler) TransactionsEdit() http.HandlerFunc {
-	funcName := "handleTransactionEdit"
-	path := "/finance/transactions/{id}/edit"
+	funcName := "TransactionsEdit"
 	return func(w http.ResponseWriter, r *http.Request) {
+		htmxReqHeader := r.Header.Get("hx-request")
+		isHtmxRequest := htmxReqHeader == "true"
+		if !isHtmxRequest {
+			http.Error(w, "misssing header 'hx-request'", 400)
+			return
+		}
 		reqCtx := r.Context()
 		ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
 		defer cancel()
 		curUser, err := auth.UserCtx(reqCtx)
 		if err != nil {
-			t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+			t.Logger.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 			http.Error(w, "Internal Error, try logging in again", 500)
 			return
 		}
 		switch r.Method {
 		case "GET":
 			transactionId := r.PathValue("id")
-			htmxReqHeader := r.Header.Get("hx-request")
-			isHtmxRequest := htmxReqHeader == "true"
-			if !isHtmxRequest { // Build entire page or redirect to finance
-				w.WriteHeader(404)
-				return
-			}
 			transaction, err := t.FinanceLogic.GetTransaction(transactionId)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
 				w.WriteHeader(500)
 				return
 			}
@@ -340,7 +346,7 @@ func (t *TransactionHandler) TransactionsEdit() http.HandlerFunc {
 			tmplFinanceDiv := views.EditTransactionRow(*transaction, userBuckets)
 			err = tmplFinanceDiv.Render(ctx, w)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
 			}
 			return
 		default:
@@ -350,22 +356,27 @@ func (t *TransactionHandler) TransactionsEdit() http.HandlerFunc {
 }
 
 func (t *TransactionHandler) TransactionsById() http.HandlerFunc {
-	funcName := "handleFinanceTransactionListRow"
-	path := "/finance/transactions/{id}"
+	funcName := "TransactionsById"
 	return func(w http.ResponseWriter, r *http.Request) {
+		htmxReqHeader := r.Header.Get("hx-request")
+		isHtmxRequest := htmxReqHeader == "true"
+		if !isHtmxRequest {
+			http.Error(w, "misssing header 'hx-request'", 400)
+			return
+		}
 		reqCtx := r.Context()
 		ctx, cancel := context.WithTimeout(reqCtx, time.Second*20)
 		defer cancel()
 		curUser, err := auth.UserCtx(reqCtx)
 		if err != nil {
-			t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
+			t.Logger.Error(funcName, slog.String("Error", err.Error()), slog.String("DevNote", "Issue getting user info from middleware ctx"))
 			http.Error(w, "Internal Error, try logging in again", 500)
 			return
 		}
 		transactionId := r.PathValue("id")
 		transaction, err := t.FinanceLogic.GetTransaction(transactionId)
 		if err != nil {
-			t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+			t.Logger.Error(funcName, slog.String("Error", err.Error()))
 			w.WriteHeader(500)
 			return
 		}
@@ -373,25 +384,18 @@ func (t *TransactionHandler) TransactionsById() http.HandlerFunc {
 			w.WriteHeader(403)
 			return
 		}
-		htmxReqHeader := r.Header.Get("hx-request")
-		isHtmxRequest := htmxReqHeader == "true"
-		if !isHtmxRequest { // Build entire page or redirect to finance
-			w.WriteHeader(404)
-			return
-		}
-		// TODO: Implement the method to submit the edit
 		switch r.Method {
 		case "GET":
 			tmplFinanceDiv := views.GetTransactionRow(*transaction)
 			err = tmplFinanceDiv.Render(ctx, w)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("Error", err.Error()))
 			}
 			return
 		case "PUT":
 			err := r.ParseForm()
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("Error", err.Error()))
 				http.Error(w, "Internal Error", 500)
 				return
 			}
@@ -405,20 +409,20 @@ func (t *TransactionHandler) TransactionsById() http.HandlerFunc {
 			}
 			err = t.FinanceLogic.UpdateTransaction(formData)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("Error", err.Error()))
 				http.Error(w, "Internal Error", 500)
 				return
 			}
 			transaction, err := t.FinanceLogic.GetTransaction(transactionId)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("Error", err.Error()))
 				w.WriteHeader(500)
 				return
 			}
 			tmplFinanceDiv := views.GetTransactionRow(*transaction)
 			err = tmplFinanceDiv.Render(ctx, w)
 			if err != nil {
-				t.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+				t.Logger.Error(funcName, slog.String("Error", err.Error()))
 			}
 			return
 		default:

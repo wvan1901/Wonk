@@ -39,8 +39,7 @@ func initFinanceHandler(l *slog.Logger) Finance {
 }
 
 func (f *FinaceHandler) Home() http.HandlerFunc {
-	funcName := "handleFinance"
-	path := "/finace"
+	funcName := "Home"
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "GET":
@@ -52,14 +51,14 @@ func (f *FinaceHandler) Home() http.HandlerFunc {
 				tmplFinanceDiv := views.Finance()
 				err := tmplFinanceDiv.Render(ctx, w)
 				if err != nil {
-					f.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+					f.Logger.Error(funcName, slog.String("Error", err.Error()))
 				}
 				return
 			} else {
 				tmplFinanceDiv := views.FinancePage()
 				err := tmplFinanceDiv.Render(ctx, w)
 				if err != nil {
-					f.Logger.Error(funcName, slog.String("path", path), slog.String("Error", err.Error()))
+					f.Logger.Error(funcName, slog.String("Error", err.Error()))
 				}
 				return
 			}
