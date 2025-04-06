@@ -75,7 +75,7 @@ func (t *TransactionHandler) Transaction() http.HandlerFunc {
 				http.Error(w, "Internal Error: Parsing Form", 500)
 				return
 			}
-			formData := TransactionFormInput{
+			formData := TransactionNewInput{
 				Name:      r.FormValue("name"),
 				Month:     r.FormValue("month"),
 				Year:      r.FormValue("year"),
@@ -399,7 +399,7 @@ func (t *TransactionHandler) TransactionsById() http.HandlerFunc {
 				http.Error(w, "Internal Error", 500)
 				return
 			}
-			formData := finance.TransactionRowFormInput{
+			formData := TransactionEditInput{
 				TransactionId: transaction.Id,
 				Name:          r.FormValue("name"),
 				Month:         r.FormValue("month"),
@@ -407,7 +407,12 @@ func (t *TransactionHandler) TransactionsById() http.HandlerFunc {
 				Price:         r.FormValue("price"),
 				BucketId:      r.FormValue("bucketId"),
 			}
-			err = t.FinanceLogic.UpdateTransaction(formData)
+			validTransaction, problems := parseEditTransaction(formData)
+			if len(problems) > 0 {
+				http.Error(w, "Invalid inputs", 400)
+				return
+			}
+			err = t.FinanceLogic.UpdateTransaction(validTransaction)
 			if err != nil {
 				t.Logger.Error(funcName, slog.String("HttpMethod", "PUT"), slog.String("Error", err.Error()))
 				http.Error(w, "Internal Error", 500)

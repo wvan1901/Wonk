@@ -1,6 +1,6 @@
 package finance
 
-type TransactionFormInput struct {
+type TransactionNewInput struct {
 	Name      string
 	Month     string
 	Year      string
@@ -8,4 +8,13 @@ type TransactionFormInput struct {
 	IsExpense string
 	BucketId  string
 	UserId    int
+}
+
+type TransactionEditInput struct {
+	TransactionId int
+	Name          string
+	Month         string
+	Year          string
+	Price         string
+	BucketId      string
 }

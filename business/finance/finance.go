@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"wonk/storage"
 )
 
@@ -20,7 +21,7 @@ type Finance interface {
 	UpdateBucket(int, string) error
 	GetTransactions(page, pagesize, userId int) ([]database.TransactionItem, error)
 	GetTransaction(string) (*database.TransactionItem, error)
-	UpdateTransaction(TransactionRowFormInput) error
+	UpdateTransaction(TransactionEdit) error
 }
 
 type FinanceLogic struct {
@@ -94,13 +95,56 @@ type MonthSummary struct {
 	TotalExpense   float64
 }
 
-type TransactionRowFormInput struct {
+type TransactionEdit struct {
 	TransactionId int
 	Name          string
-	Month         string
-	Year          string
-	Price         string
-	BucketId      string
+	Month         int
+	Year          int
+	Price         float64
+	BucketId      int
+}
+
+func (t *TransactionEdit) Valid() map[string]string {
+	problems := make(map[string]string)
+	maxNameLen := 50
+	if len(t.Name) > maxNameLen {
+		problems["Name"] = "Name length can't be greater than 50"
+	}
+	if len(t.Name) == 0 {
+		problems["Name"] = "Name length can't be 0"
+	}
+
+	if t.Month > 12 || t.Month < 1 {
+		problems["Month"] = "Month value isn't between 1-12"
+	}
+
+	if t.Year < 2000 || t.Year > 3000 {
+		problems["Year"] = "Invalid Year"
+	}
+
+	if t.Price <= 0 {
+		problems["Price"] = "Invalid Price"
+	}
+
+	floatStr := strconv.FormatFloat(t.Price, 'f', -1, 64)
+	parts := strings.Split(floatStr, ".")
+
+	twoOrLessDecimalPlaces := false
+	if len(parts) < 2 {
+		twoOrLessDecimalPlaces = true
+	} else {
+		twoOrLessDecimalPlaces = len(parts[1]) <= 2
+	}
+
+	if !twoOrLessDecimalPlaces {
+		problems["Price"] = "Invalid Price: has more than 2 decimal places"
+	}
+
+	if t.BucketId < 0 {
+		problems["BucketId"] = "Invalid BucketId"
+	}
+
+	return problems
 }
 
 func (f *FinanceLogic) MonthlySummary(userId, month, year int) (*MonthSummary, error) {
@@ -198,26 +242,14 @@ func (f *FinanceLogic) GetTransaction(transactionId string) (*database.Transacti
 	}
 	return transaction, nil
 }
-func (f *FinanceLogic) UpdateTransaction(input TransactionRowFormInput) error {
-	// TODO: Make sure these values follow new transaction validation
-	month, err := strconv.Atoi(input.Month)
-	if err != nil {
-		return fmt.Errorf("UpdateTransaction: month: %w", err)
+func (f *FinanceLogic) UpdateTransaction(input TransactionEdit) error {
+	// Validate fields
+	problems := input.Valid()
+	if len(problems) > 0 {
+		return fmt.Errorf("UpdateTransaction: input problems: %v", problems)
 	}
-	year, err := strconv.Atoi(input.Year)
-	if err != nil {
-		return fmt.Errorf("UpdateTransaction: year: %w", err)
-	}
-	price, err := strconv.ParseFloat(input.Price, 64)
-	if err != nil {
-		return fmt.Errorf("UpdateTransaction: price: %w", err)
-	}
-	bucketId, err := strconv.Atoi(input.BucketId)
-	if err != nil {
-		return fmt.Errorf("UpdateTransaction: bucket id: %w", err)
-	}
-
-	rowsChanged, err := f.DB.TransactionUpdate(input.Name, input.TransactionId, bucketId, month, year, price)
+	// Update transaction in db
+	rowsChanged, err := f.DB.TransactionUpdate(input.Name, input.TransactionId, input.BucketId, input.Month, input.Year, input.Price)
 	if err != nil {
 		return fmt.Errorf("UpdateTransaction: db: %w", err)
 	}
