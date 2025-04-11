@@ -58,11 +58,10 @@ func (t *TransactionHandler) Transaction() http.HandlerFunc {
 			http.Error(w, "Internal error", 500)
 			return
 		}
-		months := views.GetMonths()
 		switch r.Method {
 		case "GET":
 			formData := views.TransactionFormData{}
-			tmplFinanceDiv := views.FinanceSubmit(buckets, formData, months)
+			tmplFinanceDiv := views.FinanceSubmit(buckets, formData)
 			err = tmplFinanceDiv.Render(ctx, w)
 			if err != nil {
 				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
@@ -118,7 +117,7 @@ func (t *TransactionHandler) Transaction() http.HandlerFunc {
 				if val, ok := problems["BucketId"]; ok {
 					formData.BucketErr = &val
 				}
-				tmplFinanceDiv := views.TransactionForm(buckets, formData, months)
+				tmplFinanceDiv := views.TransactionForm(buckets, formData)
 				err = tmplFinanceDiv.Render(ctx, w)
 				if err != nil {
 					t.Logger.Error(funcName, slog.String("httpMethod", "POST"), slog.String("Error", err.Error()))

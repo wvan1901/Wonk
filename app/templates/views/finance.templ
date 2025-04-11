@@ -142,7 +142,6 @@ templ MonthlyTable(s finance.MonthSummary) {
 templ FinanceSubmit(
 	buckets []database.Bucket,
 	formData TransactionFormData,
-	monthData []Month,
 ) {
 	<div id="finance-content">
 		<h3 class="py-2">Create New Transaction:</h3>
@@ -150,7 +149,7 @@ templ FinanceSubmit(
 			if len(buckets) == 0 {
 				<p>No buckets found, create a bucket to be able to create a transaction</p>
 			} else {
-				@TransactionForm(buckets, formData, monthData)
+				@TransactionForm(buckets, formData)
 				<br/>
 				@inputs.ButtonText(inputs.ButtonOptions{
 					Varient: "text",
@@ -164,12 +163,6 @@ templ FinanceSubmit(
 			}
 		</div>
 	</div>
-}
-
-type Month struct {
-	Name      string
-	Value     string
-	IsCurrent bool
 }
 
 type TransactionFormData struct {
@@ -186,7 +179,7 @@ type TransactionFormData struct {
 	BucketErr   *string
 }
 
-templ TransactionForm(buckets []database.Bucket, formData TransactionFormData, monthData []Month) {
+templ TransactionForm(buckets []database.Bucket, formData TransactionFormData) {
 	<form class="flex flex-col gap-2" autocomplete="off" hx-post="/finance/transaction">
 		<div>
 			<label for="name" required>Purchase Name:</label>
@@ -312,27 +305,6 @@ templ BucketForm(formData BucketFormData) {
 
 templ SuccessfulBucket() {
 	<div>Successfully created Bucket! Use top navbar to navigate.</div>
-}
-
-func GetMonths() []Month {
-	months := []Month{
-		{Name: "Jan", Value: "1", IsCurrent: false},
-		{Name: "Feb", Value: "2", IsCurrent: false},
-		{Name: "Mar", Value: "3", IsCurrent: false},
-		{Name: "Apr", Value: "4", IsCurrent: false},
-		{Name: "May", Value: "5", IsCurrent: false},
-		{Name: "June", Value: "6", IsCurrent: false},
-		{Name: "July", Value: "7", IsCurrent: false},
-		{Name: "Aug", Value: "8", IsCurrent: false},
-		{Name: "Sep", Value: "9", IsCurrent: false},
-		{Name: "Oct", Value: "10", IsCurrent: false},
-		{Name: "Nov", Value: "11", IsCurrent: false},
-		{Name: "Dec", Value: "12", IsCurrent: false},
-	}
-	curMonth := int(time.Now().Month())
-	months[curMonth-1].IsCurrent = true
-
-	return months
 }
 
 // Returns an array of Dropdown Options with all the years months.

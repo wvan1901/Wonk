@@ -376,7 +376,6 @@ func MonthlyTable(s finance.MonthSummary) templ.Component {
 func FinanceSubmit(
 	buckets []database.Bucket,
 	formData TransactionFormData,
-	monthData []Month,
 ) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -408,7 +407,7 @@ func FinanceSubmit(
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = TransactionForm(buckets, formData, monthData).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = TransactionForm(buckets, formData).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -437,12 +436,6 @@ func FinanceSubmit(
 	})
 }
 
-type Month struct {
-	Name      string
-	Value     string
-	IsCurrent bool
-}
-
 type TransactionFormData struct {
 	NameValue   string
 	NameErr     *string
@@ -457,7 +450,7 @@ type TransactionFormData struct {
 	BucketErr   *string
 }
 
-func TransactionForm(buckets []database.Bucket, formData TransactionFormData, monthData []Month) templ.Component {
+func TransactionForm(buckets []database.Bucket, formData TransactionFormData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -521,7 +514,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var14 string
 			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.ExpenseErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 233, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 226, Col: 52}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 			if templ_7745c5c3_Err != nil {
@@ -559,7 +552,7 @@ func TransactionForm(buckets []database.Bucket, formData TransactionFormData, mo
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(*formData.YearErr)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 250, Col: 49}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 243, Col: 49}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -738,27 +731,6 @@ func SuccessfulBucket() templ.Component {
 	})
 }
 
-func GetMonths() []Month {
-	months := []Month{
-		{Name: "Jan", Value: "1", IsCurrent: false},
-		{Name: "Feb", Value: "2", IsCurrent: false},
-		{Name: "Mar", Value: "3", IsCurrent: false},
-		{Name: "Apr", Value: "4", IsCurrent: false},
-		{Name: "May", Value: "5", IsCurrent: false},
-		{Name: "June", Value: "6", IsCurrent: false},
-		{Name: "July", Value: "7", IsCurrent: false},
-		{Name: "Aug", Value: "8", IsCurrent: false},
-		{Name: "Sep", Value: "9", IsCurrent: false},
-		{Name: "Oct", Value: "10", IsCurrent: false},
-		{Name: "Nov", Value: "11", IsCurrent: false},
-		{Name: "Dec", Value: "12", IsCurrent: false},
-	}
-	curMonth := int(time.Now().Month())
-	months[curMonth-1].IsCurrent = true
-
-	return months
-}
-
 // Returns an array of Dropdown Options with all the years months.
 // If selectMonth input is given then we will select that month as current,
 // else it will default to current month
@@ -893,7 +865,7 @@ func GetBucketRow(row BucketRow) templ.Component {
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(row.BucketName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 426, Col: 52}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 398, Col: 52}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 		if templ_7745c5c3_Err != nil {
@@ -1115,7 +1087,7 @@ func TransactionTable(t TransactionTableInfo) templ.Component {
 		var templ_7745c5c3_Var26 string
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinStringErrs(pageStr(t))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 538, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 510, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
@@ -1157,7 +1129,7 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(t.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 545, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 517, Col: 44}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
@@ -1192,7 +1164,7 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		var templ_7745c5c3_Var31 string
 		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", t.Price))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 547, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 519, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 		if templ_7745c5c3_Err != nil {
@@ -1205,7 +1177,7 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(strutil.ConvertMonth(t.Month))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 549, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 521, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
@@ -1218,7 +1190,7 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.Year))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 550, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 522, Col: 58}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
@@ -1231,7 +1203,7 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		var templ_7745c5c3_Var34 string
 		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.BucketId))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 551, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 523, Col: 62}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
