@@ -203,21 +203,24 @@ func (a *Auth) AuthMiddleware(h http.Handler) http.Handler {
 		if err != nil {
 			// Missing cookie so redirect to login
 			a.Logger.Error("AuthMiddleware: cookie", slog.Any("error", err), slog.String("devMsg", "no auth cookie found"))
-			http.Redirect(w, r, "/login", 302)
+			w.Header().Set("HX-Redirect", "/login")
+			w.WriteHeader(302)
 			return
 		}
 		value, err := a.ReadSignedCookie(c)
 		if err != nil {
 			// cookie is invalid so remove cookie & redirect to login
 			a.Logger.Error("AuthMiddleware: signed cookie", slog.Any("error", err), slog.String("devMsg", "auth cookie currupted"))
-			http.Redirect(w, r, "/login", 302)
+			w.Header().Set("HX-Redirect", "/login")
+			w.WriteHeader(302)
 			return
 		}
 		err = a.VerifyToken(value)
 		if err != nil {
 			// token is invalid so remove cookie & redirect to login
 			a.Logger.Error("AuthMiddleware: cookie token", slog.Any("error", err), slog.String("devMsg", "auth cookie invalid"))
-			http.Redirect(w, r, "/login", 302)
+			w.Header().Set("HX-Redirect", "/login")
+			w.WriteHeader(302)
 			return
 		}
 
@@ -225,7 +228,8 @@ func (a *Auth) AuthMiddleware(h http.Handler) http.Handler {
 		if err != nil {
 			// getting username error from jwt token
 			a.Logger.Error("AuthMiddleware: jwt read token", slog.Any("error", err), slog.String("devMsg", "read username err"))
-			http.Redirect(w, r, "/login", 302)
+			w.Header().Set("HX-Redirect", "/login")
+			w.WriteHeader(302)
 			return
 		}
 		userInfo := UserInfo{UserName: username, UserId: userId}
@@ -309,6 +313,7 @@ func (a *Auth) HandleLogin() http.Handler {
 }
 
 func (a *Auth) HandleSignUp() http.Handler {
+	funcName := "HandleSignUp"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			ctx, cancel := context.WithTimeout(r.Context(), time.Second*20)
@@ -321,21 +326,21 @@ func (a *Auth) HandleSignUp() http.Handler {
 					signUpDiv := views.SignUp(views.LoginFormData{})
 					err := signUpDiv.Render(ctx, w)
 					if err != nil {
-						a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
+						a.Logger.Error(funcName, slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
 					}
 					return
 				}
 				loginPage := views.SignUpPage(views.LoginFormData{})
 				err := loginPage.Render(ctx, w)
 				if err != nil {
-					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "full page render"))
+					a.Logger.Error(funcName, slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "full page render"))
 				}
 				return
 			case "POST":
 				// TODO: Handle errors properly (no user found, wrong password, ... )
 				err := r.ParseForm()
 				if err != nil {
-					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					a.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
 					w.WriteHeader(502)
 					return
 				}
@@ -345,7 +350,7 @@ func (a *Auth) HandleSignUp() http.Handler {
 
 				_, err = a.User.CreateUser(userName, password)
 				if err != nil {
-					a.Logger.Error("HandleSignUp", slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					a.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
 					w.WriteHeader(422)
 					errMsg := "error creating user"
 					formData := views.LoginFormData{
@@ -354,7 +359,7 @@ func (a *Auth) HandleSignUp() http.Handler {
 					signUpDiv := views.SignUpForm(formData)
 					err := signUpDiv.Render(ctx, w)
 					if err != nil {
-						a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
+						a.Logger.Error(funcName, slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
 					}
 					return
 				}
