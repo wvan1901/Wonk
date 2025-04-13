@@ -199,28 +199,36 @@ func (a *Auth) ReadSignedCookie(cookie *http.Cookie) (string, error) {
 
 func (a *Auth) AuthMiddleware(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handleRedirect := func() {
+			http.Redirect(w, r, "/login", 302)
+		}
+		htmxReqHeader := r.Header.Get("hx-request")
+		isHtmxRequest := htmxReqHeader == "true"
+		if isHtmxRequest {
+			handleRedirect = func() {
+				w.Header().Set("HX-Redirect", "/login")
+				w.WriteHeader(302)
+			}
+		}
 		c, err := r.Cookie(COOKIE_NAME)
 		if err != nil {
 			// Missing cookie so redirect to login
 			a.Logger.Error("AuthMiddleware: cookie", slog.Any("error", err), slog.String("devMsg", "no auth cookie found"))
-			w.Header().Set("HX-Redirect", "/login")
-			w.WriteHeader(302)
+			handleRedirect()
 			return
 		}
 		value, err := a.ReadSignedCookie(c)
 		if err != nil {
 			// cookie is invalid so remove cookie & redirect to login
 			a.Logger.Error("AuthMiddleware: signed cookie", slog.Any("error", err), slog.String("devMsg", "auth cookie currupted"))
-			w.Header().Set("HX-Redirect", "/login")
-			w.WriteHeader(302)
+			handleRedirect()
 			return
 		}
 		err = a.VerifyToken(value)
 		if err != nil {
 			// token is invalid so remove cookie & redirect to login
 			a.Logger.Error("AuthMiddleware: cookie token", slog.Any("error", err), slog.String("devMsg", "auth cookie invalid"))
-			w.Header().Set("HX-Redirect", "/login")
-			w.WriteHeader(302)
+			handleRedirect()
 			return
 		}
 
@@ -228,8 +236,7 @@ func (a *Auth) AuthMiddleware(h http.Handler) http.Handler {
 		if err != nil {
 			// getting username error from jwt token
 			a.Logger.Error("AuthMiddleware: jwt read token", slog.Any("error", err), slog.String("devMsg", "read username err"))
-			w.Header().Set("HX-Redirect", "/login")
-			w.WriteHeader(302)
+			handleRedirect()
 			return
 		}
 		userInfo := UserInfo{UserName: username, UserId: userId}
