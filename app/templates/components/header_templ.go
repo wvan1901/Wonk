@@ -8,7 +8,9 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "wonk/app/templates/components/icons"
+import (
+	"wonk/app/templates/components/icons"
+)
 
 func Header() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -31,7 +33,32 @@ func Header() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"flex flex-row justify-between h-[6%] p-3\"><div class=\"flex items-center\"><a href=\"/home\" class=\"flex flex-col no-underline w-full\">Wonk</a></div><div class=\"flex flex-row items-center\"><a>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header class=\"flex flex-row justify-between h-[6%] p-3\"><div class=\"flex items-center\"><a href=\"/home\" class=\"flex flex-col no-underline w-full\">Wonk</a></div><div class=\"flex flex-row items-center\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templ.RenderScriptItems(ctx, templ_7745c5c3_Buffer, handleModeToggle())
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<a class=\"px-2\" onClick=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var2 templ.ComponentScript = handleModeToggle()
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var2.Call)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = icons.SunIcon(icons.IconOptions{Size: "6"}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</a> <a>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -45,6 +72,24 @@ func Header() templ.Component {
 		}
 		return templ_7745c5c3_Err
 	})
+}
+
+func handleModeToggle() templ.ComponentScript {
+	return templ.ComponentScript{
+		Name: `__templ_handleModeToggle_f41b`,
+		Function: `function __templ_handleModeToggle_f41b(){var body = document.body
+const isLightMode = body.className.includes("light")
+if (isLightMode) {
+body.classList.remove("light")
+body.classList.add("dark")
+} else {
+body.classList.remove("dark")
+body.classList.add("light")
+}
+}`,
+		Call:       templ.SafeScript(`__templ_handleModeToggle_f41b`),
+		CallInline: templ.SafeScriptInline(`__templ_handleModeToggle_f41b`),
+	}
 }
 
 var _ = templruntime.GeneratedTemplate

@@ -1,6 +1,8 @@
 package components
 
-import "wonk/app/templates/components/icons"
+import (
+	"wonk/app/templates/components/icons"
+)
 
 templ Header() {
 	<header class="flex flex-row justify-between h-[6%] p-3">
@@ -10,9 +12,24 @@ templ Header() {
 			</a>
 		</div>
 		<div class="flex flex-row items-center">
+			<a class="px-2" onClick={ handleModeToggle() }>
+				@icons.SunIcon(icons.IconOptions{Size: "6"})
+			</a>
 			<a>
 				@icons.UserIcon(icons.IconOptions{Size: "8"})
 			</a>
 		</div>
 	</header>
+}
+
+script handleModeToggle() {
+var body = document.body
+const isLightMode = body.className.includes("light")
+if (isLightMode) {
+body.classList.remove("light")
+body.classList.add("dark")
+} else {
+body.classList.remove("dark")
+body.classList.add("light")
+}
 }
