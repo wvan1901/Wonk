@@ -22,6 +22,7 @@ type ButtonOptions struct {
 type HtmxOptions struct {
 	HxGet     *string
 	HxPut     *string
+	HxDelete  *string
 	HxTarget  *string
 	HxSwap    *string
 	HxPushUrl *string
@@ -86,6 +87,9 @@ func (h *HtmxOptions) TemplAttributes() templ.Attributes {
 	}
 	if h.HxPut != nil {
 		tmplAttr["hx-put"] = h.HxPut
+	}
+	if h.HxDelete != nil {
+		tmplAttr["hx-delete"] = h.HxDelete
 	}
 	if h.HxTarget != nil {
 		tmplAttr["hx-target"] = h.HxTarget
@@ -186,7 +190,7 @@ func ButtonText(opts ButtonOptions) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(opts.Text)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/components/inputs/button.templ`, Line: 108, Col: 13}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/components/inputs/button.templ`, Line: 112, Col: 13}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {

@@ -19,9 +19,10 @@ type Finance interface {
 	MonthlySummary(int, int, int) (*MonthSummary, error)
 	GetBucket(string) (*database.Bucket, error)
 	UpdateBucket(int, string) error
-	GetTransactions(page, pagesize, userId int) ([]database.TransactionItem, error)
+	GetTransactions(int, int, int) ([]database.TransactionItem, error)
 	GetTransaction(string) (*database.TransactionItem, error)
 	UpdateTransaction(TransactionEdit) error
+	DeleteTransaction(int) error
 }
 
 type FinanceLogic struct {
@@ -256,5 +257,17 @@ func (f *FinanceLogic) UpdateTransaction(input TransactionEdit) error {
 	if rowsChanged == 0 {
 		return errors.New("UpdateTransaction: db: no data changed")
 	}
+	return nil
+}
+
+func (f *FinanceLogic) DeleteTransaction(transactionId int) error {
+	rowsChanged, err := f.DB.TransactionDelete(transactionId)
+	if err != nil {
+		return fmt.Errorf("DeleteTransaction: db: %w", err)
+	}
+	if rowsChanged == 0 {
+		return errors.New("DeleteTransaction: db: no data changed")
+	}
+
 	return nil
 }

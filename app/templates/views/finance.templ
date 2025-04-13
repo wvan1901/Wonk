@@ -601,6 +601,13 @@ templ EditTransactionRow(t database.TransactionItem, userBuckets []database.Buck
 				Text:    "Save",
 				Varient: "contained",
 			})
+			@inputs.ButtonText(inputs.ButtonOptions{
+				Varient: "text",
+				Text:    "DELETE",
+				Htmx: inputs.HtmxOptions{
+					HxDelete: strutil.StrPtr("/finance/transactions/" + strconv.Itoa(t.Id)),
+				},
+			})
 		</td>
 	</tr>
 }
@@ -618,4 +625,10 @@ func convertBucketToOptions(buckets []database.Bucket, currentBucketId int) []in
 		children = append(children, newRow)
 	}
 	return children
+}
+
+templ GetTransactionDeletedRow() {
+	<tr>
+		<td class="px-2 py-1 font-medium">Removed</td>
+	</tr>
 }

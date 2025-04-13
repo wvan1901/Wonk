@@ -32,9 +32,6 @@ func initTransactionHandler(l *slog.Logger, f finance.Finance) Transaction {
 	}
 }
 
-// TODO: Refactor so this pkg has its own models and they validate
-// to the next layer (aka business layer)
-
 func (t *TransactionHandler) Transaction() http.HandlerFunc {
 	funcName := "Transaction"
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -425,6 +422,19 @@ func (t *TransactionHandler) TransactionsById() http.HandlerFunc {
 			}
 			tmplFinanceDiv := views.GetTransactionRow(*transaction)
 			err = tmplFinanceDiv.Render(ctx, w)
+			if err != nil {
+				t.Logger.Error(funcName, slog.String("Error", err.Error()))
+			}
+			return
+		case "DELETE":
+			err := t.FinanceLogic.DeleteTransaction(transaction.Id)
+			if err != nil {
+				t.Logger.Error(funcName, slog.String("HttpMethod", "DELETE"), slog.String("Error", err.Error()))
+				http.Error(w, "Internal Error", 500)
+				return
+			}
+			rowtTmpl := views.GetTransactionDeletedRow()
+			err = rowtTmpl.Render(ctx, w)
 			if err != nil {
 				t.Logger.Error(funcName, slog.String("Error", err.Error()))
 			}

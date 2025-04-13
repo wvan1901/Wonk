@@ -14,6 +14,7 @@ type ButtonOptions struct {
 type HtmxOptions struct {
 	HxGet     *string
 	HxPut     *string
+	HxDelete  *string
 	HxTarget  *string
 	HxSwap    *string
 	HxPushUrl *string
@@ -78,6 +79,9 @@ func (h *HtmxOptions) TemplAttributes() templ.Attributes {
 	}
 	if h.HxPut != nil {
 		tmplAttr["hx-put"] = h.HxPut
+	}
+	if h.HxDelete != nil {
+		tmplAttr["hx-delete"] = h.HxDelete
 	}
 	if h.HxTarget != nil {
 		tmplAttr["hx-target"] = h.HxTarget

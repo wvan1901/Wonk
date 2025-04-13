@@ -25,9 +25,10 @@ type Database interface {
 	TransactionsInBucket(int, int, int) ([]TransactionItem, error)
 	BucketById(int) (*Bucket, error)
 	BucketUpdateName(int, string) (int64, error)
-	TransactionsPagination(page, pagesize, userId int) ([]TransactionItem, error)
+	TransactionsPagination(int, int, int) ([]TransactionItem, error)
 	TransactionById(int) (*TransactionItem, error)
 	TransactionUpdate(string, int, int, int, int, float64) (int64, error)
+	TransactionDelete(int) (int64, error)
 }
 
 type SqliteDb struct {
@@ -224,6 +225,16 @@ func (s *SqliteDb) TransactionUpdate(name string, transactionId int, bucketId in
 	result, err := s.Db.Exec(query, name, month, year, price, bucketId, transactionId)
 	if err != nil {
 		return 0, fmt.Errorf("TransactionUpdate: %w", err)
+	}
+
+	return result.RowsAffected()
+}
+
+func (s *SqliteDb) TransactionDelete(transactionId int) (int64, error) {
+	query := "DELETE FROM " + TRANSACTION_ITEMS_TABLE_NAME + " WHERE id=?"
+	result, err := s.Db.Exec(query, transactionId)
+	if err != nil {
+		return 0, fmt.Errorf("TransactionDelete: %w", err)
 	}
 
 	return result.RowsAffected()
