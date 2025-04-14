@@ -449,6 +449,43 @@ type Pagination struct {
 	PageSize int
 }
 
+type Sorting struct {
+	CurrentColumn string
+	Direction     string
+}
+
+func (s *Sorting) calcSortingDirection(columnName string) string {
+	if s.CurrentColumn == "" || s.CurrentColumn != columnName {
+		return "ascending"
+	}
+	switch s.Direction {
+	case "ascending":
+		return "descending"
+	case "descending":
+		return ""
+	}
+	return "ascending"
+}
+
+templ renderSortingIcon(s Sorting, curColumn string) {
+	if curColumn != s.CurrentColumn {
+		@icons.UpDownArrowsIcon(icons.IconOptions{Size: "4"})
+		{{ return }}
+	}
+	switch s.Direction {
+		case "ascending":
+			@icons.UpArrowIcon(icons.IconOptions{Size: "4"})
+		case "descending":
+			@icons.DownArrowIcon(icons.IconOptions{Size: "4"})
+		default:
+			@icons.UpDownArrowsIcon(icons.IconOptions{Size: "4"})
+	}
+}
+
+func getCurSortingUrlParam(s Sorting) string {
+	return "&sortcolumn=" + s.CurrentColumn + "&sortdirection=" + s.Direction
+}
+
 func pageStr(t TransactionTableInfo) string {
 	dataLen := len(t.Transactions)
 	l := (t.Pagination.Page-1)*t.Pagination.PageSize + 1
@@ -458,6 +495,7 @@ func pageStr(t TransactionTableInfo) string {
 
 type TransactionTableInfo struct {
 	Pagination   Pagination
+	Sorting      Sorting
 	Transactions []database.TransactionItem
 }
 
@@ -467,11 +505,26 @@ templ TransactionTable(t TransactionTableInfo) {
 		<table id="bucketTable" class="w-full text-left rounded">
 			<thead class="uppercase bg-bg-secondary">
 				<tr>
-					<th class="px-2 py-3">Name</th>
-					<th class="px-2 py-3">Price</th>
-					<th class="px-2 py-3">Month</th>
-					<th class="px-2 py-3">Year</th>
-					<th class="px-2 py-3">Bucket Id</th>
+					<th class="px-2 py-3">
+						Name
+						@columnSortingButton("/finance/transactions?sortcolumn=name&sortdirection="+t.Sorting.calcSortingDirection("name"), "#finance-content", "name", t.Sorting)
+					</th>
+					<th class="px-2 py-3">
+						Price
+						@columnSortingButton("/finance/transactions?sortcolumn=price&sortdirection="+t.Sorting.calcSortingDirection("price"), "#finance-content", "price", t.Sorting)
+					</th>
+					<th class="px-2 py-3">
+						Month
+						@columnSortingButton("/finance/transactions?sortcolumn=month&sortdirection="+t.Sorting.calcSortingDirection("month"), "#finance-content", "month", t.Sorting)
+					</th>
+					<th class="px-2 py-3">
+						Year
+						@columnSortingButton("/finance/transactions?sortcolumn=year&sortdirection="+t.Sorting.calcSortingDirection("year"), "#finance-content", "year", t.Sorting)
+					</th>
+					<th class="px-2 py-3">
+						Bucket Id
+						@columnSortingButton("/finance/transactions?sortcolumn=bucket_id&sortdirection="+t.Sorting.calcSortingDirection("bucket_id"), "#finance-content", "bucket_id", t.Sorting)
+					</th>
 					<th class="px-2 py-3">Action</th>
 				</tr>
 			</thead>
@@ -488,7 +541,7 @@ templ TransactionTable(t TransactionTableInfo) {
 				Htmx: inputs.HtmxOptions{
 					HxTarget: strutil.StrPtr("#finance-content"),
 					HxSwap:   strutil.StrPtr("outerHTML"),
-					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize)),
+					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + getCurSortingUrlParam(t.Sorting)),
 				},
 				Disabled: len(t.Transactions) < t.Pagination.PageSize,
 			}) {
@@ -500,7 +553,7 @@ templ TransactionTable(t TransactionTableInfo) {
 				Htmx: inputs.HtmxOptions{
 					HxTarget: strutil.StrPtr("#finance-content"),
 					HxSwap:   strutil.StrPtr("outerHTML"),
-					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize)),
+					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + getCurSortingUrlParam(t.Sorting)),
 				},
 				Disabled: t.Pagination.Page <= 1,
 			}) {
@@ -510,6 +563,19 @@ templ TransactionTable(t TransactionTableInfo) {
 			<p>{ pageStr(t) }</p>
 		</div>
 	</div>
+}
+
+templ columnSortingButton(hxGet string, hxTarget string, curColumnName string, s Sorting) {
+	@inputs.Button(inputs.ButtonOptions{
+		Padding: "s1",
+		Varient: "text",
+		Htmx: inputs.HtmxOptions{
+			HxGet:    &hxGet,
+			HxTarget: &hxTarget,
+		},
+	}) {
+		@renderSortingIcon(s, curColumnName)
+	}
 }
 
 templ GetTransactionRow(t database.TransactionItem) {

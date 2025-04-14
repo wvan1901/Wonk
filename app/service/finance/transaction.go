@@ -260,6 +260,7 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 			http.Error(w, "Internal Error, try logging in again", 500)
 			return
 		}
+		// Getting pagination Info
 		page := 1
 		pageSize := 10
 		pageParam := r.URL.Query().Get("page")
@@ -276,9 +277,20 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 				pageSize = sizeConv
 			}
 		}
+
+		// Getting Sorting info
+		sortColumn := r.URL.Query().Get("sortcolumn")
+		sortDirection := r.URL.Query().Get("sortdirection")
+		if sortDirection == "" {
+			sortColumn = ""
+		}
+		isAscending := true
+		if sortDirection != "ascending" {
+			isAscending = false
+		}
 		switch r.Method {
 		case "GET":
-			transactions, err := t.FinanceLogic.GetTransactions(page, pageSize, curUser.UserId)
+			transactions, err := t.FinanceLogic.GetTransactions(page, pageSize, curUser.UserId, sortColumn, isAscending)
 			if err != nil {
 				w.WriteHeader(500)
 				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
@@ -288,6 +300,10 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 				Pagination: views.Pagination{
 					Page:     page,
 					PageSize: pageSize,
+				},
+				Sorting: views.Sorting{
+					CurrentColumn: sortColumn,
+					Direction:     sortDirection,
 				},
 				Transactions: transactions,
 			}

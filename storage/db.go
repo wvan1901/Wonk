@@ -25,7 +25,7 @@ type Database interface {
 	TransactionsInBucket(int, int, int) ([]TransactionItem, error)
 	BucketById(int) (*Bucket, error)
 	BucketUpdateName(int, string) (int64, error)
-	TransactionsPagination(int, int, int) ([]TransactionItem, error)
+	TransactionsPagination(int, int, int, string, bool) ([]TransactionItem, error)
 	TransactionById(int) (*TransactionItem, error)
 	TransactionUpdate(string, int, int, int, int, float64) (int64, error)
 	TransactionDelete(int) (int64, error)
@@ -177,15 +177,23 @@ func (s *SqliteDb) BucketUpdateName(bucketId int, newName string) (int64, error)
 	return result.RowsAffected()
 }
 
-func (s *SqliteDb) TransactionsPagination(page, pagesize, userId int) ([]TransactionItem, error) {
+func (s *SqliteDb) TransactionsPagination(page, pagesize, userId int, sortBy string, isAscending bool) ([]TransactionItem, error) {
+	// Pagination
 	if page < 1 {
 		page = 1
 	}
-	offset := pagesize * (page - 1)
-	if offset < 0 {
-		offset = 0
+	offset := max(0, pagesize*(page-1))
+	// Sorting
+	orderByQuery := "ORDER BY id"
+	if sortBy != "" {
+		orderDirection := " ASC"
+		if !isAscending {
+			orderDirection = " DESC"
+		}
+		orderByQuery = "ORDER BY " + sortBy + orderDirection
 	}
-	query := "SELECT * FROM " + TRANSACTION_ITEMS_TABLE_NAME + " WHERE user_id=? ORDER BY id LIMIT ? OFFSET ?"
+	// Query
+	query := "SELECT * FROM " + TRANSACTION_ITEMS_TABLE_NAME + " WHERE user_id=? " + orderByQuery + " LIMIT ? OFFSET ?"
 	rows, err := s.Db.Query(query, userId, pagesize, offset)
 	if err != nil {
 		return nil, fmt.Errorf("TransactionsPagination: Exec: %w", err)

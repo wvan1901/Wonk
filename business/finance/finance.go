@@ -19,7 +19,7 @@ type Finance interface {
 	MonthlySummary(int, int, int) (*MonthSummary, error)
 	GetBucket(string) (*database.Bucket, error)
 	UpdateBucket(int, string) error
-	GetTransactions(int, int, int) ([]database.TransactionItem, error)
+	GetTransactions(int, int, int, string, bool) ([]database.TransactionItem, error)
 	GetTransaction(string) (*database.TransactionItem, error)
 	UpdateTransaction(TransactionEdit) error
 	DeleteTransaction(int) error
@@ -225,8 +225,8 @@ func (f *FinanceLogic) UpdateBucket(bucketId int, newName string) error {
 	}
 	return nil
 }
-func (f *FinanceLogic) GetTransactions(page, pagesize, userId int) ([]database.TransactionItem, error) {
-	transactions, err := f.DB.TransactionsPagination(page, pagesize, userId)
+func (f *FinanceLogic) GetTransactions(page, pagesize, userId int, sortBy string, isAscending bool) ([]database.TransactionItem, error) {
+	transactions, err := f.DB.TransactionsPagination(page, pagesize, userId, sortBy, isAscending)
 	if err != nil {
 		return nil, fmt.Errorf("GetTransactions: %w", err)
 	}
