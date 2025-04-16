@@ -260,7 +260,7 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 			http.Error(w, "Internal Error, try logging in again", 500)
 			return
 		}
-		// Getting pagination Info
+		// Get Pagination Info
 		page := 1
 		pageSize := 10
 		pageParam := r.URL.Query().Get("page")
@@ -278,7 +278,7 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 			}
 		}
 
-		// Getting Sorting info
+		// Get Sorting Info
 		sortColumn := r.URL.Query().Get("sortcolumn")
 		sortDirection := r.URL.Query().Get("sortdirection")
 		if sortDirection == "" {
@@ -288,9 +288,18 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 		if sortDirection != "ascending" {
 			isAscending = false
 		}
+		// Get Filter Info
+		columnFilters := TransactionFilter{
+			Name:     r.URL.Query().Get("name"),
+			Price:    r.URL.Query().Get("price"),
+			Month:    r.URL.Query().Get("month"),
+			Year:     r.URL.Query().Get("year"),
+			BucketId: r.URL.Query().Get("bucket_id"),
+		}
 		switch r.Method {
 		case "GET":
-			transactions, err := t.FinanceLogic.GetTransactions(page, pageSize, curUser.UserId, sortColumn, isAscending)
+			parsedFilters := convertFilters(columnFilters)
+			transactions, err := t.FinanceLogic.GetTransactions(page, pageSize, curUser.UserId, sortColumn, isAscending, parsedFilters)
 			if err != nil {
 				w.WriteHeader(500)
 				t.Logger.Error(funcName, slog.String("httpMethod", "GET"), slog.String("Error", err.Error()))
@@ -305,6 +314,7 @@ func (t *TransactionHandler) Transactions() http.HandlerFunc {
 					CurrentColumn: sortColumn,
 					Direction:     sortDirection,
 				},
+				Filters:      convertToFilters(parsedFilters),
 				Transactions: transactions,
 			}
 			tmplFinanceDiv := views.TransactionTable(pageData)

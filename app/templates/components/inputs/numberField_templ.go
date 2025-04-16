@@ -8,6 +8,8 @@ package inputs
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "maps"
+
 type NumberFieldOptions struct {
 	Id       *string
 	Name     *string
@@ -16,6 +18,7 @@ type NumberFieldOptions struct {
 	Varient  string
 	Required bool
 	Disabled bool
+	Htmx     HtmxOptions
 	ErrorMsg *string
 }
 
@@ -74,6 +77,10 @@ func (b *NumberFieldOptions) TemplAttributes() templ.Attributes {
 		tmplAttr["disabled"] = b.Disabled
 	}
 
+	htmxAttr := b.Htmx.TemplAttributes()
+
+	maps.Copy(tmplAttr, htmxAttr)
+
 	return tmplAttr
 }
 
@@ -118,7 +125,7 @@ func NumberField(opts NumberFieldOptions) templ.Component {
 			var templ_7745c5c3_Var2 string
 			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(*opts.ErrorMsg)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/components/inputs/numberField.templ`, Line: 79, Col: 63}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/components/inputs/numberField.templ`, Line: 86, Col: 63}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {

@@ -18,3 +18,11 @@ type TransactionEditInput struct {
 	Price         string
 	BucketId      string
 }
+
+type TransactionFilter struct {
+	Name     string
+	Price    string
+	Month    string
+	Year     string
+	BucketId string
+}

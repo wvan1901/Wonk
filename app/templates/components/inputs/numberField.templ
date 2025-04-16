@@ -1,5 +1,7 @@
 package inputs
 
+import "maps"
+
 type NumberFieldOptions struct {
 	Id       *string
 	Name     *string
@@ -8,6 +10,7 @@ type NumberFieldOptions struct {
 	Varient  string
 	Required bool
 	Disabled bool
+	Htmx     HtmxOptions
 	ErrorMsg *string
 }
 
@@ -65,6 +68,10 @@ func (b *NumberFieldOptions) TemplAttributes() templ.Attributes {
 	if b.Disabled {
 		tmplAttr["disabled"] = b.Disabled
 	}
+
+	htmxAttr := b.Htmx.TemplAttributes()
+
+	maps.Copy(tmplAttr, htmxAttr)
 
 	return tmplAttr
 }

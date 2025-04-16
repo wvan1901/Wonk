@@ -971,6 +971,11 @@ type Pagination struct {
 	PageSize int
 }
 
+type Filter struct {
+	ColumnName  string
+	FilterValue string
+}
+
 type Sorting struct {
 	CurrentColumn string
 	Direction     string
@@ -1043,7 +1048,34 @@ func renderSortingIcon(s Sorting, curColumn string) templ.Component {
 }
 
 func getCurSortingUrlParam(s Sorting) string {
-	return "&sortcolumn=" + s.CurrentColumn + "&sortdirection=" + s.Direction
+	return "sortcolumn=" + s.CurrentColumn + "&sortdirection=" + s.Direction
+}
+
+func getColumnFilter(filters []Filter, columnName string) Filter {
+	for _, f := range filters {
+		if f.ColumnName == columnName {
+
+			return f
+		}
+	}
+	return Filter{}
+}
+
+func filtersUrlParams(filters []Filter, curColumn string) string {
+	filter := ""
+	for _, f := range filters {
+		if f.ColumnName != curColumn {
+			filter += filterParam(f)
+		}
+
+	}
+	return filter
+}
+func filterParam(f Filter) string {
+	if f.ColumnName == "" || f.FilterValue == "" {
+		return ""
+	}
+	return "&" + f.ColumnName + "=" + f.FilterValue
 }
 
 func pageStr(t TransactionTableInfo) string {
@@ -1056,6 +1088,7 @@ func pageStr(t TransactionTableInfo) string {
 type TransactionTableInfo struct {
 	Pagination   Pagination
 	Sorting      Sorting
+	Filters      []Filter
 	Transactions []database.TransactionItem
 }
 
@@ -1088,11 +1121,19 @@ func TransactionTable(t TransactionTableInfo) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = columnFilterInputText("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "name"), "#finance-content", "name", getColumnFilter(t.Filters, "name").FilterValue).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</th><th class=\"px-2 py-3\">Price")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = columnSortingButton("/finance/transactions?sortcolumn=price&sortdirection="+t.Sorting.calcSortingDirection("price"), "#finance-content", "price", t.Sorting).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = columnFilterInputNumber("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "price"), "#finance-content", "price", getColumnFilter(t.Filters, "price").FilterValue, "0.01").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1104,6 +1145,10 @@ func TransactionTable(t TransactionTableInfo) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = columnFilterInputNumber("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "month"), "#finance-content", "month", getColumnFilter(t.Filters, "month").FilterValue, "1").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</th><th class=\"px-2 py-3\">Year")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1112,11 +1157,19 @@ func TransactionTable(t TransactionTableInfo) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
+		templ_7745c5c3_Err = columnFilterInputNumber("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "year"), "#finance-content", "year", getColumnFilter(t.Filters, "year").FilterValue, "1").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</th><th class=\"px-2 py-3\">Bucket Id")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		templ_7745c5c3_Err = columnSortingButton("/finance/transactions?sortcolumn=bucket_id&sortdirection="+t.Sorting.calcSortingDirection("bucket_id"), "#finance-content", "bucket_id", t.Sorting).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = columnFilterInputNumber("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "bucket_id"), "#finance-content", "bucket_id", getColumnFilter(t.Filters, "bucket_id").FilterValue, "1").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1158,7 +1211,7 @@ func TransactionTable(t TransactionTableInfo) templ.Component {
 			Htmx: inputs.HtmxOptions{
 				HxTarget: strutil.StrPtr("#finance-content"),
 				HxSwap:   strutil.StrPtr("outerHTML"),
-				HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + getCurSortingUrlParam(t.Sorting)),
+				HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + "&" + getCurSortingUrlParam(t.Sorting) + "&" + filtersUrlParams(t.Filters, "")),
 			},
 			Disabled: len(t.Transactions) < t.Pagination.PageSize,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var25), templ_7745c5c3_Buffer)
@@ -1189,7 +1242,7 @@ func TransactionTable(t TransactionTableInfo) templ.Component {
 			Htmx: inputs.HtmxOptions{
 				HxTarget: strutil.StrPtr("#finance-content"),
 				HxSwap:   strutil.StrPtr("outerHTML"),
-				HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + getCurSortingUrlParam(t.Sorting)),
+				HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + "&" + getCurSortingUrlParam(t.Sorting) + "&" + filtersUrlParams(t.Filters, "")),
 			},
 			Disabled: t.Pagination.Page <= 1,
 		}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var26), templ_7745c5c3_Buffer)
@@ -1203,7 +1256,7 @@ func TransactionTable(t TransactionTableInfo) templ.Component {
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(pageStr(t))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 563, Col: 18}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 601, Col: 18}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -1271,7 +1324,7 @@ func columnSortingButton(hxGet string, hxTarget string, curColumnName string, s 
 	})
 }
 
-func GetTransactionRow(t database.TransactionItem) templ.Component {
+func columnFilterInputText(hxGet string, hxTarget string, curColumnName string, filterValue string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -1292,16 +1345,93 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 			templ_7745c5c3_Var30 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = inputs.TextField(inputs.TextFieldOptions{
+			Varient: "outlined",
+			Name:    &curColumnName,
+			Htmx: inputs.HtmxOptions{
+				HxGet:     &hxGet,
+				HxTarget:  &hxTarget,
+				HxTrigger: strutil.StrPtr("input changed delay:500ms, keyup[key=='Enter']"),
+			},
+			Value: &filterValue,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func columnFilterInputNumber(hxGet string, hxTarget string, curColumnName string, filterValue string, step string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var31 == nil {
+			templ_7745c5c3_Var31 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = inputs.NumberField(inputs.NumberFieldOptions{
+			Varient: "outlined",
+			Name:    &curColumnName,
+			Step:    &step,
+			Htmx: inputs.HtmxOptions{
+				HxGet:     &hxGet,
+				HxTarget:  &hxTarget,
+				HxTrigger: strutil.StrPtr("input changed delay:500ms, keyup[key=='Enter']"),
+			},
+			Value: &filterValue,
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return templ_7745c5c3_Err
+	})
+}
+
+func GetTransactionRow(t database.TransactionItem) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var32 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var32 == nil {
+			templ_7745c5c3_Var32 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr><td class=\"px-2 py-1 font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var31 string
-		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(t.Name)
+		var templ_7745c5c3_Var33 string
+		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(t.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 583, Col: 44}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 648, Col: 44}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1309,8 +1439,8 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var32 = []any{addExpenseColorClass("px-2 py-1 font-medium", t.IsExpense)}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var32...)
+		var templ_7745c5c3_Var34 = []any{addExpenseColorClass("px-2 py-1 font-medium", t.IsExpense)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var34...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1318,12 +1448,12 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var33 string
-		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var32).String())
+		var templ_7745c5c3_Var35 string
+		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var34).String())
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1331,36 +1461,10 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var34 string
-		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", t.Price))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 585, Col: 33}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-2 py-1 font-medium\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var35 string
-		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(strutil.ConvertMonth(t.Month))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 587, Col: 67}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-2 py-1 font-medium\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
 		var templ_7745c5c3_Var36 string
-		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.Year))
+		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%.2f", t.Price))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 588, Col: 58}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 650, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
@@ -1371,11 +1475,37 @@ func GetTransactionRow(t database.TransactionItem) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var37 string
-		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.BucketId))
+		templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.JoinStringErrs(strutil.ConvertMonth(t.Month))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 589, Col: 62}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 652, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var37))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-2 py-1 font-medium\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var38 string
+		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.Year))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 653, Col: 58}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</td><td class=\"px-2 py-1 font-medium\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var39 string
+		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(t.BucketId))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 654, Col: 62}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1431,9 +1561,9 @@ func EditTransactionRow(t database.TransactionItem, userBuckets []database.Bucke
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var38 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var38 == nil {
-			templ_7745c5c3_Var38 = templ.NopComponent
+		templ_7745c5c3_Var40 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var40 == nil {
+			templ_7745c5c3_Var40 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr hx-trigger=\"cancel\" class=\"editing\"><td class=\"px-2 py-1 font-medium\">")
@@ -1452,8 +1582,8 @@ func EditTransactionRow(t database.TransactionItem, userBuckets []database.Bucke
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var39 = []any{addExpenseColorClass("px-2 py-1 font-medium", t.IsExpense)}
-		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var39...)
+		var templ_7745c5c3_Var41 = []any{addExpenseColorClass("px-2 py-1 font-medium", t.IsExpense)}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var41...)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1461,12 +1591,12 @@ func EditTransactionRow(t database.TransactionItem, userBuckets []database.Bucke
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var40 string
-		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var39).String())
+		var templ_7745c5c3_Var42 string
+		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var41).String())
 		if templ_7745c5c3_Err != nil {
 			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/templates/views/finance.templ`, Line: 1, Col: 0}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1593,9 +1723,9 @@ func GetTransactionDeletedRow() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var41 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var41 == nil {
-			templ_7745c5c3_Var41 = templ.NopComponent
+		templ_7745c5c3_Var43 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var43 == nil {
+			templ_7745c5c3_Var43 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<tr><td class=\"px-2 py-1 font-medium\">Removed</td></tr>")

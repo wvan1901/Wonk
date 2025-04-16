@@ -84,3 +84,47 @@ func (t *TransactionItemInput) Valid() map[string]string {
 
 	return problems
 }
+
+type TransactionFilters struct {
+	Id       int
+	Name     *string
+	Price    *float64
+	Month    *int
+	Year     *int
+	BucketId *int
+}
+
+func (t *TransactionFilters) FilterQueryAndValues() (string, []any) {
+	values := []any{}
+	query := "WHERE user_id=?"
+	values = append(values, t.Id)
+
+	// NOTE: To use the like operator we need to have the value wrapped with wildcards
+	if t.Name != nil {
+		query += " AND name LIKE ?"
+		values = append(values, "%"+*t.Name+"%")
+	}
+
+	if t.Price != nil {
+		query += " AND price LIKE ?"
+		p := strconv.FormatFloat(*t.Price, 'f', -1, 64)
+		values = append(values, "%"+p+"%")
+	}
+
+	if t.Month != nil {
+		query += " AND month LIKE ?"
+		values = append(values, "%"+strconv.Itoa(*t.Month)+"%")
+	}
+
+	if t.Year != nil {
+		query += " AND year LIKE ?"
+		values = append(values, "%"+strconv.Itoa(*t.Year)+"%")
+	}
+
+	if t.BucketId != nil {
+		query += " AND bucket_id LIKE ?"
+		values = append(values, "%"+strconv.Itoa(*t.BucketId)+"%")
+	}
+
+	return query, values
+}

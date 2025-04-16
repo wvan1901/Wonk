@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"strings"
 	"wonk/storage"
 )
 
@@ -19,7 +18,7 @@ type Finance interface {
 	MonthlySummary(int, int, int) (*MonthSummary, error)
 	GetBucket(string) (*database.Bucket, error)
 	UpdateBucket(int, string) error
-	GetTransactions(int, int, int, string, bool) ([]database.TransactionItem, error)
+	GetTransactions(int, int, int, string, bool, TransactionFilters) ([]database.TransactionItem, error)
 	GetTransaction(string) (*database.TransactionItem, error)
 	UpdateTransaction(TransactionEdit) error
 	DeleteTransaction(int) error
@@ -83,69 +82,6 @@ func (f *FinanceLogic) CreateBucket(userId int, newName string) (map[string]stri
 		return nil, fmt.Errorf("CreateBucket: db: %w", err)
 	}
 	return nil, nil
-}
-
-type BucketSummary struct {
-	Reference database.Bucket
-	Price     float64
-}
-
-type MonthSummary struct {
-	BucketsSummary []BucketSummary
-	TotalIncome    float64
-	TotalExpense   float64
-}
-
-type TransactionEdit struct {
-	TransactionId int
-	Name          string
-	Month         int
-	Year          int
-	Price         float64
-	BucketId      int
-}
-
-func (t *TransactionEdit) Valid() map[string]string {
-	problems := make(map[string]string)
-	maxNameLen := 50
-	if len(t.Name) > maxNameLen {
-		problems["Name"] = "Name length can't be greater than 50"
-	}
-	if len(t.Name) == 0 {
-		problems["Name"] = "Name length can't be 0"
-	}
-
-	if t.Month > 12 || t.Month < 1 {
-		problems["Month"] = "Month value isn't between 1-12"
-	}
-
-	if t.Year < 2000 || t.Year > 3000 {
-		problems["Year"] = "Invalid Year"
-	}
-
-	if t.Price <= 0 {
-		problems["Price"] = "Invalid Price"
-	}
-
-	floatStr := strconv.FormatFloat(t.Price, 'f', -1, 64)
-	parts := strings.Split(floatStr, ".")
-
-	twoOrLessDecimalPlaces := false
-	if len(parts) < 2 {
-		twoOrLessDecimalPlaces = true
-	} else {
-		twoOrLessDecimalPlaces = len(parts[1]) <= 2
-	}
-
-	if !twoOrLessDecimalPlaces {
-		problems["Price"] = "Invalid Price: has more than 2 decimal places"
-	}
-
-	if t.BucketId < 0 {
-		problems["BucketId"] = "Invalid BucketId"
-	}
-
-	return problems
 }
 
 func (f *FinanceLogic) MonthlySummary(userId, month, year int) (*MonthSummary, error) {
@@ -225,8 +161,11 @@ func (f *FinanceLogic) UpdateBucket(bucketId int, newName string) error {
 	}
 	return nil
 }
-func (f *FinanceLogic) GetTransactions(page, pagesize, userId int, sortBy string, isAscending bool) ([]database.TransactionItem, error) {
-	transactions, err := f.DB.TransactionsPagination(page, pagesize, userId, sortBy, isAscending)
+
+func (f *FinanceLogic) GetTransactions(page, pagesize, userId int, sortBy string, isAscending bool, filters TransactionFilters) ([]database.TransactionItem, error) {
+	dbFilters := convertTransactionFilters(filters)
+	dbFilters.Id = userId
+	transactions, err := f.DB.TransactionsPagination(page, pagesize, sortBy, isAscending, dbFilters)
 	if err != nil {
 		return nil, fmt.Errorf("GetTransactions: %w", err)
 	}

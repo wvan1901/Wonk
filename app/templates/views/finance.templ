@@ -449,6 +449,11 @@ type Pagination struct {
 	PageSize int
 }
 
+type Filter struct {
+	ColumnName  string
+	FilterValue string
+}
+
 type Sorting struct {
 	CurrentColumn string
 	Direction     string
@@ -483,7 +488,34 @@ templ renderSortingIcon(s Sorting, curColumn string) {
 }
 
 func getCurSortingUrlParam(s Sorting) string {
-	return "&sortcolumn=" + s.CurrentColumn + "&sortdirection=" + s.Direction
+	return "sortcolumn=" + s.CurrentColumn + "&sortdirection=" + s.Direction
+}
+
+func getColumnFilter(filters []Filter, columnName string) Filter {
+	for _, f := range filters {
+		if f.ColumnName == columnName {
+
+			return f
+		}
+	}
+	return Filter{}
+}
+
+func filtersUrlParams(filters []Filter, curColumn string) string {
+	filter := ""
+	for _, f := range filters {
+		if f.ColumnName != curColumn {
+			filter += filterParam(f)
+		}
+
+	}
+	return filter
+}
+func filterParam(f Filter) string {
+	if f.ColumnName == "" || f.FilterValue == "" {
+		return ""
+	}
+	return "&" + f.ColumnName + "=" + f.FilterValue
 }
 
 func pageStr(t TransactionTableInfo) string {
@@ -496,6 +528,7 @@ func pageStr(t TransactionTableInfo) string {
 type TransactionTableInfo struct {
 	Pagination   Pagination
 	Sorting      Sorting
+	Filters      []Filter
 	Transactions []database.TransactionItem
 }
 
@@ -508,22 +541,27 @@ templ TransactionTable(t TransactionTableInfo) {
 					<th class="px-2 py-3">
 						Name
 						@columnSortingButton("/finance/transactions?sortcolumn=name&sortdirection="+t.Sorting.calcSortingDirection("name"), "#finance-content", "name", t.Sorting)
+						@columnFilterInputText("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "name"), "#finance-content", "name", getColumnFilter(t.Filters, "name").FilterValue)
 					</th>
 					<th class="px-2 py-3">
 						Price
 						@columnSortingButton("/finance/transactions?sortcolumn=price&sortdirection="+t.Sorting.calcSortingDirection("price"), "#finance-content", "price", t.Sorting)
+						@columnFilterInputNumber("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "price"), "#finance-content", "price", getColumnFilter(t.Filters, "price").FilterValue, "0.01")
 					</th>
 					<th class="px-2 py-3">
 						Month
 						@columnSortingButton("/finance/transactions?sortcolumn=month&sortdirection="+t.Sorting.calcSortingDirection("month"), "#finance-content", "month", t.Sorting)
+						@columnFilterInputNumber("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "month"), "#finance-content", "month", getColumnFilter(t.Filters, "month").FilterValue, "1")
 					</th>
 					<th class="px-2 py-3">
 						Year
 						@columnSortingButton("/finance/transactions?sortcolumn=year&sortdirection="+t.Sorting.calcSortingDirection("year"), "#finance-content", "year", t.Sorting)
+						@columnFilterInputNumber("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "year"), "#finance-content", "year", getColumnFilter(t.Filters, "year").FilterValue, "1")
 					</th>
 					<th class="px-2 py-3">
 						Bucket Id
 						@columnSortingButton("/finance/transactions?sortcolumn=bucket_id&sortdirection="+t.Sorting.calcSortingDirection("bucket_id"), "#finance-content", "bucket_id", t.Sorting)
+						@columnFilterInputNumber("/finance/transactions?"+getCurSortingUrlParam(t.Sorting)+filtersUrlParams(t.Filters, "bucket_id"), "#finance-content", "bucket_id", getColumnFilter(t.Filters, "bucket_id").FilterValue, "1")
 					</th>
 					<th class="px-2 py-3">Action</th>
 				</tr>
@@ -541,7 +579,7 @@ templ TransactionTable(t TransactionTableInfo) {
 				Htmx: inputs.HtmxOptions{
 					HxTarget: strutil.StrPtr("#finance-content"),
 					HxSwap:   strutil.StrPtr("outerHTML"),
-					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + getCurSortingUrlParam(t.Sorting)),
+					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page+1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + "&" + getCurSortingUrlParam(t.Sorting) + "&" + filtersUrlParams(t.Filters, "")),
 				},
 				Disabled: len(t.Transactions) < t.Pagination.PageSize,
 			}) {
@@ -553,7 +591,7 @@ templ TransactionTable(t TransactionTableInfo) {
 				Htmx: inputs.HtmxOptions{
 					HxTarget: strutil.StrPtr("#finance-content"),
 					HxSwap:   strutil.StrPtr("outerHTML"),
-					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + getCurSortingUrlParam(t.Sorting)),
+					HxGet:    strutil.StrPtr("/finance/transactions?page=" + strconv.Itoa(t.Pagination.Page-1) + "&pagesize=" + strconv.Itoa(t.Pagination.PageSize) + "&" + getCurSortingUrlParam(t.Sorting) + "&" + filtersUrlParams(t.Filters, "")),
 				},
 				Disabled: t.Pagination.Page <= 1,
 			}) {
@@ -576,6 +614,33 @@ templ columnSortingButton(hxGet string, hxTarget string, curColumnName string, s
 	}) {
 		@renderSortingIcon(s, curColumnName)
 	}
+}
+
+templ columnFilterInputText(hxGet string, hxTarget string, curColumnName string, filterValue string) {
+	@inputs.TextField(inputs.TextFieldOptions{
+		Varient: "outlined",
+		Name:    &curColumnName,
+		Htmx: inputs.HtmxOptions{
+			HxGet:     &hxGet,
+			HxTarget:  &hxTarget,
+			HxTrigger: strutil.StrPtr("input changed delay:500ms, keyup[key=='Enter']"),
+		},
+		Value: &filterValue,
+	})
+}
+
+templ columnFilterInputNumber(hxGet string, hxTarget string, curColumnName string, filterValue string, step string) {
+	@inputs.NumberField(inputs.NumberFieldOptions{
+		Varient: "outlined",
+		Name:    &curColumnName,
+		Step:    &step,
+		Htmx: inputs.HtmxOptions{
+			HxGet:     &hxGet,
+			HxTarget:  &hxTarget,
+			HxTrigger: strutil.StrPtr("input changed delay:500ms, keyup[key=='Enter']"),
+		},
+		Value: &filterValue,
+	})
 }
 
 templ GetTransactionRow(t database.TransactionItem) {
