@@ -77,7 +77,7 @@ func (a *Auth) CreateToken(username string, userId int) (string, error) {
 
 func (a *Auth) VerifyToken(tokenString string) error {
 	secretKey := []byte(a.JwtSecretKey)
-	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (any, error) {
 		return secretKey, nil
 	})
 
@@ -95,7 +95,7 @@ func (a *Auth) VerifyToken(tokenString string) error {
 func (a *Auth) ReadTokenUserName(tokenString string) (string, int, error) {
 	secretKey := []byte(a.JwtSecretKey)
 	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (any, error) {
 		return secretKey, nil
 	})
 	if err != nil {
