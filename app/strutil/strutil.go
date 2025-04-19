@@ -1,7 +1,34 @@
 package strutil
 
+import (
+	"wonk/app/cuserr"
+)
+
+const (
+	MAX_STRING_LENGTH = 32
+)
+
 func StrPtr(s string) *string {
 	return &s
+}
+
+func IsStringValid(s, fieldName string) error {
+	if s == "" {
+		return cuserr.InvalidInput{FieldName: fieldName, Reason: "value is empty"}
+	}
+	if len(s) > MAX_STRING_LENGTH {
+		return cuserr.InvalidInput{FieldName: fieldName, Reason: "value is too long"}
+	}
+	return nil
+}
+
+func IsPasswordValid(p string) error {
+	err := IsStringValid(p, "password")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func ConvertMonth(monthNum int) string {

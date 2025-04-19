@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"wonk/app/cuserr"
+	"wonk/app/strutil"
 	"wonk/storage"
 
 	"golang.org/x/crypto/bcrypt"
@@ -40,15 +41,25 @@ func (u *UserLogic) Login(userName, password string) (int, error) {
 }
 
 func (u *UserLogic) CreateUser(userName, password string) (int, error) {
+	// Validate inputs
+	err := strutil.IsStringValid(userName, "username")
+	if err != nil {
+		return -1, fmt.Errorf("CreateUser: username: %w", err)
+	}
+	err = strutil.IsPasswordValid(password)
+	if err != nil {
+		return -1, fmt.Errorf("CreateUser: username: %w", err)
+	}
+
 	// Check If username exist, if so then return err
-	_, err := u.DB.UserByUserName(userName)
+	_, err = u.DB.UserByUserName(userName)
 	if err != nil {
 		if errors.Is(err, &cuserr.NotFound{}) {
 		} else {
 			return -1, fmt.Errorf("CreateUser: %w", err)
 		}
 	} else {
-		return -1, fmt.Errorf("CreateUser: User Found: %w", err)
+		return -1, cuserr.ItemAlreadyExists{ItemName: "username"}
 	}
 
 	// Hash Password

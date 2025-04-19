@@ -276,6 +276,7 @@ func (a *Auth) HandleLogin() http.Handler {
 					return
 				}
 
+				// TODO: Handle errors properly (no user found, wrong password, ... )
 				userName := r.FormValue("username")
 				password := r.FormValue("password")
 
@@ -344,7 +345,6 @@ func (a *Auth) HandleSignUp() http.Handler {
 				}
 				return
 			case "POST":
-				// TODO: Handle errors properly (no user found, wrong password, ... )
 				err := r.ParseForm()
 				if err != nil {
 					a.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
@@ -359,7 +359,7 @@ func (a *Auth) HandleSignUp() http.Handler {
 				if err != nil {
 					a.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
 					w.WriteHeader(422)
-					errMsg := "error creating user"
+					errMsg := "ERROR: " + signUpConvertErrorMsg(err)
 					formData := views.LoginFormData{
 						FormErr: &errMsg,
 					}
@@ -371,7 +371,6 @@ func (a *Auth) HandleSignUp() http.Handler {
 					return
 				}
 				// NOTE: We should hash the password in the client for added security
-				// TODO: Tell user if it was successful or not, also give button to redirect to login
 				w.Header().Set("HX-Redirect", "/login")
 				w.WriteHeader(200)
 				return
@@ -388,4 +387,18 @@ func UserCtx(ctx context.Context) (*UserInfo, error) {
 		return nil, errors.New("UserCtx: userInfo not found")
 	}
 	return &user, nil
+}
+
+func signUpConvertErrorMsg(err error) string {
+	invalidInputErr := &cuserr.InvalidInput{}
+	if errors.As(err, invalidInputErr) {
+		return invalidInputErr.Error()
+	}
+
+	itemAlreadyExistsErr := &cuserr.ItemAlreadyExists{}
+	if errors.As(err, itemAlreadyExistsErr) {
+		return itemAlreadyExistsErr.Error()
+	}
+
+	return "internal error"
 }
