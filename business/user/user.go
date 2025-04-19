@@ -26,6 +26,17 @@ func InitUserService(db database.Database) User {
 }
 
 func (u *UserLogic) Login(userName, password string) (int, error) {
+	// Validate Inputs
+	err := strutil.IsStringValid(userName, "username")
+	if err != nil {
+		return -1, fmt.Errorf("Login: username: %w", err)
+	}
+	err = strutil.IsStringValid(password, "password")
+	if err != nil {
+		return -1, fmt.Errorf("Login: username: %w", err)
+	}
+
+	// Get User
 	curUser, err := u.DB.UserByUserName(userName)
 	if err != nil {
 		return -1, fmt.Errorf("Login: UserLogic: %w", err)
@@ -34,7 +45,7 @@ func (u *UserLogic) Login(userName, password string) (int, error) {
 	// Compare the input password to hashed password in DB
 	err = bcrypt.CompareHashAndPassword([]byte(curUser.Password), []byte(password))
 	if err != nil {
-		return -1, fmt.Errorf("Login: password: %w", &cuserr.InvalidCred{})
+		return -1, fmt.Errorf("Login: password: %w", cuserr.InvalidCred{Item: "password", Reason: "it was incorrect"})
 	}
 
 	return curUser.Id, nil

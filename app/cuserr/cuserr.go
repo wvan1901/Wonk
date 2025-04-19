@@ -1,15 +1,28 @@
 package cuserr
 
-type NotFound struct{}
-
-func (e *NotFound) Error() string {
-	return "not found"
+type NotFound struct {
+	Item string
 }
 
-type InvalidCred struct{}
+func (e NotFound) Error() string {
+	bodyMsg := "not found"
+	if e.Item == "" {
+		return bodyMsg
+	}
 
-func (e *InvalidCred) Error() string {
-	return "invalid credentials"
+	return e.Item + " not found"
+}
+
+type InvalidCred struct {
+	Item   string
+	Reason string
+}
+
+func (e InvalidCred) Error() string {
+	if e.Item == "" || e.Reason == "" {
+		return "invalid credentials"
+	}
+	return e.Item + " invalid because " + e.Reason
 }
 
 type ItemAlreadyExists struct {
@@ -26,9 +39,8 @@ type InvalidInput struct {
 }
 
 func (i InvalidInput) Error() string {
-	bodyMsg := "invalid because " + i.Reason
-	if i.FieldName == "" {
-		return bodyMsg
+	if i.FieldName == "" || i.Reason == "" {
+		return "invalid input"
 	}
-	return i.FieldName + " " + bodyMsg
+	return i.FieldName + " invalid because " + i.Reason
 }

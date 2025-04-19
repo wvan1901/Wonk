@@ -246,6 +246,7 @@ func (a *Auth) AuthMiddleware(h http.Handler) http.Handler {
 }
 
 func (a *Auth) HandleLogin() http.Handler {
+	funcName := "HandleLogin"
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
 			ctx, cancel := context.WithTimeout(r.Context(), time.Second*20)
@@ -258,55 +259,49 @@ func (a *Auth) HandleLogin() http.Handler {
 					signUpDiv := views.Login(views.LoginFormData{})
 					err := signUpDiv.Render(ctx, w)
 					if err != nil {
-						a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
+						a.Logger.Error(funcName, slog.String("HttpMethod", "GET"), slog.Any("error", err), slog.String("DevNote", "div render"))
 					}
 					return
 				}
 				loginPage := views.LoginPage(views.LoginFormData{})
 				err := loginPage.Render(ctx, w)
 				if err != nil {
-					a.Logger.Error("HandleLogin", slog.String("HttpMethod", "GET"), slog.Any("error", err))
+					a.Logger.Error(funcName, slog.String("HttpMethod", "GET"), slog.Any("error", err))
 				}
 				return
 			case "POST":
 				err := r.ParseForm()
 				if err != nil {
-					a.Logger.Error("HandleLogin", slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					a.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
 					w.WriteHeader(502)
 					return
 				}
 
-				// TODO: Handle errors properly (no user found, wrong password, ... )
 				userName := r.FormValue("username")
 				password := r.FormValue("password")
-
 				userId, err := a.User.Login(userName, password)
 				if err != nil {
-					if errors.Is(err, &cuserr.NotFound{}) || errors.Is(err, &cuserr.InvalidCred{}) {
-						clientErr := "Invalid username or password"
-						formData := views.LoginFormData{
-							FormErr: &clientErr,
-						}
-						loginForm := views.LoginForm(formData)
-						err := loginForm.Render(ctx, w)
-						if err != nil {
-							a.Logger.Error("HandleLogin", slog.String("Method", "POST"), slog.Any("error", err))
-						}
-						return
+					a.Logger.Info(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					errMsg := "ERROR: " + loginConvertErrorMsg(err)
+					formData := views.LoginFormData{
+						FormErr: &errMsg,
 					}
-					a.Logger.Error("HandleLogin", slog.String("HttpMethod", "POST"), slog.Any("error", err))
-					w.WriteHeader(500)
+					loginForm := views.LoginForm(formData)
+					err := loginForm.Render(ctx, w)
+					if err != nil {
+						a.Logger.Error(funcName, slog.String("Method", "POST"), slog.Any("error", err))
+					}
 					return
 				}
 				token, err := a.CreateToken(userName, userId)
 				if err != nil {
-					a.Logger.Error("HandleLogin", slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					a.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
 					w.WriteHeader(500)
 					return
 				}
 				cookie, err := a.CreateSignedCookie(token)
 				if err != nil {
-					a.Logger.Error("HandleLogin", slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					a.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
 					w.WriteHeader(500)
 					return
 				}
@@ -357,7 +352,7 @@ func (a *Auth) HandleSignUp() http.Handler {
 
 				_, err = a.User.CreateUser(userName, password)
 				if err != nil {
-					a.Logger.Error(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					a.Logger.Info(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
 					w.WriteHeader(422)
 					errMsg := "ERROR: " + signUpConvertErrorMsg(err)
 					formData := views.LoginFormData{
@@ -398,6 +393,25 @@ func signUpConvertErrorMsg(err error) string {
 	itemAlreadyExistsErr := &cuserr.ItemAlreadyExists{}
 	if errors.As(err, itemAlreadyExistsErr) {
 		return itemAlreadyExistsErr.Error()
+	}
+
+	return "internal error"
+}
+
+func loginConvertErrorMsg(err error) string {
+	invalidInputErr := &cuserr.InvalidInput{}
+	if errors.As(err, invalidInputErr) {
+		return invalidInputErr.Error()
+	}
+
+	notFoundErr := &cuserr.NotFound{}
+	if errors.As(err, notFoundErr) {
+		return notFoundErr.Error()
+	}
+
+	invalidCred := &cuserr.InvalidCred{}
+	if errors.As(err, invalidCred) {
+		return invalidCred.Error()
 	}
 
 	return "internal error"

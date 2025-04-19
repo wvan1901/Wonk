@@ -52,7 +52,7 @@ func (s *SqliteDb) UserByUserName(username string) (*User, error) {
 	err := row.Scan(&curUser.Id, &curUser.UserName, &curUser.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("UserByUserName: %w", &cuserr.NotFound{})
+			return nil, fmt.Errorf("UserByUserName: %w", cuserr.NotFound{Item: "username"})
 		}
 		return nil, fmt.Errorf("UserByUserName: %w", err)
 	}
@@ -159,9 +159,9 @@ func (s *SqliteDb) BucketById(bucketId int) (*Bucket, error) {
 	err := row.Scan(&curBucket.Id, &curBucket.Name, &curBucket.UserId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("UserByUserName: %w", &cuserr.NotFound{})
+			return nil, fmt.Errorf("BucketById: %w", cuserr.NotFound{})
 		}
-		return nil, fmt.Errorf("UserByUserName: %w", err)
+		return nil, fmt.Errorf("BucketById: %w", err)
 	}
 
 	return &curBucket, nil
@@ -225,7 +225,7 @@ func (s *SqliteDb) TransactionById(transactionId int) (*TransactionItem, error) 
 	err := row.Scan(&t.Id, &t.Name, &t.Month, &t.Year, &t.Price, &t.IsExpense, &t.UserId, &t.BucketId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("TransactionById: %w", &cuserr.NotFound{})
+			return nil, fmt.Errorf("TransactionById: %w", cuserr.NotFound{})
 		}
 		return nil, fmt.Errorf("TransactionById: %w", err)
 	}
