@@ -20,7 +20,6 @@ func TestCreateAndValidateJwt(t *testing.T) {
 		Logger:          logger,
 		JwtSecretKey:    jwtMockSecret,
 		CookieSecretKey: cookieMockSecret,
-		User:            &mockUserService{},
 	}
 
 	tests := []struct {
@@ -68,7 +67,6 @@ func TestGetJwtValues(t *testing.T) {
 		Logger:          logger,
 		JwtSecretKey:    jwtMockSecret,
 		CookieSecretKey: cookieMockSecret,
-		User:            &mockUserService{},
 	}
 	tests := []struct {
 		name             string
@@ -123,14 +121,41 @@ func TestGetJwtValues(t *testing.T) {
 			}
 		})
 	}
-
 }
 
-type mockUserService struct{}
+// Test Funcs: CreateSignedCookie & ReadSignedCookie
+// Testing Creating Cookie with encrypted token can be extracted correctly
+func TestCreateAndReadCookie(t *testing.T) {
+	// Starting Auth Service
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
+	cookieMockSecret := hex.EncodeToString([]byte("RANDOM_SECRET"))
 
-func (m *mockUserService) Login(string, string) (int, error) {
-	return 0, nil
-}
-func (m *mockUserService) CreateUser(string, string) (int, error) {
-	return 0, nil
+	authService := auth.Auth{
+		Logger:          logger,
+		CookieSecretKey: cookieMockSecret,
+	}
+
+	tests := []struct {
+		name       string
+		inputToken string
+	}{
+		{name: "Test 1", inputToken: "token1"},
+		{name: "Test 2", inputToken: "someToken"},
+		{name: "Test 3", inputToken: "someRandomStringForTesting123!"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			outputCookie, err := authService.CreateSignedCookie(tt.inputToken)
+			if err != nil {
+				t.Errorf("unexpected error in creating cookie: err: %v", err)
+			}
+			outputToken, err := authService.ReadSignedCookie(outputCookie)
+			if err != nil {
+				t.Errorf("unexpected error in reading cookie: err: %v", err)
+			}
+			if tt.inputToken != outputToken {
+				t.Errorf("input token doesn't match output token. input: %v, output: %v", tt.inputToken, outputToken)
+			}
+		})
+	}
 }
