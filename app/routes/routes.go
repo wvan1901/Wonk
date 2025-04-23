@@ -40,12 +40,12 @@ func AddRoutes(
 func handleHealth(l *slog.Logger) http.Handler {
 	return http.HandlerFunc(
 		func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
 			_, err := io.WriteString(w, "Healthy!")
 			if err != nil {
 				l.Error("handleHealth: io write", slog.Any("error", err))
 				return
 			}
-			w.WriteHeader(http.StatusOK)
 		},
 	)
 }

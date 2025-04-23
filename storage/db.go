@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	FILE_NAME                    = "wonk.db"
 	USER_TABLE_NAME              = "user"
 	BUCKETS_TABLE_NAME           = "bucket"
 	TRANSACTION_ITEMS_TABLE_NAME = "transaction_item"
@@ -29,19 +28,43 @@ type Database interface {
 	TransactionById(int) (*TransactionItem, error)
 	TransactionUpdate(string, int, int, int, int, float64) (int64, error)
 	TransactionDelete(int) (int64, error)
+	InitTablesForTesting() error
 }
 
 type SqliteDb struct {
 	Db *sql.DB
 }
 
-func InitDb() (Database, error) {
-	db, err := sql.Open("sqlite3", FILE_NAME)
+func InitDb(serverFileName string) (Database, error) {
+	db, err := sql.Open("sqlite3", serverFileName)
 	if err != nil {
 		return nil, fmt.Errorf("InitDb: %w", err)
 	}
 
 	return &SqliteDb{Db: db}, nil
+}
+
+// Creates the tables needed for the application
+// This is meant for TESTING purposed ONLY
+func (s *SqliteDb) InitTablesForTesting() error {
+	createUserTableQuery := `CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username STRING NOT NULL UNIQUE, password STRING NOT NULL);`
+	_, err := s.Db.Exec(createUserTableQuery)
+	if err != nil {
+		return fmt.Errorf("InitTablesForTesting: Exec: user: %w", err)
+	}
+
+	createBucketTableQuery := `CREATE TABLE IF NOT EXISTS bucket (id INTEGER PRIMARY KEY, name STRING NOT NULL, user_id INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES users (id));`
+	_, err = s.Db.Exec(createBucketTableQuery)
+	if err != nil {
+		return fmt.Errorf("InitTablesForTesting: Exec: bucket: %w", err)
+	}
+
+	createTransactionTableQuery := `CREATE TABLE IF NOT EXISTS transaction_item (id INTEGER PRIMARY KEY, name STRING NOT NULL, month INTEGER NOT NULL, year INTEGER NOT NULL, price REAL NOT NULL, is_expense BOOLEAN NOT NULL, user_id INTEGER NOT NULL, bucket_id INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES user (id) FOREIGN KEY (bucket_id) REFERENCES bucket (id));`
+	_, err = s.Db.Exec(createTransactionTableQuery)
+	if err != nil {
+		return fmt.Errorf("InitTablesForTesting: Exec: transaction: %w", err)
+	}
+	return nil
 }
 
 func (s *SqliteDb) UserByUserName(username string) (*User, error) {
@@ -52,7 +75,7 @@ func (s *SqliteDb) UserByUserName(username string) (*User, error) {
 	err := row.Scan(&curUser.Id, &curUser.UserName, &curUser.Password)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("UserByUserName: %w", cuserr.NotFound{Item: "username"})
+			return nil, fmt.Errorf("UserByUserName: no rows: %w", cuserr.NotFound{Item: "username"})
 		}
 		return nil, fmt.Errorf("UserByUserName: %w", err)
 	}

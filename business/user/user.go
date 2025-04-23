@@ -33,7 +33,7 @@ func (u *UserLogic) Login(userName, password string) (int, error) {
 	}
 	err = strutil.IsStringValid(password, "password")
 	if err != nil {
-		return -1, fmt.Errorf("Login: username: %w", err)
+		return -1, fmt.Errorf("Login: password: %w", err)
 	}
 
 	// Get User
@@ -59,13 +59,13 @@ func (u *UserLogic) CreateUser(userName, password string) (int, error) {
 	}
 	err = strutil.IsPasswordValid(password)
 	if err != nil {
-		return -1, fmt.Errorf("CreateUser: username: %w", err)
+		return -1, fmt.Errorf("CreateUser: password: %w", err)
 	}
 
 	// Check If username exist, if so then return err
 	_, err = u.DB.UserByUserName(userName)
 	if err != nil {
-		if errors.Is(err, &cuserr.NotFound{}) {
+		if errors.As(err, &cuserr.NotFound{}) {
 		} else {
 			return -1, fmt.Errorf("CreateUser: %w", err)
 		}

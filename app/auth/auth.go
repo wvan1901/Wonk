@@ -282,6 +282,7 @@ func (a *Auth) HandleLogin() http.Handler {
 				userId, err := a.User.Login(userName, password)
 				if err != nil {
 					a.Logger.Info(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))
+					w.WriteHeader(422)
 					errMsg := "ERROR: " + loginConvertErrorMsg(err)
 					formData := views.LoginFormData{
 						FormErr: &errMsg,
@@ -349,7 +350,6 @@ func (a *Auth) HandleSignUp() http.Handler {
 
 				userName := r.FormValue("username")
 				password := r.FormValue("password")
-
 				_, err = a.User.CreateUser(userName, password)
 				if err != nil {
 					a.Logger.Info(funcName, slog.String("HttpMethod", "POST"), slog.Any("error", err))

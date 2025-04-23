@@ -33,3 +33,7 @@ runw:
 	./tailwindcss -i ${input_css_file} -o ${output_css_file}
 	go run ${main_package_path} -logfmt=devlog
 
+## Test Integrations
+.PHONY: testi
+testi:
+	INTEGRATION=true go test ./... -v

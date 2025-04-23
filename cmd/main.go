@@ -12,10 +12,10 @@ import (
 	"sync"
 	"time"
 	"wonk/app/config"
-	"wonk/app/routes"
 	"wonk/app/secret"
 	"wonk/app/service"
 	"wonk/business"
+	"wonk/cmd/server"
 	"wonk/logger"
 	"wonk/storage"
 
@@ -25,6 +25,7 @@ import (
 const (
 	DEFAULT_HOST = "localhost"
 	DEFAULT_PORT = "8070"
+	FILE_NAME    = "wonk.db"
 )
 
 func main() {
@@ -55,7 +56,7 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 	}
 
 	// Init Db
-	db, err := database.InitDb()
+	db, err := database.InitDb(FILE_NAME)
 	if err != nil {
 		return err
 	}
@@ -77,7 +78,7 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 	defer cancel()
 
 	// Create Http Server
-	srv := NewServer(l, db, appServices)
+	srv := server.NewServer(l, db, appServices)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(DEFAULT_HOST, DEFAULT_PORT),
 		Handler: srv,
@@ -107,11 +108,4 @@ func run(ctx context.Context, getEnv func(string) string, _ io.Writer, args []st
 	wg.Wait()
 
 	return nil
-}
-
-func NewServer(l *slog.Logger, db database.Database, a *application.Service) http.Handler {
-	mux := http.NewServeMux()
-	routes.AddRoutes(mux, l, db, a)
-	var handler http.Handler = mux
-	return handler
 }
