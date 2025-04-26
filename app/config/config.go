@@ -5,15 +5,23 @@ import (
 )
 
 type Flag struct {
-	LogHandler string
+	LogHandler     string
+	ExcluedEnvFile bool
+	EnableTestDb   bool
 }
 
-func InitFlags() *Flag {
-	logHandler := flag.String("logfmt", "json", "slog logging format")
+func InitFlags(args []string) *Flag {
+	fs := flag.NewFlagSet("Wonk", flag.ContinueOnError)
 
-	flag.Parse()
+	logHandler := fs.String("logfmt", "json", "slog logging format")
+	excludeEnvFile := fs.Bool("exclude-env", false, "do we need to exlcude reading env file")
+	enableTestDb := fs.Bool("test-db", false, "do we need a in memory db for testing")
+
+	fs.Parse(args)
 
 	return &Flag{
-		LogHandler: *logHandler,
+		LogHandler:     *logHandler,
+		ExcluedEnvFile: *excludeEnvFile,
+		EnableTestDb:   *enableTestDb,
 	}
 }

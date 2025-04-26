@@ -3,6 +3,7 @@ This is my personal HTMX app.
 
 # Table Of Contents
 - [Development](#development)
+- [Testing](#testing)
 
 # Development
 This app uses HTMX, Templ, and Tailwind.
@@ -60,4 +61,16 @@ Remembering and running all the commands above can be cumbersome, to fix this I 
 This command will Generate the Templ files, generate the Tailwind file, and run the server.
 ```bash
 make runw
+```
+
+# Testing
+Unit tests and integration tests is used.\
+To run Unit tests:
+```bash
+go test ./... -v
+```
+
+To run integration test:
+```bash
+INTEGRATION=true go test ./... -v
 ```

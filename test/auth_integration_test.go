@@ -1,22 +1,17 @@
 package test_test
 
 import (
+	"context"
 	"encoding/hex"
 	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"os"
 	"strings"
 	"testing"
 	"time"
-	"wonk/app/secret"
-	application "wonk/app/service"
-	"wonk/business"
 	"wonk/cmd/server"
-	database "wonk/storage"
 )
 
 func IntegrationTest(t *testing.T) {
@@ -25,37 +20,23 @@ func IntegrationTest(t *testing.T) {
 	}
 }
 
-// Test handles the following flow: New User signs up for account, logins in, and
-// goes to a page with auth enabled and user is able to get in
+// Test handles the following flow: New User signs up, logins in,
+// requests a page with auth enabled and user is able to get page
 // This test case handles the happy path
 func TestAuthHandlers(t *testing.T) {
 	IntegrationTest(t)
+	ctx := context.Background()
+	ctx, cancel := context.WithCancel(ctx)
+	t.Cleanup(cancel)
+	endpoint := "http://localhost:8070"
+	go server.Run(ctx, getTestSecrets, nil, []string{"--exclude-env", "-logfmt=devlog", "--test-db"})
+	waitForReady(ctx, time.Second*5, endpoint+"/health")
 
-	// Start API server
-	srv, err := setUpApiServer()
-	if err != nil {
-		t.Error("Error starting business:", err)
-		return
-	}
-	t.Cleanup(srv.Close)
-	time.Sleep(3 * time.Second)
-
-	// Check if server started by making a request to health endpoint
-	resp, err := http.DefaultClient.Get(srv.URL + "/health")
-	if err != nil {
-		t.Error("health resp error: ", err)
-		return
-	}
-	if resp.StatusCode != http.StatusOK {
-		t.Error("health status isnt 200")
-		return
-	}
-
-	// Begin workflow
+	// Begin Testing workflow
 	mockUsername := "testUser"
 	mockPassword := "mockPassword!"
 	// Sign up and create first user
-	resp, err = http.DefaultClient.PostForm(srv.URL+"/signup", url.Values{
+	resp, err := http.DefaultClient.PostForm(endpoint+"/signup", url.Values{
 		"username": []string{mockUsername},
 		"password": []string{mockPassword},
 	})
@@ -69,7 +50,7 @@ func TestAuthHandlers(t *testing.T) {
 	}
 
 	// Login with user
-	resp, err = http.DefaultClient.PostForm(srv.URL+"/login", url.Values{
+	resp, err = http.DefaultClient.PostForm(endpoint+"/login", url.Values{
 		"username": []string{mockUsername},
 		"password": []string{mockPassword},
 	})
@@ -94,7 +75,7 @@ func TestAuthHandlers(t *testing.T) {
 	}
 
 	// Hit endpoint with auth
-	req, err := http.NewRequest(http.MethodGet, srv.URL+"/finance", nil)
+	req, err := http.NewRequest(http.MethodGet, endpoint+"/finance", nil)
 	if err != nil {
 		t.Error("finance req error:", err)
 		return
@@ -123,34 +104,6 @@ func TestAuthHandlers(t *testing.T) {
 	}
 }
 
-func setUpApiServer() (*httptest.Server, error) {
-	l := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	d, err := database.InitDb(":memory:")
-	if err != nil {
-		return nil, fmt.Errorf("setUpApiServer: db: %w", err)
-	}
-
-	err = d.InitTablesForTesting()
-	if err != nil {
-		return nil, fmt.Errorf("setUpApiServer: set up tables: %w", err)
-	}
-
-	s, err := secret.InitSecret(getTestSecrets)
-	if err != nil {
-		return nil, fmt.Errorf("setUpApiServer: init secrets: %w", err)
-	}
-
-	b, err := business.InitServices(s, l, d)
-	if err != nil {
-		return nil, fmt.Errorf("setUpApiServer: init business: %w", err)
-	}
-	a, err := application.InitServices(s, l, b)
-	if err != nil {
-		return nil, fmt.Errorf("setUpApiServer: init app: %w", err)
-	}
-	return httptest.NewServer(server.NewServer(l, d, a)), nil
-}
-
 func getTestSecrets(s string) string {
 	switch s {
 	case "COOKIE_SECRET_KEY":
@@ -159,5 +112,51 @@ func getTestSecrets(s string) string {
 		return "RANDOM_SECRET"
 	default:
 		return ""
+	}
+}
+
+// waitForReady calls the specified endpoint until it gets a 200
+// response or until the context is cancelled or the timeout is
+// reached.
+func waitForReady(
+	ctx context.Context,
+	timeout time.Duration,
+	endpoint string,
+) error {
+	client := http.Client{}
+	startTime := time.Now()
+	for {
+		req, err := http.NewRequestWithContext(
+			ctx,
+			http.MethodGet,
+			endpoint,
+			nil,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to create request: %w", err)
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			fmt.Printf("Error making request: %s\n", err.Error())
+			continue
+		}
+		if resp.StatusCode == http.StatusOK {
+			fmt.Println("Endpoint is ready!")
+			resp.Body.Close()
+			return nil
+		}
+		resp.Body.Close()
+
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		default:
+			if time.Since(startTime) >= timeout {
+				return fmt.Errorf("timeout reached while waiting for endpoint")
+			}
+			// wait a little while between checks
+			time.Sleep(250 * time.Millisecond)
+		}
 	}
 }

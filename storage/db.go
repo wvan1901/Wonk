@@ -35,17 +35,30 @@ type SqliteDb struct {
 	Db *sql.DB
 }
 
-func InitDb(serverFileName string) (Database, error) {
-	db, err := sql.Open("sqlite3", serverFileName)
+func InitDb(serverFileName string, enableTestDb bool) (Database, error) {
+	if enableTestDb {
+		serverFileName = ":memory:"
+	}
+
+	sqliteDb, err := sql.Open("sqlite3", serverFileName)
 	if err != nil {
 		return nil, fmt.Errorf("InitDb: %w", err)
 	}
 
-	return &SqliteDb{Db: db}, nil
+	db := &SqliteDb{Db: sqliteDb}
+
+	if enableTestDb {
+		err = db.InitTablesForTesting()
+		if err != nil {
+			return nil, fmt.Errorf("InitDb: set up tables: %w", err)
+		}
+	}
+
+	return db, nil
 }
 
 // Creates the tables needed for the application
-// This is meant for TESTING purposed ONLY
+// This is meant for TESTING purposes ONLY
 func (s *SqliteDb) InitTablesForTesting() error {
 	createUserTableQuery := `CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username STRING NOT NULL UNIQUE, password STRING NOT NULL);`
 	_, err := s.Db.Exec(createUserTableQuery)
